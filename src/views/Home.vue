@@ -6,9 +6,7 @@
       <el-main
         class="flex-1 p-4 bg-white m-2 rounded shadow flex items-center justify-center"
       >
-        <div class="text-5xl font-bold underline text-red-300">
-          Hello world!
-        </div>
+        <RouterView />
       </el-main>
     </el-container>
   </el-container>
