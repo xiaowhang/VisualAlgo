@@ -6,14 +6,12 @@ import Components from 'unplugin-vue-components/vite'
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 import Icons from 'unplugin-icons/vite'
 import IconsResolver from 'unplugin-icons/resolver'
-import tailwindcss from '@tailwindcss/vite'
 
 // https://vite.dev/config/
 export default defineConfig({
   base: '/ALG/', // 仓库名称
   plugins: [
     vue(),
-    tailwindcss(),
     AutoImport({
       imports: ['vue', 'vue-router'],
       resolvers: [
