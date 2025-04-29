@@ -5,6 +5,9 @@
   >
     <el-scrollbar>
       <el-menu router unique-opened class="border-r-0">
+        <el-menu-item index="/BubbleSort">
+          <span>冒泡排序</span>
+        </el-menu-item>
         <el-sub-menu
           v-for="item in menuItems"
           :key="item.index"
