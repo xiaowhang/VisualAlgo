@@ -3,8 +3,18 @@
     <el-button @click="randomData" :disabled="sorting">生成随机数据</el-button>
     <el-button @click="startSort" :disabled="sorting">开始排序</el-button>
     <el-button @click="stopSort" :disabled="!sorting">终止</el-button>
+    <div class="flex items-center gap-1 w-48 mr-4">
+      <span style="font-size: 16px">动画速度</span>
+      <el-slider
+        v-model="playbackRate"
+        :step="0.01"
+        :min="-2"
+        :max="3"
+        show-tooltip
+      />
+    </div>
   </div>
-  <svg ref="svgRef" width="100%" height="100%"></svg>
+  <svg ref="svgRef" width="100%" height="100%" class="select-none"></svg>
 </template>
 
 <script setup>
@@ -15,7 +25,10 @@ const sorting = ref(false)
 const highlight = ref({ i: -1, j: -1 })
 const svgRef = ref(null)
 const squareSize = 20 // 缩放比例，每个单位对应多少像素
-let offset = { x: 0, y: 0 }
+const offset = { x: 0, y: 0 }
+
+const playbackRate = ref(0)
+const sleepDuration = computed(() => 400 / Math.pow(2, playbackRate.value))
 
 onMounted(() => {
   randomData()
@@ -52,6 +65,8 @@ function centerSvg() {
 function drawSquares() {
   const svg = d3.select(svgRef.value)
   svg.selectAll('*').remove() // 清空
+
+  svg.on('.drag', null) // 移除拖拽事件
 
   const maxHeight = Math.max(...data.value) * squareSize
 
@@ -99,13 +114,15 @@ function drawSquares() {
     .text((d) => d.d)
 
   // 拖拽行为
-  svg.call(
-    d3.drag().on('drag', (event) => {
-      offset.x += event.dx
-      offset.y += event.dy
-      g.attr('transform', `translate(${offset.x},${offset.y})`)
-    })
-  )
+  if (!sorting.value) {
+    svg.call(
+      d3.drag().on('drag', (event) => {
+        offset.x += event.dx
+        offset.y += event.dy
+        g.attr('transform', `translate(${offset.x},${offset.y})`)
+      })
+    )
+  }
 }
 
 // 交换动画
@@ -149,29 +166,33 @@ async function animateSwap(i, j) {
     .duration(300)
     .attr('x', j * (squareSize + squareSize / 10) + squareSize / 2 - dx)
 
-  await sleep(320)
+  await sleep(sleepDuration.value)
 }
 
 // 冒泡排序动画
 async function startSort() {
   sorting.value = true
-  let arr = data.value.slice()
-  let n = arr.length
-  outer: for (let i = 0; i < n - 1; i++) {
+  const arr = data.value.slice()
+  const n = arr.length
+
+  let swapped = true
+  for (let i = 0; i < n - 1 && swapped && sorting.value; i++) {
+    swapped = false
     for (let j = 0; j < n - 1 - i; j++) {
-      if (!sorting.value) break outer
       highlight.value = { i: j, j: j + 1 }
-      await sleep(300)
-      if (!sorting.value) break outer
+      await sleep(sleepDuration.value)
+      if (!sorting.value) break
       if (arr[j] > arr[j + 1]) {
         await animateSwap(j, j + 1)
         ;[arr[j], arr[j + 1]] = [arr[j + 1], arr[j]]
         data.value = arr.slice()
-        await sleep(100)
-        if (!sorting.value) break outer
+        swapped = true
+        await sleep(Math.floor(sleepDuration.value / 3))
+        if (!sorting.value) break
       }
     }
   }
+
   highlight.value = { i: -1, j: -1 }
   sorting.value = false
 }
