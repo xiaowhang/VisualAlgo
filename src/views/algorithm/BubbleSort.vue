@@ -1,11 +1,19 @@
 <template>
-  <div class="absolute right-1 top-1 flex gap-2">
-    <el-button @click="randomData" :disabled="sorting">生成随机数据</el-button>
-    <el-button @click="startSort" :disabled="sorting">开始排序</el-button>
-    <el-button @click="stopSort" :disabled="!sorting">终止</el-button>
-    <div class="flex items-center gap-1 w-48 mr-4">
-      <span style="font-size: 16px">动画速度</span>
+  <el-card
+    class="absolute right-0 top-0 gap-2"
+    body-class="flex flex-col items-start gap-2"
+  >
+    <div class="flex flex-row">
+      <el-button @click="randomData" :disabled="sorting"
+        >生成随机数据</el-button
+      >
+      <el-button @click="startSort" :disabled="sorting">开始排序</el-button>
+      <el-button @click="stopSort" :disabled="!sorting">终止</el-button>
+    </div>
+    <div class="flex items-center gap-2 flex-1 w-full">
+      <span style="font-size: 16px" class="flex-none w-16">动画速度</span>
       <el-slider
+        class="flex-1 px-4"
         v-model="playbackRate"
         :step="0.01"
         :min="-2"
@@ -13,7 +21,7 @@
         show-tooltip
       />
     </div>
-  </div>
+  </el-card>
   <svg ref="svgRef" width="100%" height="100%" class="select-none"></svg>
 </template>
 
