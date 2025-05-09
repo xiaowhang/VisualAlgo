@@ -4,42 +4,34 @@
       <span style="font-size: 16px" class="flex-none w-16">动画速度</span>
       <el-slider
         class="flex-1 px-4"
-        :model-value="playerStore.playbackRate"
-        @update:model-value="playerStore.setPlaybackRate"
+        v-model="playbackRate"
         :step="1"
         :min="-2"
         :max="3"
-        :show-tooltip="false"
+        :show-tooltip="true"
       />
     </div>
 
     <div class="w-full border-t pt-2">
       <div class="flex items-center justify-center gap-2 mb-2">
-        <el-button
-          @click="playerStore.prevStep"
-          :disabled="playerStore.isPlaying || playerStore.currentStepIndex <= 0"
+        <el-button @click="prev" :disabled="isPlaying || currentStep <= 1"
           >上一步</el-button
         >
-        <el-button
-          @click="playerStore.togglePlay"
-          :disabled="playerStore.totalSteps === 0"
-        >
-          {{ playerStore.isPlaying ? '暂停' : '播放' }}
+        <el-button @click="handlePlayToggle">
+          {{ isPlaying ? '暂停' : '播放' }}
         </el-button>
         <el-button
-          @click="playerStore.nextStep"
-          :disabled="
-            playerStore.isPlaying ||
-            playerStore.currentStepIndex >= playerStore.totalSteps - 1
-          "
-          >下一步</el-button
+          @click="next"
+          :disabled="isPlaying || currentStep >= totalSteps"
         >
+          下一步
+        </el-button>
       </div>
       <div class="flex items-center gap-2 w-full">
         <Progress
           class="flex-1"
-          v-model:current-step="playerStore.currentStepIndex"
-          :total-steps="playerStore.totalSteps"
+          v-model:current-step="currentStep"
+          :total-steps="totalSteps"
         />
       </div>
     </div>
@@ -49,6 +41,11 @@
 <script setup>
 import { usePlayerStore } from '@/store/usePlayerStore'
 import Progress from '@/components/Progress.vue'
+import { storeToRefs } from 'pinia'
 
 const playerStore = usePlayerStore()
+
+const { currentStep, isPlaying, playbackRate, totalSteps } =
+  storeToRefs(playerStore)
+const { prev, next, handlePlayToggle } = playerStore
 </script>

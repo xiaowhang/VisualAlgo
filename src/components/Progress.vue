@@ -10,7 +10,7 @@
       :stroke-width="22"
       :show-text="true"
       :text-inside="true"
-      :format="() => `${currentStep + 1}/${totalSteps}`"
+      :format="() => `${currentStep}/${totalSteps}`"
     />
   </div>
 </template>
@@ -34,7 +34,7 @@ const isDragging = ref(false)
 const percentage = computed(() => {
   if (props.totalSteps === 0) return 0
 
-  return ((currentStep.value - 1) / (props.totalSteps - 1)) * 100
+  return (currentStep.value / (props.totalSteps - 1)) * 100
 })
 
 // 计算值
@@ -43,9 +43,8 @@ const calculateValue = (clientX) => {
   const percent = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width))
 
   const range = props.totalSteps - 1
-  let value = 1 + percent * range
 
-  return Math.floor(Math.max(1, Math.min(props.totalSteps, value))) - 1
+  return Math.floor(1 + percent * range)
 }
 
 // 全局鼠标移动处理函数

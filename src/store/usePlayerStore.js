@@ -1,17 +1,20 @@
 import { defineStore } from 'pinia'
 
 export const usePlayerStore = defineStore('player', () => {
-  // 状态
+  // States
   const algorithmSteps = ref([]) // 数组，每个元素格式为 { data: [{id, value}, ...], highlight: {i,j}, action: string }
-  const currentStepIndex = ref(0)
+  const currentStep = ref(1)
   const isPlaying = ref(false)
   const playbackRate = ref(0) // 影响 playerInterval 以控制播放速度
+
+  let timer = null
 
   // 从中生成步骤的原始数据，现在存储 {id, value} 对象
   const initialData = ref([])
 
   // Getters
   const totalSteps = computed(() => algorithmSteps.value.length)
+  const currentStepIndex = computed(() => currentStep.value - 1)
   const playerInterval = computed(() => 400 / Math.pow(2, playbackRate.value))
 
   const currentStepData = computed(() => {
@@ -44,6 +47,58 @@ export const usePlayerStore = defineStore('player', () => {
   })
 
   // Actions
+  function isVaildStep(step) {
+    return step >= 1 && step <= totalSteps.value
+  }
+
+  function pause() {
+    if (!timer) return
+
+    isPlaying.value = false
+    clearInterval(timer)
+    timer = null
+  }
+
+  function prev() {
+    pause()
+    if (!isVaildStep(currentStep.value - 1)) return false
+    currentStep.value--
+    return true
+  }
+
+  function next() {
+    pause()
+    if (!isVaildStep(currentStep.value + 1)) return false
+    currentStep.value++
+    return true
+  }
+
+  function play(flag = false) {
+    pause()
+    if (next() || (flag && setCurrentStep(1))) {
+      timer = setInterval(() => play(), playerInterval.value)
+      isPlaying.value = true
+    }
+  }
+
+  watch(() => playbackRate.value, play)
+
+  function handlePlayToggle() {
+    isPlaying.value = !isPlaying.value
+    if (isPlaying.value) {
+      play(true)
+    } else {
+      pause()
+    }
+  }
+
+  function setCurrentStep(step) {
+    pause()
+    if (!isVaildStep(step)) return false
+    currentStep.value = step
+    return true
+  }
+
   function generateSortSteps(dataWithIdsInput) {
     // dataWithIdsInput 是一个 {id, value} 对象的数组。
     // initialData.value 已由 resetPlayer 设置为 dataWithIdsInput 的初始状态。
@@ -90,84 +145,8 @@ export const usePlayerStore = defineStore('player', () => {
       action: 'sorted',
     })
 
-    currentStepIndex.value = 0
+    currentStep.value = 1
     isPlaying.value = false
-  }
-
-  let playIntervalId = null
-  function togglePlay() {
-    if (totalSteps.value === 0) return
-    isPlaying.value = !isPlaying.value
-    if (isPlaying.value) {
-      if (
-        currentStepIndex.value >= totalSteps.value - 1 &&
-        totalSteps.value > 0
-      ) {
-        currentStepIndex.value = 0 // 循环播放
-      }
-      clearInterval(playIntervalId) // 清除任何现有的计时器
-      playIntervalId = setInterval(() => {
-        if (currentStepIndex.value < totalSteps.value - 1) {
-          currentStepIndex.value++
-        } else {
-          isPlaying.value = false // 播放到末尾停止
-          clearInterval(playIntervalId)
-        }
-      }, playerInterval.value)
-    } else {
-      clearInterval(playIntervalId)
-    }
-  }
-
-  function prevStep() {
-    if (currentStepIndex.value > 0) {
-      currentStepIndex.value--
-      if (isPlaying.value) {
-        // 如果正在播放，暂停并清除计时器
-        isPlaying.value = false
-        clearInterval(playIntervalId)
-      }
-    }
-  }
-
-  function nextStep() {
-    if (currentStepIndex.value < totalSteps.value - 1) {
-      currentStepIndex.value++
-      if (isPlaying.value) {
-        // 如果正在播放，暂停并清除计时器
-        isPlaying.value = false
-        clearInterval(playIntervalId)
-      }
-    }
-  }
-
-  function setCurrentStep(index) {
-    if (index >= 0 && index < totalSteps.value) {
-      currentStepIndex.value = index
-      if (isPlaying.value) {
-        // 如果正在播放，暂停并清除计时器
-        isPlaying.value = false
-        clearInterval(playIntervalId)
-      }
-    }
-  }
-
-  function setPlaybackRate(rate) {
-    playbackRate.value = rate
-    if (isPlaying.value) {
-      // 如果正在播放，则以新的速度重新启动计时器
-      // 停止
-      clearInterval(playIntervalId)
-      // 并以新的间隔重新开始
-      playIntervalId = setInterval(() => {
-        if (currentStepIndex.value < totalSteps.value - 1) {
-          currentStepIndex.value++
-        } else {
-          isPlaying.value = false // 播放到末尾停止
-          clearInterval(playIntervalId)
-        }
-      }, playerInterval.value)
-    }
   }
 
   function resetPlayer(plainSourceData) {
@@ -178,38 +157,38 @@ export const usePlayerStore = defineStore('player', () => {
     }))
     initialData.value = dataWithIds.slice() // 存储带 ID 的初始状态
     generateSortSteps(dataWithIds) // 从带 ID 的数据生成步骤（传递引用，generateSortSteps 会对其进行切片）
-    currentStepIndex.value = 0
+
+    currentStep.value = 1
     isPlaying.value = false
-    if (playIntervalId) {
-      // 确保清除计时器
-      clearInterval(playIntervalId)
-      playIntervalId = null
-    }
+    pause()
   }
 
   return {
-    // 状态
+    // States
     algorithmSteps,
-    currentStepIndex,
+    currentStep,
     isPlaying,
     playbackRate,
     initialData,
 
     // Getters
     totalSteps,
+    currentStepIndex,
     playerInterval,
+    currentStepData,
     playerData,
     playerHighlight,
     currentAction,
-    currentStepData,
 
     // Actions
-    generateSortSteps,
-    togglePlay,
-    prevStep,
-    nextStep,
+    isVaildStep,
+    pause,
+    prev,
+    next,
+    play,
+    handlePlayToggle,
     setCurrentStep,
-    setPlaybackRate,
+    generateSortSteps,
     resetPlayer,
   }
 })
