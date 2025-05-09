@@ -1,215 +1,208 @@
 <template>
   <el-card
-    class="absolute right-0 top-0 gap-2"
+    class="absolute right-1 top-1 gap-2"
     body-class="flex flex-col items-start gap-2"
+    shadow="none"
   >
     <div class="flex flex-row">
-      <el-button @click="randomData" :disabled="sorting"
-        >生成随机数据</el-button
+      <el-button
+        @click="randomDataAndResetPlayer"
+        :disabled="playerStore.isPlaying"
       >
-      <el-button @click="startSort" :disabled="sorting">开始排序</el-button>
-      <el-button @click="stopSort" :disabled="!sorting">终止</el-button>
+        生成随机数据
+      </el-button>
     </div>
-    <div class="flex items-center gap-2 flex-1 w-full">
-      <span style="font-size: 16px" class="flex-none w-16">动画速度</span>
-      <el-slider
-        class="flex-1 px-4"
-        v-model="playbackRate"
-        :step="0.01"
-        :min="-2"
-        :max="3"
-        show-tooltip
-      />
-    </div>
+    <!-- Player Controls Component -->
+    <PlayerControls />
   </el-card>
   <svg ref="svgRef" width="100%" height="100%" class="select-none"></svg>
 </template>
 
 <script setup>
 import * as d3 from 'd3'
+import PlayerControls from '@/components/PlayerControls.vue' // 假设 @ 指向 src 目录
+import { usePlayerStore } from '@/store/usePlayerStore' // 假设 @ 指向 src 目录
 
-const data = ref([])
-const sorting = ref(false)
-const highlight = ref({ i: -1, j: -1 })
+const playerStore = usePlayerStore()
+
 const svgRef = ref(null)
-const squareSize = 20 // 缩放比例，每个单位对应多少像素
+const squareSize = 20
 const offset = { x: 0, y: 0 }
 
-const playbackRate = ref(0)
-const sleepDuration = computed(() => 400 / Math.pow(2, playbackRate.value))
-
 onMounted(() => {
-  randomData()
-  centerSvg()
-  drawSquares()
+  randomDataAndResetPlayer()
 })
 
-watch([data, highlight], drawSquares)
+watch(
+  [
+    () => playerStore.playerData,
+    () => playerStore.playerHighlight,
+    () => offset.x,
+    () => offset.y,
+  ],
+  () => {
+    if (playerStore.playerData && playerStore.playerData.length > 0) {
+      centerSvg() // 如果数据可能改变并影响尺寸，则重新居中
+      requestAnimationFrame(drawSquares)
+    }
+  },
+  { deep: true, immediate: true }
+)
 
-function randomData() {
-  // 随机生成20个1-30的整数
-  data.value = Array.from(
+function randomDataAndResetPlayer() {
+  const newData = Array.from(
     { length: 20 },
     () => Math.floor(Math.random() * 20) + 1
   )
-  highlight.value = { i: -1, j: -1 }
+  playerStore.resetPlayer(newData) // 这将设置 initialData 并生成步骤
 }
 
-// 居中svg
 function centerSvg() {
   const svgNode = svgRef.value
-  const svgWidth = svgNode.clientWidth || 800
-  const svgHeight = svgNode.clientHeight || 600
+  if (!svgNode) return
+  const svgWidth = svgNode.clientWidth
+  const svgHeight = svgNode.clientHeight
 
-  // 计算所有方块的总宽度和最大高度
-  const totalWidth = data.value.length * (squareSize + squareSize / 10)
-  const maxHeight = Math.max(...data.value) * squareSize
+  const currentDataForSizing = playerStore.playerData // 现在是 {id, value} 对象数组
+  if (!currentDataForSizing || currentDataForSizing.length === 0) return
 
-  // 计算使g居中的偏移量
+  const totalWidth =
+    currentDataForSizing.length * (squareSize + squareSize / 10)
+  // 使用 .value 获取用于调整大小的数值
+  const maxHeight =
+    Math.max(0, ...currentDataForSizing.map((d) => d.value)) * squareSize
+
   offset.x = (svgWidth - totalWidth) / 2
   offset.y = (svgHeight - maxHeight) / 2
 }
 
 function drawSquares() {
   const svg = d3.select(svgRef.value)
-  svg.selectAll('*').remove() // 清空
 
-  svg.on('.drag', null) // 移除拖拽事件
+  const currentDataToDraw = playerStore.playerData // {id, value} 对象数组
+  if (!currentDataToDraw) {
+    svg.selectAll('*').remove() // 如果数据为 null/undefined 则清除
+    return
+  }
+  // 如果 currentDataToDraw 是一个空数组，我们将继续让 D3 处理退出，这将清除视觉效果。
 
-  const maxHeight = Math.max(...data.value) * squareSize
+  const currentHighlight = playerStore.playerHighlight
+  const isSwapAnimating =
+    playerStore.isPlaying && playerStore.currentAction === 'swap'
+  const animationDuration = isSwapAnimating ? 300 : 0
 
-  // 新建一个g元素用于拖拽
-  const g = svg
-    .append('g')
-    .attr('transform', `translate(${offset.x},${offset.y})`)
+  const maxHeightValue =
+    currentDataToDraw.length > 0
+      ? Math.max(0, ...currentDataToDraw.map((d) => d.value))
+      : 0
+  const maxHeight =
+    maxHeightValue > 0 ? maxHeightValue * squareSize : squareSize
 
-  // 绘制矩形
-  g.selectAll('rect')
-    .data(
-      data.value.map((d, i) => ({ d, i })),
-      (d) => d.i
-    )
+  let g = svg.select('g.main-group')
+  if (g.empty()) {
+    g = svg.append('g').attr('class', 'main-group')
+  }
+  g.attr('transform', `translate(${offset.x},${offset.y})`)
+
+  // ---- 矩形 ----
+  const rectSelection = g
+    .selectAll('rect.bar')
+    .data(currentDataToDraw, (d) => d.id) // 使用 id 作为键
+
+  rectSelection
+    .exit()
+    .transition()
+    .duration(animationDuration)
+    .attr('opacity', 0)
+    .attr('height', 0)
+    .attr('y', maxHeight)
+    .remove()
+
+  const enterRects = rectSelection
     .enter()
     .append('rect')
-    .attr('data-index', (d) => d.i)
-    .attr('x', (d, i) => i * (squareSize + squareSize / 10))
-    .attr('y', (d) => maxHeight - d.d * squareSize)
+    .attr('class', 'bar')
+    .attr('data-id', (d) => d.id)
+    .attr('y', (d) => maxHeight - d.value * squareSize)
     .attr('width', squareSize)
-    .attr('height', (d) => d.d * squareSize)
-    .attr('fill', (d, i) => {
-      if (i === highlight.value.i || i === highlight.value.j) return '#FF9800'
-      return '#4CAF50'
-    })
+    .attr('height', (d) =>
+      d.value * squareSize > 0 ? d.value * squareSize : d.value === 0 ? 1 : 0
+    )
     .attr('rx', 3)
     .attr('ry', 3)
-
-  // 添加数据标注
-  g.selectAll('text')
-    .data(
-      data.value.map((d, i) => ({ d, i })),
-      (d) => d.i
+    .attr('x', (d, i) => i * (squareSize + squareSize / 10))
+    .attr('fill', (d, i) =>
+      i === currentHighlight.i || i === currentHighlight.j
+        ? '#FF9800'
+        : '#4CAF50'
     )
+
+  rectSelection
+    .merge(enterRects)
+    .transition()
+    .duration(animationDuration)
+    .attr('x', (d, i) => i * (squareSize + squareSize / 10))
+    .attr('y', (d) => maxHeight - d.value * squareSize)
+    .attr('height', (d) =>
+      d.value * squareSize > 0 ? d.value * squareSize : d.value === 0 ? 1 : 0
+    )
+    .attr('fill', (d, i) =>
+      i === currentHighlight.i || i === currentHighlight.j
+        ? '#FF9800'
+        : '#4CAF50'
+    )
+
+  // ---- 文本标签 ----
+  const textSelection = g
+    .selectAll('text.value-label')
+    .data(currentDataToDraw, (d) => d.id) // 使用 id 作为键
+
+  textSelection
+    .exit()
+    .transition()
+    .duration(animationDuration)
+    .attr('opacity', 0)
+    .remove()
+
+  const enterTexts = textSelection
     .enter()
     .append('text')
-    .attr('data-index', (d) => d.i)
-    .attr('x', (d, i) => i * (squareSize + squareSize / 10) + squareSize / 2)
-    .attr('y', (d) => maxHeight + 15)
+    .attr('class', 'value-label')
+    .attr('data-id', (d) => d.id)
+    .attr('y', maxHeight + 15)
     .attr('text-anchor', 'middle')
     .attr('font-size', 14)
+    .attr('x', (d, i) => i * (squareSize + squareSize / 10) + squareSize / 2)
     .attr('fill', (d, i) =>
-      i === highlight.value.i || i === highlight.value.j ? '#FF9800' : '#4CAF50'
+      i === currentHighlight.i || i === currentHighlight.j
+        ? '#FF9800'
+        : '#4CAF50'
     )
-    .text((d) => d.d)
+    .text((d) => d.value)
 
-  // 拖拽行为
-  if (!sorting.value) {
+  textSelection
+    .merge(enterTexts)
+    .transition()
+    .duration(animationDuration)
+    .attr('x', (d, i) => i * (squareSize + squareSize / 10) + squareSize / 2)
+    .attr('fill', (d, i) =>
+      i === currentHighlight.i || i === currentHighlight.j
+        ? '#FF9800'
+        : '#4CAF50'
+    )
+    .text((d) => d.value)
+
+  // 拖动处理保持不变，因为它修改 offset.x/y，从而触发重绘。
+  if (!playerStore.isPlaying) {
     svg.call(
       d3.drag().on('drag', (event) => {
         offset.x += event.dx
         offset.y += event.dy
-        g.attr('transform', `translate(${offset.x},${offset.y})`)
+        requestAnimationFrame(drawSquares) // 拖动时重绘
       })
     )
+  } else {
+    svg.on('.drag', null) // 播放时移除拖动监听器
   }
-}
-
-// 交换动画
-async function animateSwap(i, j) {
-  const svg = d3.select(svgRef.value)
-  const g = svg.select('g')
-  const dx = (j - i) * (squareSize + squareSize / 10)
-
-  // rect动画
-  const rects = g.selectAll('rect')
-  const texts = g.selectAll('text')
-
-  // 只移动i和j
-  rects
-    .filter(function (_, idx) {
-      return idx === i
-    })
-    .transition()
-    .duration(300)
-    .attr('x', i * (squareSize + squareSize / 10) + dx)
-  rects
-    .filter(function (_, idx) {
-      return idx === j
-    })
-    .transition()
-    .duration(300)
-    .attr('x', j * (squareSize + squareSize / 10) - dx)
-
-  texts
-    .filter(function (_, idx) {
-      return idx === i
-    })
-    .transition()
-    .duration(300)
-    .attr('x', i * (squareSize + squareSize / 10) + squareSize / 2 + dx)
-  texts
-    .filter(function (_, idx) {
-      return idx === j
-    })
-    .transition()
-    .duration(300)
-    .attr('x', j * (squareSize + squareSize / 10) + squareSize / 2 - dx)
-
-  await sleep(sleepDuration.value)
-}
-
-// 冒泡排序动画
-async function startSort() {
-  sorting.value = true
-  const arr = data.value.slice()
-  const n = arr.length
-
-  let swapped = true
-  for (let i = 0; i < n - 1 && swapped && sorting.value; i++) {
-    swapped = false
-    for (let j = 0; j < n - 1 - i; j++) {
-      highlight.value = { i: j, j: j + 1 }
-      await sleep(sleepDuration.value)
-      if (!sorting.value) break
-      if (arr[j] > arr[j + 1]) {
-        await animateSwap(j, j + 1)
-        ;[arr[j], arr[j + 1]] = [arr[j + 1], arr[j]]
-        data.value = arr.slice()
-        swapped = true
-        await sleep(Math.floor(sleepDuration.value / 3))
-        if (!sorting.value) break
-      }
-    }
-  }
-
-  highlight.value = { i: -1, j: -1 }
-  sorting.value = false
-}
-
-function stopSort() {
-  sorting.value = false
-}
-
-function sleep(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms))
 }
 </script>
