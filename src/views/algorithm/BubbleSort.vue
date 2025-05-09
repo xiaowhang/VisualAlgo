@@ -2,7 +2,7 @@
   <el-card
     class="absolute right-1 top-1 gap-2"
     body-class="flex flex-col items-start gap-2"
-    shadow="none"
+    shadow="never"
   >
     <div class="flex flex-row">
       <el-button
@@ -12,7 +12,6 @@
         生成随机数据
       </el-button>
     </div>
-    <!-- Player Controls Component -->
     <PlayerControls />
   </el-card>
   <svg ref="svgRef" width="100%" height="100%" class="select-none"></svg>

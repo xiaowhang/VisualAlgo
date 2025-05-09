@@ -6,10 +6,10 @@
         class="flex-1 px-4"
         :model-value="playerStore.playbackRate"
         @update:model-value="playerStore.setPlaybackRate"
-        :step="0.01"
+        :step="1"
         :min="-2"
         :max="3"
-        show-tooltip
+        :show-tooltip="false"
       />
     </div>
 
@@ -36,22 +36,10 @@
         >
       </div>
       <div class="flex items-center gap-2 w-full">
-        <span class="flex-none text-sm">
-          进度 ({{
-            playerStore.totalSteps > 0 ? playerStore.currentStepIndex + 1 : 0
-          }}
-          / {{ playerStore.totalSteps }})
-        </span>
-        <el-slider
+        <Progress
           class="flex-1"
-          :model-value="playerStore.currentStepIndex"
-          @update:model-value="playerStore.setCurrentStep"
-          :min="0"
-          :max="playerStore.totalSteps > 0 ? playerStore.totalSteps - 1 : 0"
-          :step="1"
-          :disabled="playerStore.isPlaying || playerStore.totalSteps === 0"
-          show-tooltip
-          :format-tooltip="formatStepTooltip"
+          v-model:current-step="playerStore.currentStepIndex"
+          :total-steps="playerStore.totalSteps"
         />
       </div>
     </div>
@@ -59,12 +47,8 @@
 </template>
 
 <script setup>
-import { usePlayerStore } from '@/store/usePlayerStore' // 假设 @ 指向 src 目录
+import { usePlayerStore } from '@/store/usePlayerStore'
+import Progress from '@/components/Progress.vue'
 
 const playerStore = usePlayerStore()
-
-function formatStepTooltip(val) {
-  if (playerStore.totalSteps === 0) return '0/0'
-  return `${val + 1}/${playerStore.totalSteps}`
-}
 </script>
