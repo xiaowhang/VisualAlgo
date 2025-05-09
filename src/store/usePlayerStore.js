@@ -99,68 +99,18 @@ export const usePlayerStore = defineStore('player', () => {
     return true
   }
 
-  function generateSortSteps(dataWithIdsInput) {
-    // dataWithIdsInput 是一个 {id, value} 对象的数组。
-    // initialData.value 已由 resetPlayer 设置为 dataWithIdsInput 的初始状态。
-    algorithmSteps.value = []
-    // 创建数组结构的可变副本，但重用项目对象进行排序。
-    const arr = dataWithIdsInput.slice()
-    const n = arr.length
+  function reset(generateStepsFn) {
+    return function (data) {
+      const dataWithIds = data.map((val, idx) => ({
+        id: idx,
+        value: val,
+      }))
+      initialData.value = dataWithIds.slice() // 存储带 ID 的初始状态
+      generateStepsFn(dataWithIds) // 从带 ID 的数据生成步骤（传递引用，generateSortSteps 会对其进行切片）
 
-    algorithmSteps.value.push({
-      data: arr.slice(), // 存储数组的快照（对象引用数组）
-      highlight: { i: -1, j: -1 },
-      action: 'initial',
-    })
-
-    let swapped = true
-    for (let i = 0; i < n - 1 && swapped; i++) {
-      swapped = false
-      for (let j = 0; j < n - 1 - i; j++) {
-        algorithmSteps.value.push({
-          data: arr.slice(),
-          highlight: { i: j, j: j + 1 },
-          action: 'compare',
-        })
-        if (arr[j].value > arr[j + 1].value) {
-          // 按 .value 比较
-          ;[arr[j], arr[j + 1]] = [arr[j + 1], arr[j]] // 交换 arr 中的对象
-          swapped = true
-          algorithmSteps.value.push({
-            data: arr.slice(),
-            highlight: { i: j, j: j + 1 },
-            action: 'swap',
-          })
-        }
-      }
-      if (!swapped && i < n - 2) {
-        // 如果没有发生交换并且不是最后一次遍历
-        // 优化：如果数组提前排序完毕，所有剩余元素都已就位。
-        // 我们可以添加一个 'sorted' 步骤并中断循环。
-      }
+      currentStep.value = 1
+      pause()
     }
-    algorithmSteps.value.push({
-      data: arr.slice(),
-      highlight: { i: -1, j: -1 },
-      action: 'sorted',
-    })
-
-    currentStep.value = 1
-    isPlaying.value = false
-  }
-
-  function resetPlayer(plainSourceData) {
-    // plainSourceData 是一个数字数组
-    const dataWithIds = plainSourceData.map((val, idx) => ({
-      id: idx,
-      value: val,
-    }))
-    initialData.value = dataWithIds.slice() // 存储带 ID 的初始状态
-    generateSortSteps(dataWithIds) // 从带 ID 的数据生成步骤（传递引用，generateSortSteps 会对其进行切片）
-
-    currentStep.value = 1
-    isPlaying.value = false
-    pause()
   }
 
   return {
@@ -186,9 +136,8 @@ export const usePlayerStore = defineStore('player', () => {
     prev,
     next,
     play,
+    reset,
     handlePlayToggle,
     setCurrentStep,
-    generateSortSteps,
-    resetPlayer,
   }
 })

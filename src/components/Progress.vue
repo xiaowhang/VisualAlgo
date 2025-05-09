@@ -34,7 +34,7 @@ const isDragging = ref(false)
 const percentage = computed(() => {
   if (props.totalSteps === 0) return 0
 
-  return (currentStep.value / (props.totalSteps - 1)) * 100
+  return (currentStep.value / props.totalSteps) * 100
 })
 
 // 计算值
