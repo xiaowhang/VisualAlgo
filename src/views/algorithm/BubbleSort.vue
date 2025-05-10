@@ -17,6 +17,7 @@ import * as d3 from 'd3'
 import PlayerControls from '@/components/PlayerControls.vue'
 import { usePlayerStore } from '@/store/usePlayerStore'
 import { storeToRefs } from 'pinia'
+import { createSvgCenterer } from '@/utils'
 
 const playerStore = usePlayerStore()
 const { algorithmSteps, currentStep, isPlaying, playerData, playerHighlight, currentAction } =
@@ -25,11 +26,13 @@ const { reset } = playerStore
 
 const svgRef = ref<SVGSVGElement | null>(null)
 const squareSize = 20
-const offset = { x: 0, y: 0 }
+const offset = ref({ x: 0, y: 0 })
+let centerSvgFn: ((offset: { x: number; y: number }) => { x: number; y: number }) | null = null
 
 onMounted(() => {
   randomDataAndResetPlayer()
-  centerSvg()
+  initCenterSvgFn()
+  updateCenterSvg()
 })
 
 watch(
@@ -45,17 +48,15 @@ function randomDataAndResetPlayer() {
   resetPlayer(newData) // 这将设置 initialData 并生成步骤
 }
 
-function centerSvg() {
-  const svgNode = svgRef.value
-  if (!svgNode) return
+function initCenterSvgFn() {
+  if (svgRef.value) {
+    centerSvgFn = createSvgCenterer(svgRef.value, drawSquares)
+  }
+}
 
-  drawSquares() // 确保在计算大小之前绘制一次
-
-  const { clientHeight: svgHeight, clientWidth: svgWidth } = svgNode
-  const { width: gWidth, height: gHeight } = svgNode.getBBox()
-
-  offset.x = (svgWidth - gWidth) / 2
-  offset.y = (svgHeight - gHeight) / 2
+function updateCenterSvg() {
+  if (!centerSvgFn) return
+  offset.value = centerSvgFn(offset.value)
 }
 
 function drawSquares() {
@@ -80,7 +81,7 @@ function drawSquares() {
   if (g.empty()) {
     g = svg.append('g').attr('class', 'main-group')
   }
-  g.attr('transform', `translate(${offset.x},${offset.y})`)
+  g.attr('transform', `translate(${offset.value.x},${offset.value.y})`)
 
   // ---- 矩形 ----
   const rectSelection = g
@@ -153,8 +154,8 @@ function drawSquares() {
   if (!isPlaying.value) {
     ;(svg as d3.Selection<SVGSVGElement, unknown, null, undefined>).call(
       d3.drag<SVGSVGElement, unknown>().on('drag', (event) => {
-        offset.x += event.dx
-        offset.y += event.dy
+        offset.value.x += event.dx
+        offset.value.y += event.dy
         requestAnimationFrame(drawSquares) // 拖动时重绘
       }),
     )

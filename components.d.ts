@@ -30,6 +30,5 @@ declare module 'vue' {
     ProgressBar: typeof import('./src/components/ProgressBar.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
-    SimpleGraph: typeof import('./src/components/SimpleGraph.vue')['default']
   }
 }
