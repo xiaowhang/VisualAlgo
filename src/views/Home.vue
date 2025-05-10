@@ -10,7 +10,7 @@
   </el-container>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { AppAside, AppHeader } from '@/components'
 
 defineOptions({

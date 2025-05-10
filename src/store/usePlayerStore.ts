@@ -1,23 +1,34 @@
 import { defineStore } from 'pinia'
 
+type DateType = {
+  id: number
+  value: number
+}
+
+type AlgorithmStep = {
+  data: DateType[]
+  highlight: number[]
+  action: string
+}
+
 export const usePlayerStore = defineStore('player', () => {
   // States
-  const algorithmSteps = ref([]) // 数组，每个元素格式为 { data: [{id, value}, ...], highlight: {i,j}, action: string }
-  const currentStep = ref(1)
-  const isPlaying = ref(false)
-  const playbackRate = ref(0) // 影响 playerInterval 以控制播放速度
+  const algorithmSteps = ref<AlgorithmStep[]>([]) // 数组，每个元素格式为 { data: [{id, value}, ...], highlight: {i,j}, action: string }
+  const currentStep = ref<number>(1)
+  const isPlaying = ref<boolean>(false)
+  const playbackRate = ref<number>(0) // 影响 playerInterval 以控制播放速度
 
-  let timer = null
+  let timer: ReturnType<typeof setInterval> | null = null
 
   // 从中生成步骤的原始数据，现在存储 {id, value} 对象
-  const initialData = ref([])
+  const initialData = ref<DateType[]>([])
 
   // Getters
-  const totalSteps = computed(() => algorithmSteps.value.length)
-  const currentStepIndex = computed(() => currentStep.value - 1)
-  const playerInterval = computed(() => 400 / Math.pow(2, playbackRate.value))
+  const totalSteps = computed<number>(() => algorithmSteps.value.length)
+  const currentStepIndex = computed<number>(() => currentStep.value - 1)
+  const playerInterval = computed<number>(() => 400 / Math.pow(2, playbackRate.value))
 
-  const currentStepData = computed(() => {
+  const currentStepData = computed<AlgorithmStep | null>(() => {
     if (
       totalSteps.value === 0 ||
       currentStepIndex.value < 0 ||
@@ -28,7 +39,7 @@ export const usePlayerStore = defineStore('player', () => {
     return algorithmSteps.value[currentStepIndex.value]
   })
 
-  const playerData = computed(() => {
+  const playerData = computed<DateType[]>(() => {
     if (currentStepData.value && currentStepData.value.data) {
       return currentStepData.value.data // 已经是 {id, value} 对象数组
     }
@@ -36,18 +47,16 @@ export const usePlayerStore = defineStore('player', () => {
     return initialData.value.length > 0 ? initialData.value : []
   })
 
-  const playerHighlight = computed(() => {
-    return currentStepData.value
-      ? currentStepData.value.highlight
-      : { i: -1, j: -1 }
+  const playerHighlight = computed<number[]>(() => {
+    return currentStepData.value ? currentStepData.value.highlight : []
   })
 
-  const currentAction = computed(() => {
+  const currentAction = computed<string | null>(() => {
     return currentStepData.value ? currentStepData.value.action : null
   })
 
   // Actions
-  function isVaildStep(step) {
+  function isVaildStep(step: number) {
     return step >= 1 && step <= totalSteps.value
   }
 
@@ -73,7 +82,7 @@ export const usePlayerStore = defineStore('player', () => {
     return true
   }
 
-  function play(flag = false) {
+  function play(flag: boolean = false) {
     pause()
     if (next() || (flag && setCurrentStep(1))) {
       timer = setInterval(() => play(), playerInterval.value)
@@ -81,7 +90,10 @@ export const usePlayerStore = defineStore('player', () => {
     }
   }
 
-  watch(() => playbackRate.value, play)
+  watch(
+    () => playbackRate.value,
+    () => play(),
+  )
 
   function handlePlayToggle() {
     isPlaying.value = !isPlaying.value
@@ -92,15 +104,15 @@ export const usePlayerStore = defineStore('player', () => {
     }
   }
 
-  function setCurrentStep(step) {
+  function setCurrentStep(step: number) {
     pause()
     if (!isVaildStep(step)) return false
     currentStep.value = step
     return true
   }
 
-  function reset(generateStepsFn) {
-    return function (data) {
+  function reset(generateStepsFn: (data: DateType[]) => void) {
+    return function (data: number[]) {
       const dataWithIds = data.map((val, idx) => ({
         id: idx,
         value: val,

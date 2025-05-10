@@ -3,10 +3,7 @@
     <el-button link class="flex items-center">
       <el-breadcrumb :separator-icon="ArrowRight" class="text-lg">
         <el-breadcrumb-item>Algorithm-Visualizer</el-breadcrumb-item>
-        <el-breadcrumb-item
-          v-for="(item, index) in $route.matched.slice(1)"
-          :key="index"
-        >
+        <el-breadcrumb-item v-for="(item, index) in $route.matched.slice(1)" :key="index">
           {{ item.name }}
         </el-breadcrumb-item>
       </el-breadcrumb>
@@ -14,7 +11,7 @@
   </el-header>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ArrowRight } from '@element-plus/icons-vue'
 defineOptions({
   name: 'HeaderLayout',

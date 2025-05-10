@@ -16,7 +16,7 @@ const routes = [
         path: 'BubbleSort',
         name: 'BubbleSort',
         component: () => import('@/views/algorithm/BubbleSort.vue'),
-      }
+      },
     ],
   },
 ]

@@ -5,33 +5,25 @@
     shadow="never"
   >
     <div class="flex flex-row">
-      <el-button @click="randomDataAndResetPlayer" :disabled="isPlaying">
-        生成随机数据
-      </el-button>
+      <el-button @click="randomDataAndResetPlayer" :disabled="isPlaying"> 生成随机数据 </el-button>
     </div>
     <PlayerControls />
   </el-card>
   <svg ref="svgRef" width="100%" height="100%" class="select-none"></svg>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import * as d3 from 'd3'
 import PlayerControls from '@/components/PlayerControls.vue'
 import { usePlayerStore } from '@/store/usePlayerStore'
 import { storeToRefs } from 'pinia'
 
 const playerStore = usePlayerStore()
-const {
-  algorithmSteps,
-  currentStep,
-  isPlaying,
-  playerData,
-  playerHighlight,
-  currentAction,
-} = storeToRefs(playerStore)
+const { algorithmSteps, currentStep, isPlaying, playerData, playerHighlight, currentAction } =
+  storeToRefs(playerStore)
 const { reset } = playerStore
 
-const svgRef = ref(null)
+const svgRef = ref<SVGSVGElement | null>(null)
 const squareSize = 20
 const offset = { x: 0, y: 0 }
 
@@ -45,14 +37,11 @@ watch(
   () => {
     requestAnimationFrame(drawSquares)
   },
-  { deep: true }
+  { deep: true },
 )
 
 function randomDataAndResetPlayer() {
-  const newData = Array.from(
-    { length: 20 },
-    () => Math.floor(Math.random() * 20) + 1
-  )
+  const newData = Array.from({ length: 20 }, () => Math.floor(Math.random() * 20) + 1)
   resetPlayer(newData) // 这将设置 initialData 并生成步骤
 }
 
@@ -84,13 +73,10 @@ function drawSquares() {
   const animationDuration = isSwapAnimating ? 300 : 0
 
   const maxHeightValue =
-    currentDataToDraw.length > 0
-      ? Math.max(0, ...currentDataToDraw.map((d) => d.value))
-      : 0
-  const maxHeight =
-    maxHeightValue > 0 ? maxHeightValue * squareSize : squareSize
+    currentDataToDraw.length > 0 ? Math.max(0, ...currentDataToDraw.map((d) => d.value)) : 0
+  const maxHeight = maxHeightValue > 0 ? maxHeightValue * squareSize : squareSize
 
-  let g = svg.select('g.main-group')
+  let g = svg.select<SVGGElement>('g.main-group')
   if (g.empty()) {
     g = svg.append('g').attr('class', 'main-group')
   }
@@ -98,7 +84,7 @@ function drawSquares() {
 
   // ---- 矩形 ----
   const rectSelection = g
-    .selectAll('rect.bar')
+    .selectAll<SVGRectElement, { id: number; value: number }>('rect.bar')
     .data(currentDataToDraw, (d) => d.id) // 使用 id 作为键
 
   rectSelection
@@ -118,16 +104,12 @@ function drawSquares() {
     .attr('y', (d) => maxHeight - d.value * squareSize)
     .attr('width', squareSize)
     .attr('height', (d) =>
-      d.value * squareSize > 0 ? d.value * squareSize : d.value === 0 ? 1 : 0
+      d.value * squareSize > 0 ? d.value * squareSize : d.value === 0 ? 1 : 0,
     )
     .attr('rx', 3)
     .attr('ry', 3)
     .attr('x', (d, i) => i * (squareSize + squareSize / 10))
-    .attr('fill', (d, i) =>
-      i === currentHighlight.i || i === currentHighlight.j
-        ? '#FF9800'
-        : '#4CAF50'
-    )
+    .attr('fill', (d, i) => (currentHighlight.includes(i) ? '#FF9800' : '#4CAF50'))
 
   rectSelection
     .merge(enterRects)
@@ -136,25 +118,16 @@ function drawSquares() {
     .attr('x', (d, i) => i * (squareSize + squareSize / 10))
     .attr('y', (d) => maxHeight - d.value * squareSize)
     .attr('height', (d) =>
-      d.value * squareSize > 0 ? d.value * squareSize : d.value === 0 ? 1 : 0
+      d.value * squareSize > 0 ? d.value * squareSize : d.value === 0 ? 1 : 0,
     )
-    .attr('fill', (d, i) =>
-      i === currentHighlight.i || i === currentHighlight.j
-        ? '#FF9800'
-        : '#4CAF50'
-    )
+    .attr('fill', (d, i) => (currentHighlight.includes(i) ? '#FF9800' : '#4CAF50'))
 
   // ---- 文本标签 ----
   const textSelection = g
-    .selectAll('text.value-label')
+    .selectAll<SVGTextElement, { id: number; value: number }>('text.value-label')
     .data(currentDataToDraw, (d) => d.id) // 使用 id 作为键
 
-  textSelection
-    .exit()
-    .transition()
-    .duration(animationDuration)
-    .attr('opacity', 0)
-    .remove()
+  textSelection.exit().transition().duration(animationDuration).attr('opacity', 0).remove()
 
   const enterTexts = textSelection
     .enter()
@@ -165,11 +138,7 @@ function drawSquares() {
     .attr('text-anchor', 'middle')
     .attr('font-size', 14)
     .attr('x', (d, i) => i * (squareSize + squareSize / 10) + squareSize / 2)
-    .attr('fill', (d, i) =>
-      i === currentHighlight.i || i === currentHighlight.j
-        ? '#FF9800'
-        : '#4CAF50'
-    )
+    .attr('fill', (d, i) => (currentHighlight.includes(i) ? '#FF9800' : '#4CAF50'))
     .text((d) => d.value)
 
   textSelection
@@ -177,28 +146,24 @@ function drawSquares() {
     .transition()
     .duration(animationDuration)
     .attr('x', (d, i) => i * (squareSize + squareSize / 10) + squareSize / 2)
-    .attr('fill', (d, i) =>
-      i === currentHighlight.i || i === currentHighlight.j
-        ? '#FF9800'
-        : '#4CAF50'
-    )
+    .attr('fill', (d, i) => (currentHighlight.includes(i) ? '#FF9800' : '#4CAF50'))
     .text((d) => d.value)
 
   // 拖动处理保持不变，因为它修改 offset.x/y，从而触发重绘。
   if (!isPlaying.value) {
-    svg.call(
-      d3.drag().on('drag', (event) => {
+    ;(svg as d3.Selection<SVGSVGElement, unknown, null, undefined>).call(
+      d3.drag<SVGSVGElement, unknown>().on('drag', (event) => {
         offset.x += event.dx
         offset.y += event.dy
         requestAnimationFrame(drawSquares) // 拖动时重绘
-      })
+      }),
     )
   } else {
     svg.on('.drag', null) // 播放时移除拖动监听器
   }
 }
 
-function generateSortSteps(dataWithIdsInput) {
+function generateSortSteps(dataWithIdsInput: { id: number; value: number }[]) {
   // dataWithIdsInput 是一个 {id, value} 对象的数组。
   // initialData.value 已由 resetPlayer 设置为 dataWithIdsInput 的初始状态。
   algorithmSteps.value = []
@@ -208,7 +173,7 @@ function generateSortSteps(dataWithIdsInput) {
 
   algorithmSteps.value.push({
     data: arr.slice(), // 存储数组的快照（对象引用数组）
-    highlight: { i: -1, j: -1 },
+    highlight: [],
     action: 'initial',
   })
 
@@ -218,7 +183,7 @@ function generateSortSteps(dataWithIdsInput) {
     for (let j = 0; j < n - 1 - i; j++) {
       algorithmSteps.value.push({
         data: arr.slice(),
-        highlight: { i: j, j: j + 1 },
+        highlight: [j, j + 1],
         action: 'compare',
       })
       if (arr[j].value > arr[j + 1].value) {
@@ -227,7 +192,7 @@ function generateSortSteps(dataWithIdsInput) {
         swapped = true
         algorithmSteps.value.push({
           data: arr.slice(),
-          highlight: { i: j, j: j + 1 },
+          highlight: [j, j + 1],
           action: 'swap',
         })
       }
@@ -240,7 +205,7 @@ function generateSortSteps(dataWithIdsInput) {
   }
   algorithmSteps.value.push({
     data: arr.slice(),
-    highlight: { i: -1, j: -1 },
+    highlight: [],
     action: 'sorted',
   })
 

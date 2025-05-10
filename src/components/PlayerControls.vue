@@ -14,38 +14,28 @@
 
     <div class="w-full border-t pt-2">
       <div class="flex items-center justify-center gap-2 mb-2">
-        <el-button @click="prev" :disabled="isPlaying || currentStep <= 1"
-          >上一步</el-button
-        >
+        <el-button @click="prev" :disabled="isPlaying || currentStep <= 1">上一步</el-button>
         <el-button @click="handlePlayToggle">
           {{ isPlaying ? '暂停' : '播放' }}
         </el-button>
-        <el-button
-          @click="next"
-          :disabled="isPlaying || currentStep >= totalSteps"
-        >
+        <el-button @click="next" :disabled="isPlaying || currentStep >= totalSteps">
           下一步
         </el-button>
       </div>
       <div class="flex items-center gap-2 w-full">
-        <ProgressBar
-          class="flex-1"
-          v-model:current-step="currentStep"
-          :total-steps="totalSteps"
-        />
+        <ProgressBar class="flex-1" v-model:current-step="currentStep" :total-steps="totalSteps" />
       </div>
     </div>
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { usePlayerStore } from '@/store/usePlayerStore'
 import ProgressBar from '@/components/ProgressBar.vue'
 import { storeToRefs } from 'pinia'
 
 const playerStore = usePlayerStore()
 
-const { currentStep, isPlaying, playbackRate, totalSteps } =
-  storeToRefs(playerStore)
+const { currentStep, isPlaying, playbackRate, totalSteps } = storeToRefs(playerStore)
 const { prev, next, handlePlayToggle } = playerStore
 </script>

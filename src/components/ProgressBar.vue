@@ -1,9 +1,5 @@
 <template>
-  <div
-    ref="progressRef"
-    class="progress-bar"
-    @mousedown.prevent="handleMouseDown"
-  >
+  <div ref="progressRef" class="progress-bar" @mousedown.prevent="handleMouseDown">
     <el-progress
       class="cursor-pointer"
       :percentage="percentage"
@@ -15,7 +11,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { usePlayerStore } from '@/store/usePlayerStore'
 
 const props = defineProps({
@@ -25,13 +21,13 @@ const props = defineProps({
   },
 })
 
-const currentStep = defineModel('currentStep', {
+const currentStep = defineModel<number>('currentStep', {
   required: true,
 })
 const { pause } = usePlayerStore()
 
-const progressRef = ref(null)
-const isDragging = ref(false)
+const progressRef = ref<HTMLElement | null>(null)
+const isDragging = ref<boolean>(false)
 
 // 计算百分比值
 const percentage = computed(() => {
@@ -41,7 +37,8 @@ const percentage = computed(() => {
 })
 
 // 计算值
-const calculateValue = (clientX) => {
+const calculateValue = (clientX: number) => {
+  if (!progressRef.value) return 1
   const rect = progressRef.value.getBoundingClientRect()
   const percent = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width))
 
@@ -51,7 +48,7 @@ const calculateValue = (clientX) => {
 }
 
 // 全局鼠标移动处理函数
-const handleGlobalMouseMove = (event) => {
+const handleGlobalMouseMove = (event: MouseEvent) => {
   if (!isDragging.value) return
 
   currentStep.value = calculateValue(event.clientX)
@@ -68,7 +65,7 @@ const handleGlobalMouseUp = () => {
 }
 
 // 鼠标按下事件处理
-const handleMouseDown = (event) => {
+const handleMouseDown = (event: MouseEvent) => {
   isDragging.value = true
 
   document.addEventListener('mousemove', handleGlobalMouseMove)
