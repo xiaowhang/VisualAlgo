@@ -28,7 +28,7 @@
         </el-button>
       </div>
       <div class="flex items-center gap-2 w-full">
-        <Progress
+        <ProgressBar
           class="flex-1"
           v-model:current-step="currentStep"
           :total-steps="totalSteps"
@@ -40,7 +40,7 @@
 
 <script setup>
 import { usePlayerStore } from '@/store/usePlayerStore'
-import Progress from '@/components/Progress.vue'
+import ProgressBar from '@/components/ProgressBar.vue'
 import { storeToRefs } from 'pinia'
 
 const playerStore = usePlayerStore()
