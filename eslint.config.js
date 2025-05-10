@@ -1,12 +1,31 @@
+import { defineConfig, globalIgnores } from 'eslint/config'
 import globals from 'globals'
 import pluginJs from '@eslint/js'
 import pluginVue from 'eslint-plugin-vue'
+import autoImportGlobals from './.eslintrc-auto-import.json' with { type: 'json' }
 
-/** @type {import('eslint').Linter.Config[]} */
-export default [
-  { files: ['**/*.{js,mjs,cjs,vue}'] },
-  { languageOptions: { globals: globals.browser } },
+export default defineConfig([
+  {
+    files: ['**/*.{js,mjs,cjs,vue}'],
+    languageOptions: {
+      globals: {
+        ...globals.browser,
+        ...globals.node,
+        ...autoImportGlobals.globals,
+      },
+    },
+  },
   pluginJs.configs.recommended,
   ...pluginVue.configs['flat/essential'],
-  { extends: ['./.eslintrc-auto-import.json'] },
-]
+  {
+    rules: {
+      'no-console': 'warn',
+    },
+  },
+  globalIgnores([
+    '**/node_modules/',
+    '**/.vscode/',
+    '**/.husky/',
+    '**/dist/',
+  ]),
+])

@@ -14,6 +14,6 @@
 import { AppAside, AppHeader } from '@/components'
 
 defineOptions({
-  name: 'Home',
+  name: 'HomePage',
 })
 </script>
