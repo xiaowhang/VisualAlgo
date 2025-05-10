@@ -16,10 +16,9 @@
 
 <script setup>
 import * as d3 from 'd3'
-import PlayerControls from '@/components/PlayerControls.vue' // 假设 @ 指向 src 目录
-import { usePlayerStore } from '@/store/usePlayerStore' // 假设 @ 指向 src 目录
+import PlayerControls from '@/components/PlayerControls.vue'
+import { usePlayerStore } from '@/store/usePlayerStore'
 import { storeToRefs } from 'pinia'
-import { computed } from 'vue'
 
 const playerStore = usePlayerStore()
 const {
@@ -38,22 +37,15 @@ const offset = { x: 0, y: 0 }
 
 onMounted(() => {
   randomDataAndResetPlayer()
+  centerSvg()
 })
 
 watch(
-  [
-    () => playerData.value,
-    () => playerHighlight.value,
-    () => offset.x,
-    () => offset.y,
-  ],
+  [() => playerData.value, () => playerHighlight.value],
   () => {
-    if (playerData.value && playerData.value.length > 0) {
-      centerSvg() // 如果数据可能改变并影响尺寸，则重新居中
-      requestAnimationFrame(drawSquares)
-    }
+    requestAnimationFrame(drawSquares)
   },
-  { deep: true, immediate: true }
+  { deep: true }
 )
 
 function randomDataAndResetPlayer() {
@@ -67,20 +59,14 @@ function randomDataAndResetPlayer() {
 function centerSvg() {
   const svgNode = svgRef.value
   if (!svgNode) return
-  const svgWidth = svgNode.clientWidth
-  const svgHeight = svgNode.clientHeight
 
-  const currentDataForSizing = playerData.value // 现在是 {id, value} 对象数组
-  if (!currentDataForSizing || currentDataForSizing.length === 0) return
+  drawSquares() // 确保在计算大小之前绘制一次
 
-  const totalWidth =
-    currentDataForSizing.length * (squareSize + squareSize / 10)
-  // 使用 .value 获取用于调整大小的数值
-  const maxHeight =
-    Math.max(0, ...currentDataForSizing.map((d) => d.value)) * squareSize
+  const { clientHeight: svgHeight, clientWidth: svgWidth } = svgNode
+  const { width: gWidth, height: gHeight } = svgNode.getBBox()
 
-  offset.x = (svgWidth - totalWidth) / 2
-  offset.y = (svgHeight - maxHeight) / 2
+  offset.x = (svgWidth - gWidth) / 2
+  offset.y = (svgHeight - gHeight) / 2
 }
 
 function drawSquares() {
