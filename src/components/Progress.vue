@@ -16,6 +16,8 @@
 </template>
 
 <script setup>
+import { usePlayerStore } from '@/store/usePlayerStore'
+
 const props = defineProps({
   totalSteps: {
     type: Number,
@@ -26,6 +28,7 @@ const props = defineProps({
 const currentStep = defineModel('currentStep', {
   required: true,
 })
+const { pause } = usePlayerStore()
 
 const progressRef = ref(null)
 const isDragging = ref(false)
@@ -52,6 +55,7 @@ const handleGlobalMouseMove = (event) => {
   if (!isDragging.value) return
 
   currentStep.value = calculateValue(event.clientX)
+  pause()
 }
 
 // 全局鼠标释放处理函数
@@ -71,6 +75,7 @@ const handleMouseDown = (event) => {
   document.addEventListener('mouseup', handleGlobalMouseUp)
 
   currentStep.value = calculateValue(event.clientX)
+  pause()
 }
 
 // 确保组件销毁时清理事件监听
