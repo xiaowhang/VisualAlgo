@@ -1,7 +1,7 @@
 <template>
   <el-aside :style="{ width: asideWidth + 'px' }" class="w-full p-1 bg-white m-2 rounded shadow">
     <el-scrollbar>
-      <el-menu router unique-opened class="border-r-0">
+      <el-menu router unique-opened class="!border-r-0">
         <el-menu-item index="/BubbleSort">
           <span>冒泡排序</span>
         </el-menu-item>
