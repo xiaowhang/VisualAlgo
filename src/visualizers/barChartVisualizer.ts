@@ -5,9 +5,7 @@ export interface VisualizerContext {
   svgElement: SVGSVGElement
   data: DataType[]
   highlight: number[]
-  isAnimating: boolean
-  animationAction: string | null
-  offset: { x: number; y: number }
+  animationDuration: number
 }
 
 /**
@@ -17,26 +15,13 @@ export interface VisualizerContext {
  */
 export function createBarChartVisualizer(squareSize: number = 20) {
   return function drawBarChart(context: VisualizerContext) {
-    const { svgElement, data, highlight, isAnimating, animationAction, offset } = context
+    const { svgElement, data, highlight, animationDuration } = context
 
-    const svg = d3.select(svgElement)
-    if (!data) {
-      svg.selectAll('*').remove()
-      return
-    }
-
-    const isSwapAnimating = isAnimating && animationAction === 'swap'
-    const animationDuration = isSwapAnimating ? 300 : 0
-
-    const maxHeightValue = data.length > 0 ? Math.max(0, ...data.map((d) => d.value)) : 0
-    const maxHeight = maxHeightValue > 0 ? maxHeightValue * squareSize : squareSize
+    const maxHeightValue = Math.max(...data.map((d) => d.value))
+    const maxHeight = maxHeightValue * squareSize
 
     // 创建或选择主组
-    let g = svg.select<SVGGElement>('g.main-group')
-    if (g.empty()) {
-      g = svg.append('g').attr('class', 'main-group')
-    }
-    g.attr('transform', `translate(${offset.x},${offset.y})`)
+    const g = d3.select(svgElement).select<SVGGElement>('g')
 
     // 绘制矩形
     const rectSelection = g.selectAll<SVGRectElement, DataType>('rect.bar').data(data, (d) => d.id)
@@ -55,6 +40,7 @@ export function createBarChartVisualizer(squareSize: number = 20) {
       .append('rect')
       .attr('class', 'bar')
       .attr('data-id', (d) => d.id)
+      .attr('x', (d, i) => i * (squareSize + squareSize / 10))
       .attr('y', (d) => maxHeight - d.value * squareSize)
       .attr('width', squareSize)
       .attr('height', (d) =>
@@ -62,7 +48,6 @@ export function createBarChartVisualizer(squareSize: number = 20) {
       )
       .attr('rx', 3)
       .attr('ry', 3)
-      .attr('x', (d, i) => i * (squareSize + squareSize / 10))
       .attr('fill', (d, i) => (highlight.includes(i) ? '#FF9800' : '#4CAF50'))
 
     rectSelection
@@ -99,6 +84,7 @@ export function createBarChartVisualizer(squareSize: number = 20) {
       .merge(enterTexts)
       .transition()
       .duration(animationDuration)
+      .attr('y', maxHeight + 15)
       .attr('x', (d, i) => i * (squareSize + squareSize / 10) + squareSize / 2)
       .attr('fill', (d, i) => (highlight.includes(i) ? '#FF9800' : '#4CAF50'))
       .text((d) => d.value)
