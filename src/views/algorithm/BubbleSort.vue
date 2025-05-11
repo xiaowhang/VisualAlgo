@@ -33,10 +33,7 @@ onMounted(() => {
   randomDataAndResetPlayer()
 })
 
-useSvgDrag({
-  disabled: isPlaying,
-  onDrag: drawVisualization,
-})
+useSvgDrag(drawVisualization)
 
 watch(
   [() => playerData.value, () => playerHighlight.value],

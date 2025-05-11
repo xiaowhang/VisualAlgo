@@ -1,27 +1,17 @@
 import * as d3 from 'd3'
-import { type Ref, onMounted, onUnmounted, watch } from 'vue'
-import { useSvgStore } from '@/store/useSvgStore'
+import { useSvgStore, usePlayerStore } from '@/store'
 import { storeToRefs } from 'pinia'
-
-export interface UseSvgDragOptions {
-  /**
-   * 是否禁用拖动功能
-   */
-  disabled?: Ref<boolean>
-  /**
-   * 拖动时的回调函数
-   */
-  onDrag?: () => void
-}
 
 /**
  * SVG拖动功能组合式函数
  *
- * @param options 配置选项
+ * @param onDrag - 拖动时的回调函数
  * @returns 拖动相关的方法
  */
-export function useSvgDrag(options: UseSvgDragOptions = {}) {
-  const { disabled = ref(false), onDrag } = options
+export function useSvgDrag(onDrag?: () => void) {
+  // 引入Pinia状态管理
+  const playerStore = usePlayerStore()
+  const { isPlaying: disabled } = storeToRefs(playerStore)
 
   // 引入SVG状态管理
   const svgStore = useSvgStore()
