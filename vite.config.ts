@@ -27,9 +27,6 @@ export default defineConfig({
           prefix: 'Icon',
         }),
       ],
-      eslintrc: {
-        enabled: true,
-      },
     }),
     Components({
       resolvers: [
@@ -47,7 +44,7 @@ export default defineConfig({
 
   resolve: {
     alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url))
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
 })
