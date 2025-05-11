@@ -17,7 +17,7 @@ import { usePlayerStore, useSvgStore } from '@/store'
 import { storeToRefs } from 'pinia'
 import { generateBubbleSortSteps } from '@/algorithms/bubbleSort'
 import { createBarChartVisualizer } from '@/visualizers/barChartVisualizer'
-import { useSvgDrag } from '@/composable'
+import { useSvgDrag, useSvgCenter } from '@/composable'
 
 const playerStore = usePlayerStore()
 const { isPlaying, playerData, playerHighlight, currentAction } = storeToRefs(playerStore)
@@ -29,8 +29,11 @@ const { svgRef, offset } = storeToRefs(svgStore)
 const squareSize = 20
 const barChartVisualizer = createBarChartVisualizer(squareSize)
 
+const { centerSvg } = useSvgCenter(drawVisualization)
+
 onMounted(() => {
   randomDataAndResetPlayer()
+  centerSvg()
 })
 
 useSvgDrag(drawVisualization)

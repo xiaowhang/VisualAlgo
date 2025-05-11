@@ -1,5 +1,5 @@
 <template>
-  <slot />
+  <slot v-if="svgRef" />
   <svg ref="svgRef" width="100%" height="100%" class="select-none"></svg>
 </template>
 
