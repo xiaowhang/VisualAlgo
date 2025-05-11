@@ -14,7 +14,7 @@ import IconsResolver from 'unplugin-icons/resolver'
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: '/ALG/', // 仓库名称
+  base: '/VisualAlgo/', // 仓库名称
   plugins: [
     vue(),
     vueJsx(),
