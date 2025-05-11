@@ -1,12 +1,12 @@
 import { defineStore } from 'pinia'
 
-type DateType = {
+type DataType = {
   id: number
   value: number
 }
 
 type AlgorithmStep = {
-  data: DateType[]
+  data: DataType[]
   highlight: number[]
   action: string
 }
@@ -21,7 +21,7 @@ export const usePlayerStore = defineStore('player', () => {
   let timer: ReturnType<typeof setInterval> | null = null
 
   // 从中生成步骤的原始数据，现在存储 {id, value} 对象
-  const initialData = ref<DateType[]>([])
+  const initialData = ref<DataType[]>([])
 
   // Getters
   const totalSteps = computed<number>(() => algorithmSteps.value.length)
@@ -39,7 +39,7 @@ export const usePlayerStore = defineStore('player', () => {
     return algorithmSteps.value[currentStepIndex.value]
   })
 
-  const playerData = computed<DateType[]>(() => {
+  const playerData = computed<DataType[]>(() => {
     if (currentStepData.value && currentStepData.value.data) {
       return currentStepData.value.data // 已经是 {id, value} 对象数组
     }
@@ -90,11 +90,6 @@ export const usePlayerStore = defineStore('player', () => {
     }
   }
 
-  watch(
-    () => playbackRate.value,
-    () => play(),
-  )
-
   function handlePlayToggle() {
     isPlaying.value = !isPlaying.value
     if (isPlaying.value) {
@@ -111,7 +106,7 @@ export const usePlayerStore = defineStore('player', () => {
     return true
   }
 
-  function reset(generateStepsFn: (data: DateType[]) => void) {
+  function reset(generateStepsFn: (data: DataType[]) => void) {
     return function (data: number[]) {
       const dataWithIds = data.map((val, idx) => ({
         id: idx,
