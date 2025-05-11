@@ -4,7 +4,7 @@
  * @param {Function} drawFunction - 绘制函数，在计算大小前调用
  * @returns {Function} 返回一个接收offset参数并返回新offset的函数
  */
-export function createSvgCenterer(svgNode: SVGSVGElement, drawFunction:() => void) {
+export function createSvgCenterer(svgNode: SVGSVGElement, drawFunction: () => void) {
   /**
    * 居中SVG内容
    * @param {Object} offset - 偏移对象，包含x和y属性
@@ -34,6 +34,10 @@ export function createSvgCenterer(svgNode: SVGSVGElement, drawFunction:() => voi
  * @param {Object} offset - 偏移对象，包含x和y属性
  * @returns {Object} 更新后的偏移对象
  */
-export function centerSvg(svgNode: SVGSVGElement, drawFunction:() => void, offset = { x: 0, y: 0 }) {
+export function centerSvg(
+  svgNode: SVGSVGElement,
+  drawFunction: () => void,
+  offset = { x: 0, y: 0 },
+) {
   return createSvgCenterer(svgNode, drawFunction)(offset)
 }

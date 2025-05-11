@@ -106,14 +106,14 @@ export const usePlayerStore = defineStore('player', () => {
     return true
   }
 
-  function reset(generateStepsFn: (data: DataType[]) => void) {
+  function reset(generateStepsFn: (data: DataType[]) => AlgorithmStep[]) {
     return function (data: number[]) {
       const dataWithIds = data.map((val, idx) => ({
         id: idx,
         value: val,
       }))
       initialData.value = dataWithIds.slice() // 存储带 ID 的初始状态
-      generateStepsFn(dataWithIds) // 从带 ID 的数据生成步骤（传递引用，generateSortSteps 会对其进行切片）
+      algorithmSteps.value = generateStepsFn(dataWithIds) // 从带 ID 的数据生成步骤（传递引用，generateSortSteps 会对其进行切片）
 
       currentStep.value = 1
       pause()
