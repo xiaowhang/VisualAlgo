@@ -23,11 +23,11 @@ export function useSvgCenter(drawCallback: () => void) {
 
     // 获取SVG元素的尺寸
     const { clientHeight: svgHeight, clientWidth: svgWidth } = svgRef.value
-    const { x, y, width: gWidth, height: gHeight } = svgRef.value.getBBox()
+    const { width: gWidth, height: gHeight } = svgRef.value.getBBox()
 
     offset.value = {
-      x: (svgWidth - gWidth) / 2 - x,
-      y: (svgHeight - gHeight) / 2 - y,
+      x: (svgWidth - gWidth) / 2,
+      y: (svgHeight - gHeight) / 2,
     }
   }
 

@@ -20,11 +20,11 @@ import { createBarChartVisualizer } from '@/visualizers/barChartVisualizer'
 import { useSvgDrag, useSvgCenter } from '@/composable'
 
 const playerStore = usePlayerStore()
-const { isPlaying, playerData, playerHighlight, currentAction } = storeToRefs(playerStore)
+const { isPlaying, playerData, playerHighlight, playerInterval } = storeToRefs(playerStore)
 const { reset } = playerStore
 
 const svgStore = useSvgStore()
-const { svgRef, offset } = storeToRefs(svgStore)
+const { svgRef } = storeToRefs(svgStore)
 
 const squareSize = 20
 const barChartVisualizer = createBarChartVisualizer(squareSize)
@@ -39,6 +39,14 @@ onMounted(() => {
 useSvgDrag(drawVisualization)
 
 watch(
+  () => playerData.value,
+  () => {
+    centerSvg()
+  },
+  { deep: true },
+)
+
+watch(
   [() => playerData.value, () => playerHighlight.value],
   () => {
     requestAnimationFrame(drawVisualization)
@@ -47,8 +55,9 @@ watch(
 )
 
 function randomDataAndResetPlayer() {
-  const newData = Array.from({ length: 20 }, () => Math.floor(Math.random() * 20) + 1)
+  const newData = Array.from({ length: 25 }, () => Math.floor(Math.random() * 20) + 1)
   resetPlayer(newData)
+  centerSvg()
 }
 
 function drawVisualization() {
@@ -58,9 +67,7 @@ function drawVisualization() {
     svgElement: svgRef.value,
     data: playerData.value,
     highlight: playerHighlight.value,
-    isAnimating: isPlaying.value,
-    animationAction: currentAction.value,
-    offset: offset.value,
+    animationDuration: playerInterval.value,
   })
 }
 
