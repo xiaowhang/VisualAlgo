@@ -12,7 +12,7 @@
 </template>
 
 <script setup lang="ts">
-import { usePlayerStore } from '@/store/usePlayerStore'
+import { usePlayerStore } from '@/store'
 
 const props = defineProps({
   totalSteps: {
