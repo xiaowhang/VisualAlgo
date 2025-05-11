@@ -26,8 +26,7 @@ const { reset } = playerStore
 const svgStore = useSvgStore()
 const { svgRef } = storeToRefs(svgStore)
 
-const squareSize = 20
-const barChartVisualizer = createBarChartVisualizer(squareSize)
+const barChartVisualizer = createBarChartVisualizer()
 
 const { centerSvg } = useSvgCenter(drawVisualization)
 
@@ -37,14 +36,6 @@ onMounted(() => {
 })
 
 useSvgDrag(drawVisualization)
-
-watch(
-  () => playerData.value,
-  () => {
-    centerSvg()
-  },
-  { deep: true },
-)
 
 watch(
   [() => playerData.value, () => playerHighlight.value],

@@ -1,5 +1,6 @@
 import * as d3 from 'd3'
 import type { DataType } from '@/algorithms/types'
+import { COLORS, DEFAULT_SQUARE_SIZE } from '@/constants'
 
 export interface VisualizerContext {
   svgElement: SVGSVGElement
@@ -13,7 +14,7 @@ export interface VisualizerContext {
  * @param squareSize 条形图单位大小
  * @returns 绘制函数
  */
-export function createBarChartVisualizer(squareSize: number = 20) {
+export function createBarChartVisualizer(squareSize: number = DEFAULT_SQUARE_SIZE) {
   return function drawBarChart(context: VisualizerContext) {
     const { svgElement, data, highlight, animationDuration } = context
 
@@ -48,7 +49,7 @@ export function createBarChartVisualizer(squareSize: number = 20) {
       )
       .attr('rx', 3)
       .attr('ry', 3)
-      .attr('fill', (d, i) => (highlight.includes(i) ? '#FF9800' : '#4CAF50'))
+      .attr('fill', (d, i) => (highlight.includes(i) ? COLORS.HIGHLIGHT : COLORS.DEFAULT))
 
     rectSelection
       .merge(enterRects)
@@ -59,7 +60,7 @@ export function createBarChartVisualizer(squareSize: number = 20) {
       .attr('height', (d) =>
         d.value * squareSize > 0 ? d.value * squareSize : d.value === 0 ? 1 : 0,
       )
-      .attr('fill', (d, i) => (highlight.includes(i) ? '#FF9800' : '#4CAF50'))
+      .attr('fill', (d, i) => (highlight.includes(i) ? COLORS.HIGHLIGHT : COLORS.DEFAULT))
 
     // 绘制文本标签
     const textSelection = g
@@ -77,7 +78,7 @@ export function createBarChartVisualizer(squareSize: number = 20) {
       .attr('text-anchor', 'middle')
       .attr('font-size', 14)
       .attr('x', (d, i) => i * (squareSize + squareSize / 10) + squareSize / 2)
-      .attr('fill', (d, i) => (highlight.includes(i) ? '#FF9800' : '#4CAF50'))
+      .attr('fill', (d, i) => (highlight.includes(i) ? COLORS.HIGHLIGHT : COLORS.DEFAULT))
       .text((d) => d.value)
 
     textSelection
@@ -86,7 +87,7 @@ export function createBarChartVisualizer(squareSize: number = 20) {
       .duration(animationDuration)
       .attr('y', maxHeight + 15)
       .attr('x', (d, i) => i * (squareSize + squareSize / 10) + squareSize / 2)
-      .attr('fill', (d, i) => (highlight.includes(i) ? '#FF9800' : '#4CAF50'))
+      .attr('fill', (d, i) => (highlight.includes(i) ? COLORS.HIGHLIGHT : COLORS.DEFAULT))
       .text((d) => d.value)
   }
 }
