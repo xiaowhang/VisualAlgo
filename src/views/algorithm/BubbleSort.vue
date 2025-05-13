@@ -5,7 +5,7 @@
     shadow="never"
   >
     <div class="flex flex-row">
-      <el-button @click="randomDataAndResetPlayer" :disabled="isPlaying"> 生成随机数据 </el-button>
+      <el-button @click="resetWithRandomData" :disabled="isPlaying"> 生成随机数据 </el-button>
     </div>
     <PlayerControls />
   </el-card>
@@ -26,12 +26,12 @@ const { createResetHandler } = playerStore
 const svgStore = useSvgStore()
 const { svgRef } = storeToRefs(svgStore)
 
-const barChartVisualizer = createBarChartVisualizer()
+const renderBarChart = createBarChartVisualizer()
 
 const { centerSvg } = useSvg(drawVisualization)
 
 onMounted(() => {
-  randomDataAndResetPlayer()
+  resetWithRandomData()
   centerSvg()
 })
 
@@ -43,8 +43,12 @@ watch(
   { deep: true },
 )
 
-function randomDataAndResetPlayer() {
-  const newData = Array.from({ length: 25 }, () => Math.floor(Math.random() * 20) + 1)
+function generateRandomData() {
+  return Array.from({ length: 25 }, () => Math.floor(Math.random() * 20) + 1)
+}
+
+function resetWithRandomData() {
+  const newData = generateRandomData()
   resetPlayer(newData)
   centerSvg()
 }
@@ -52,7 +56,7 @@ function randomDataAndResetPlayer() {
 function drawVisualization() {
   if (!svgRef.value) return
 
-  barChartVisualizer({
+  renderBarChart({
     svgElement: svgRef.value,
     data: playerData.value,
     highlight: playerHighlight.value,
