@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import algorithmRoutes from './algorithm'
 
 const routes = [
   {
@@ -11,11 +12,7 @@ const routes = [
         name: 'Welcome',
         component: () => import('@/views/Welcome.vue'),
       },
-      {
-        path: 'BubbleSort',
-        name: 'BubbleSort',
-        component: () => import('@/views/algorithm/BubbleSort.vue'),
-      },
+      ...algorithmRoutes,
     ],
   },
 ]
