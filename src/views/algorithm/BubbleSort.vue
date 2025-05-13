@@ -21,7 +21,7 @@ import { useSvgDrag, useSvgCenter } from '@/composable'
 
 const playerStore = usePlayerStore()
 const { isPlaying, playerData, playerHighlight, playerInterval } = storeToRefs(playerStore)
-const { reset } = playerStore
+const { createResetHandler } = playerStore
 
 const svgStore = useSvgStore()
 const { svgRef } = storeToRefs(svgStore)
@@ -62,5 +62,5 @@ function drawVisualization() {
   })
 }
 
-const resetPlayer = reset(generateBubbleSortSteps)
+const resetPlayer = createResetHandler(generateBubbleSortSteps)
 </script>

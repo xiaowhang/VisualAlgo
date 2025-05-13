@@ -56,7 +56,7 @@ export const usePlayerStore = defineStore('player', () => {
   })
 
   // Actions
-  function isVaildStep(step: number) {
+  function isValidStep(step: number) {
     return step >= 1 && step <= totalSteps.value
   }
 
@@ -70,14 +70,14 @@ export const usePlayerStore = defineStore('player', () => {
 
   function prev() {
     pause()
-    if (!isVaildStep(currentStep.value - 1)) return false
+    if (!isValidStep(currentStep.value - 1)) return false
     currentStep.value--
     return true
   }
 
   function next() {
     pause()
-    if (!isVaildStep(currentStep.value + 1)) return false
+    if (!isValidStep(currentStep.value + 1)) return false
     currentStep.value++
     return true
   }
@@ -101,12 +101,12 @@ export const usePlayerStore = defineStore('player', () => {
 
   function setCurrentStep(step: number) {
     pause()
-    if (!isVaildStep(step)) return false
+    if (!isValidStep(step)) return false
     currentStep.value = step
     return true
   }
 
-  function reset(generateStepsFn: (data: DataType[]) => AlgorithmStep[]) {
+  function createResetHandler(generateStepsFn: (data: DataType[]) => AlgorithmStep[]) {
     return function (data: number[]) {
       const dataWithIds = data.map((val, idx) => ({
         id: idx,
@@ -138,13 +138,13 @@ export const usePlayerStore = defineStore('player', () => {
     currentAction,
 
     // Actions
-    isVaildStep,
+    isValidStep,
     pause,
     prev,
     next,
     play,
-    reset,
     handlePlayToggle,
     setCurrentStep,
+    createResetHandler,
   }
 })
