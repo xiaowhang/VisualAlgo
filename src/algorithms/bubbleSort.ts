@@ -1,4 +1,5 @@
-import type { AlgorithmStep, DataType } from './types'
+import type { AlgorithmStep, DataType } from '../types/algorithm'
+import { type ColorKey } from '@/constants'
 
 /**
  * 生成冒泡排序的步骤
@@ -12,7 +13,7 @@ export function generateBubbleSortSteps(dataWithIdsInput: DataType[]): Algorithm
 
   steps.push({
     data: arr.slice(),
-    highlight: [],
+    highlight: new Map<number, ColorKey>(),
     action: 'initial',
   })
 
@@ -22,7 +23,10 @@ export function generateBubbleSortSteps(dataWithIdsInput: DataType[]): Algorithm
     for (let j = 0; j < n - 1 - i; j++) {
       steps.push({
         data: arr.slice(),
-        highlight: [j, j + 1],
+        highlight: new Map<number, ColorKey>([
+          [j, 'gold'],
+          [j + 1, 'gold'],
+        ]),
         action: 'compare',
       })
       if (arr[j].value > arr[j + 1].value) {
@@ -30,7 +34,10 @@ export function generateBubbleSortSteps(dataWithIdsInput: DataType[]): Algorithm
         swapped = true
         steps.push({
           data: arr.slice(),
-          highlight: [j, j + 1],
+          highlight: new Map<number, ColorKey>([
+            [j, 'gold'],
+            [j + 1, 'gold'],
+          ]),
           action: 'swap',
         })
       }
@@ -44,7 +51,7 @@ export function generateBubbleSortSteps(dataWithIdsInput: DataType[]): Algorithm
 
   steps.push({
     data: arr.slice(),
-    highlight: [],
+    highlight: new Map<number, ColorKey>(),
     action: 'sorted',
   })
 

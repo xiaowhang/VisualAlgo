@@ -1,7 +1,6 @@
 {
   "recommendations": [
     "vue.volar",
-    "csstools.postcss",
     "bradlc.vscode-tailwindcss",
     "dbaeumer.vscode-eslint",
     "EditorConfig.EditorConfig",

@@ -1,11 +1,11 @@
 import * as d3 from 'd3'
-import type { DataType } from '@/algorithms/types'
+import type { DataType, HighlightType } from '@/types'
 import { COLORS, DEFAULT_SQUARE_SIZE } from '@/constants'
 
 export interface VisualizerContext {
   svgElement: SVGSVGElement
   data: DataType[]
-  highlight: number[]
+  highlight: HighlightType
   animationDuration: number
 }
 
@@ -49,7 +49,10 @@ export function createBarChartVisualizer(squareSize: number = DEFAULT_SQUARE_SIZ
       )
       .attr('rx', 3)
       .attr('ry', 3)
-      .attr('fill', (d, i) => (highlight.includes(i) ? COLORS.HIGHLIGHT : COLORS.DEFAULT))
+      .attr('fill', (d, i) => {
+        const colorKey = highlight.get(i)
+        return colorKey !== undefined ? COLORS[colorKey][5] : COLORS.default[5]
+      })
 
     rectSelection
       .merge(enterRects)
@@ -60,7 +63,10 @@ export function createBarChartVisualizer(squareSize: number = DEFAULT_SQUARE_SIZ
       .attr('height', (d) =>
         d.value * squareSize > 0 ? d.value * squareSize : d.value === 0 ? 1 : 0,
       )
-      .attr('fill', (d, i) => (highlight.includes(i) ? COLORS.HIGHLIGHT : COLORS.DEFAULT))
+      .attr('fill', (d, i) => {
+        const colorKey = highlight.get(i)
+        return colorKey !== undefined ? COLORS[colorKey][5] : COLORS.default[5]
+      })
 
     // 绘制文本标签
     const textSelection = g
@@ -78,7 +84,10 @@ export function createBarChartVisualizer(squareSize: number = DEFAULT_SQUARE_SIZ
       .attr('text-anchor', 'middle')
       .attr('font-size', 14)
       .attr('x', (d, i) => i * (squareSize + squareSize / 10) + squareSize / 2)
-      .attr('fill', (d, i) => (highlight.includes(i) ? COLORS.HIGHLIGHT : COLORS.DEFAULT))
+      .attr('fill', (d, i) => {
+        const colorKey = highlight.get(i)
+        return colorKey !== undefined ? COLORS[colorKey][6] : COLORS.default[6]
+      })
       .text((d) => d.value)
 
     textSelection
@@ -87,7 +96,10 @@ export function createBarChartVisualizer(squareSize: number = DEFAULT_SQUARE_SIZ
       .duration(animationDuration)
       .attr('y', maxHeight + 15)
       .attr('x', (d, i) => i * (squareSize + squareSize / 10) + squareSize / 2)
-      .attr('fill', (d, i) => (highlight.includes(i) ? COLORS.HIGHLIGHT : COLORS.DEFAULT))
+      .attr('fill', (d, i) => {
+        const colorKey = highlight.get(i)
+        return colorKey !== undefined ? COLORS[colorKey][6] : COLORS.default[6]
+      })
       .text((d) => d.value)
   }
 }
