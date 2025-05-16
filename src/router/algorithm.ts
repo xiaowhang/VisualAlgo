@@ -7,6 +7,7 @@ const categoryMap: Record<string, string> = {
 const titleMap: Record<string, string> = {
   BubbleSort: '冒泡排序',
   SelectionSort: '选择排序',
+  InsertionSort: '插入排序',
 }
 
 const algorithmComponents = import.meta.glob('/src/views/algorithm/**/*.vue')

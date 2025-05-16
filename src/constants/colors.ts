@@ -1,6 +1,7 @@
 import {
   red,
   volcano,
+  orange,
   gold,
   yellow,
   lime,
@@ -17,6 +18,7 @@ import {
 export const COLORS = {
   red,
   volcano,
+  orange,
   gold,
   yellow,
   lime,
