@@ -1,4 +1,4 @@
-import type { AlgorithmStep, DataType } from '../types/algorithm'
+import type { AlgorithmStep, DataType } from '@/types'
 import { type ColorKey } from '@/constants'
 
 /**

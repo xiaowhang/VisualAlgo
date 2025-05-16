@@ -15,7 +15,7 @@
 import PlayerControls from '@/components/PlayerControls.vue'
 import { usePlayerStore, useSvgStore } from '@/store'
 import { storeToRefs } from 'pinia'
-import { generateBubbleSortSteps } from '@/algorithms/bubbleSort'
+import { generateBubbleSortSteps } from '@/algorithms'
 import { createBarChartVisualizer } from '@/visualizers/barChartVisualizer'
 import { useSvg } from '@/composable'
 
