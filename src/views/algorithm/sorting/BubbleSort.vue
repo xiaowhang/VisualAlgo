@@ -32,7 +32,6 @@ const { centerSvg } = useSvg(drawVisualization)
 
 onMounted(() => {
   resetWithRandomData()
-  centerSvg()
 })
 
 watch(
