@@ -1,5 +1,5 @@
 <template>
-  <el-header class="flex items-center px-8 py-4 bg-white shadow-md">
+  <el-header class="flex items-center !px-8 !py-4 bg-white shadow-md">
     <el-button link class="flex items-center">
       <el-breadcrumb :separator-icon="ArrowRight" class="!text-xl">
         <el-breadcrumb-item>算法可视化工具</el-breadcrumb-item>

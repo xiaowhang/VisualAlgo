@@ -1,5 +1,5 @@
 <template>
-  <el-aside :style="{ width: sideBarWidth + 'px' }" class="w-full p-1 bg-white m-2 rounded shadow">
+  <el-aside :style="{ width: sideBarWidth + 'px' }" class="p-1 bg-white m-2 rounded shadow">
     <el-scrollbar>
       <el-menu router unique-opened class="!border-r-0">
         <template v-for="(routes, category) in groupedRoutes" :key="category">
