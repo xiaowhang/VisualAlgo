@@ -10,7 +10,6 @@ export type HighlightType = Map<number, ColorKey>
 export type AlgorithmStep = {
   data: DataType[]
   highlight: Map<number, ColorKey>
-  action: string
 }
 
 export type AlgorithmConfig = {

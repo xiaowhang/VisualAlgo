@@ -14,7 +14,6 @@ export function generateBubbleSortSteps(dataWithIdsInput: DataType[]): Algorithm
   steps.push({
     data: arr.slice(),
     highlight: new Map<number, ColorKey>(),
-    action: 'initial',
   })
 
   let swapped = true
@@ -27,7 +26,6 @@ export function generateBubbleSortSteps(dataWithIdsInput: DataType[]): Algorithm
           [j, 'gold'],
           [j + 1, 'gold'],
         ]),
-        action: 'compare',
       })
       if (arr[j].value > arr[j + 1].value) {
         ;[arr[j], arr[j + 1]] = [arr[j + 1], arr[j]]
@@ -38,7 +36,6 @@ export function generateBubbleSortSteps(dataWithIdsInput: DataType[]): Algorithm
             [j, 'gold'],
             [j + 1, 'gold'],
           ]),
-          action: 'swap',
         })
       }
     }
@@ -52,7 +49,6 @@ export function generateBubbleSortSteps(dataWithIdsInput: DataType[]): Algorithm
   steps.push({
     data: arr.slice(),
     highlight: new Map<number, ColorKey>(),
-    action: 'sorted',
   })
 
   return steps

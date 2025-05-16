@@ -1,16 +1,5 @@
 import { defineStore } from 'pinia'
-import type { HighlightType } from '@/types'
-
-type DataType = {
-  id: number
-  value: number
-}
-
-type AlgorithmStep = {
-  data: DataType[]
-  highlight: HighlightType
-  action: string
-}
+import type { DataType, AlgorithmStep, HighlightType } from '@/types'
 
 export const usePlayerStore = defineStore('player', () => {
   // States
@@ -50,10 +39,6 @@ export const usePlayerStore = defineStore('player', () => {
 
   const playerHighlight = computed<HighlightType>(() => {
     return currentStepData.value ? currentStepData.value.highlight : new Map()
-  })
-
-  const currentAction = computed<string | null>(() => {
-    return currentStepData.value ? currentStepData.value.action : null
   })
 
   // Actions
@@ -136,7 +121,6 @@ export const usePlayerStore = defineStore('player', () => {
     currentStepData,
     playerData,
     playerHighlight,
-    currentAction,
 
     // Actions
     isValidStep,
