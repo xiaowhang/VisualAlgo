@@ -9,6 +9,7 @@ const titleMap: Record<string, string> = {
   SelectionSort: '选择排序',
   InsertionSort: '插入排序',
   ShellSort: '希尔排序',
+  QuickSort: '快速排序',
 }
 
 const algorithmComponents = import.meta.glob('/src/views/algorithm/**/*.vue')
