@@ -1,16 +1,5 @@
 import type { RouteRecordRaw } from 'vue-router'
-
-const categoryMap: Record<string, string> = {
-  sorting: '排序',
-}
-
-const titleMap: Record<string, string> = {
-  BubbleSort: '冒泡排序',
-  SelectionSort: '选择排序',
-  InsertionSort: '插入排序',
-  ShellSort: '希尔排序',
-  QuickSort: '快速排序',
-}
+import { categoryMap, titleMap, type Category, type Title } from '@/constants'
 
 const algorithmComponents = import.meta.glob('/src/views/algorithm/**/*.vue')
 
@@ -30,8 +19,8 @@ for (const path in algorithmComponents) {
     component: algorithmComponents[path],
     name: routeName,
     meta: {
-      category: categoryMap[pathSegments[0]],
-      title: titleMap[pathSegments[1]],
+      category: categoryMap[pathSegments[0] as Category],
+      title: titleMap[pathSegments[1] as Title],
     },
   }
 
