@@ -1,7 +1,14 @@
 <script setup lang="ts">
-import HelloWorld from './components/HelloWorld.vue';
+import AppSidebar from '@/components/AppSidebar.vue';
+import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 </script>
 
 <template>
-  <HelloWorld />
+  <SidebarProvider>
+    <AppSidebar />
+    <main>
+      <SidebarTrigger />
+      <slot />
+    </main>
+  </SidebarProvider>
 </template>
