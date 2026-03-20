@@ -12,7 +12,7 @@ export default defineConfig({
     vue(),
     tailwindcss(),
     AutoImport({
-      imports: ['vue'],
+      imports: ['vue', 'vue-router'],
       dts: true,
     }),
     Components({

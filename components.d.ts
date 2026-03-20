@@ -41,6 +41,8 @@ declare module 'vue' {
     PlaybackController: typeof import('./src/components/PlaybackController.vue')['default']
     PlaybackControls: typeof import('./src/components/PlaybackControls.vue')['default']
     Pseudocode: typeof import('./src/components/Pseudocode.vue')['default']
+    RouterLink: typeof import('vue-router')['RouterLink']
+    RouterView: typeof import('vue-router')['RouterView']
     Separator: typeof import('./src/components/ui/separator/Separator.vue')['default']
     SettingsPanel: typeof import('./src/components/SettingsPanel.vue')['default']
     Sheet: typeof import('./src/components/ui/sheet/Sheet.vue')['default']
