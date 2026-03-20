@@ -1,17 +1,3 @@
-<script setup lang="ts">
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { FieldContent, FieldDescription, FieldGroup, FieldLegend } from '@/components/ui/field';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-</script>
-
 <template>
   <div class="w-80 bg-sidebar border-l border-sidebar-border flex flex-col gap-8 p-6">
     <Fieldset>

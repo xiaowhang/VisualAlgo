@@ -1,5 +1,3 @@
-<script setup lang="ts"></script>
-
 <template>
   <div
     class="w-full h-20 bg-sidebar border-t border-sidebar-border flex items-center justify-center gap-4"
