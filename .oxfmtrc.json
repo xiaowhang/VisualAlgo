@@ -3,5 +3,10 @@
   "ignorePatterns": [],
   "arrowParens": "avoid",
   "singleQuote": true,
-  "trailingComma": "es5"
+  "trailingComma": "es5",
+  "sortTailwindcss": {
+    "stylesheet": "./src/style/index.css",
+    "functions": ["clsx", "cn", "cva", "tw"],
+    "preserveWhitespace": true
+  }
 }

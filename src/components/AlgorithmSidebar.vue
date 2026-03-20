@@ -44,17 +44,17 @@ const sections = [
     <SidebarHeader class="px-4 pt-4">
       <div class="relative">
         <Search
-          class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+          class="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground"
         />
         <Input placeholder="Search algo..." class="pl-9" />
       </div>
     </SidebarHeader>
-    <SidebarContent class="px-2 pb-6 pt-2 gap-0">
+    <SidebarContent class="gap-0 px-2 pt-2 pb-6">
       <SidebarGroup v-for="section in sections" :key="section.label" as-child>
         <Collapsible :default-open="section.defaultOpen" class="group/collapsible">
           <SidebarGroupLabel as-child>
             <CollapsibleTrigger
-              class="flex w-full h-12 items-center gap-2 rounded-md px-3 py-2 text-2xl font-semibold uppercase tracking-wide text-muted-foreground hover:bg-[#f1f5f9]"
+              class="flex h-12 w-full items-center gap-2 rounded-md px-3 py-2 text-2xl font-semibold tracking-wide text-muted-foreground uppercase hover:bg-[#f1f5f9]"
             >
               <span>{{ section.label }}</span>
               <ChevronRight
@@ -69,7 +69,7 @@ const sections = [
                   <SidebarMenuButton
                     as-child
                     :isActive="item.active"
-                    class="gap-3 h-10 rounded-[6px] px-3.25 py-2.25 text-sm hover:bg-[#f1f5f9]"
+                    class="h-10 gap-3 rounded-[6px] px-3.25 py-2.25 text-sm hover:bg-[#f1f5f9]"
                     :class="
                       item.active
                         ? 'border border-[#f1f5f9] bg-white shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)]'

@@ -1,6 +1,6 @@
 <template>
   <div
-    class="w-full h-20 bg-sidebar border-t border-sidebar-border flex items-center justify-center gap-4"
+    class="flex h-20 w-full items-center justify-center gap-4 border-t border-sidebar-border bg-sidebar"
   >
     <Button variant="outline">Play</Button>
     <Button variant="outline">Pause</Button>

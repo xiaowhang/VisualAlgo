@@ -1,5 +1,5 @@
 <template>
-  <div class="w-80 bg-sidebar border-l border-sidebar-border flex flex-col gap-8 p-6">
+  <div class="flex w-80 flex-col gap-8 border-l border-sidebar-border bg-sidebar p-6">
     <Fieldset>
       <FieldLegend>Generation</FieldLegend>
       <FieldContent>
@@ -12,7 +12,7 @@
       <FieldContent>
         <FieldGroup class="flex flex-row items-center gap-4">
           <div
-            class="w-10 h-8 flex items-center justify-center border rounded text-sm font-mono bg-muted/30"
+            class="flex h-8 w-10 items-center justify-center rounded border bg-muted/30 font-mono text-sm"
           >
             50
           </div>
