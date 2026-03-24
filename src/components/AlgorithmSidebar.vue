@@ -1,65 +1,58 @@
 <script setup lang="ts">
-import {
-  BarChart3,
-  BarChart4,
-  ChevronRight,
-  Network,
-  Route,
-  Search,
-  Shuffle,
-} from 'lucide-vue-next';
+import { computed, ref } from 'vue';
+import { useRoute } from 'vue-router';
+import { algorithmMenuByCategory } from '@/algorithms/registry';
 
-const sections = [
+const route = useRoute();
+const keyword = ref('');
+
+const sections = computed(() => [
   {
     label: 'Sorting',
+    category: 'sorting' as const,
     defaultOpen: true,
-    items: [
-      { title: 'Quick Sort', url: '#', icon: BarChart3, active: true },
-      { title: 'Merge Sort', url: '#', icon: BarChart4 },
-      { title: 'Bubble Sort', url: '#', icon: Shuffle },
-      { title: 'Insertion Sort', url: '#', icon: BarChart3 },
-    ],
-  },
-  {
-    label: 'Pathfinding',
-    defaultOpen: false,
-    items: [
-      { title: 'A* Search', url: '#', icon: Route },
-      { title: 'Dijkstra', url: '#', icon: Route },
-    ],
+    items: algorithmMenuByCategory.sorting,
   },
   {
     label: 'Graphs',
+    category: 'graphs' as const,
     defaultOpen: false,
-    items: [
-      { title: 'BFS', url: '#', icon: Network },
-      { title: 'DFS', url: '#', icon: Network },
-    ],
+    items: algorithmMenuByCategory.graphs,
   },
-];
+]);
+
+const filteredSections = computed(() => {
+  const query = keyword.value.trim().toLowerCase();
+  if (!query) {
+    return sections.value;
+  }
+
+  return sections.value
+    .map(section => ({
+      ...section,
+      items: section.items.filter(item => item.title.toLowerCase().includes(query)),
+    }))
+    .filter(section => section.items.length > 0);
+});
+
+function isActive(category: string, slug: string) {
+  return route.params.category === category && route.params.slug === slug;
+}
 </script>
 
 <template>
   <Sidebar>
     <SidebarHeader class="px-4 pt-4">
-      <div class="relative">
-        <Search
-          class="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground"
-        />
-        <Input placeholder="Search algo..." class="pl-9" />
-      </div>
+      <Input v-model="keyword" placeholder="Search algo..." />
     </SidebarHeader>
     <SidebarContent class="gap-0 px-2 pt-2 pb-6">
-      <SidebarGroup v-for="section in sections" :key="section.label" as-child>
+      <SidebarGroup v-for="section in filteredSections" :key="section.label" as-child>
         <Collapsible :default-open="section.defaultOpen" class="group/collapsible">
           <SidebarGroupLabel as-child>
             <CollapsibleTrigger
-              class="flex h-12 w-full items-center gap-2 rounded-md px-3 py-2 text-2xl font-semibold tracking-wide text-muted-foreground uppercase hover:bg-[#f1f5f9]"
+              class="flex h-12 w-full items-center rounded-md px-3 py-2 text-2xl font-semibold tracking-wide text-muted-foreground uppercase hover:bg-muted"
             >
               <span>{{ section.label }}</span>
-              <ChevronRight
-                class="ml-auto h-4 w-4 transition-transform group-data-[state=open]/collapsible:rotate-90"
-              />
             </CollapsibleTrigger>
           </SidebarGroupLabel>
           <CollapsibleContent>
@@ -68,23 +61,28 @@ const sections = [
                 <SidebarMenuItem v-for="item in section.items" :key="item.title">
                   <SidebarMenuButton
                     as-child
-                    :isActive="item.active"
-                    class="h-10 gap-3 rounded-[6px] px-3.25 py-2.25 text-sm hover:bg-[#f1f5f9]"
+                    :isActive="isActive(item.category, item.slug)"
+                    class="h-10 gap-3 rounded-md px-3 py-2 text-sm hover:bg-muted"
                     :class="
-                      item.active
-                        ? 'border border-[#f1f5f9] bg-white shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)]'
+                      isActive(item.category, item.slug)
+                        ? 'border border-border bg-background'
                         : 'border border-transparent'
                     "
                   >
-                    <a :href="item.url">
-                      <component
-                        :is="item.icon"
-                        :class="['h-4 w-4', item.active ? 'text-[#0066cc]' : 'text-inherit']"
-                      />
-                      <span :class="item.active ? 'text-[#0066cc]' : 'text-inherit'">
+                    <RouterLink
+                      :to="{
+                        name: 'AlgorithmView',
+                        params: { category: item.category, slug: item.slug },
+                      }"
+                    >
+                      <span
+                        :class="
+                          isActive(item.category, item.slug) ? 'text-primary' : 'text-inherit'
+                        "
+                      >
                         {{ item.title }}
                       </span>
-                    </a>
+                    </RouterLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               </SidebarMenu>
