@@ -2,11 +2,15 @@ import { defineStore } from 'pinia';
 import { ref } from 'vue';
 
 const graphNodeIds = ['A', 'B', 'C', 'D', 'E', 'F'] as const;
-const SORTING_MIN_SIZE = 3;
-const SORTING_MAX_SIZE = 50;
+export const SORTING_MIN_SIZE = 3;
+export const SORTING_MAX_SIZE = 50;
+
+function clampSortingSize(size: number) {
+  return Math.min(SORTING_MAX_SIZE, Math.max(SORTING_MIN_SIZE, size));
+}
 
 function createRandomSortingData(size: number) {
-  return Array.from({ length: Math.max(3, size) }, () => Math.floor(Math.random() * 90) + 10);
+  return Array.from({ length: clampSortingSize(size) }, () => Math.floor(Math.random() * 90) + 10);
 }
 
 export const useAlgorithmInputsStore = defineStore('algorithm-inputs', () => {
@@ -14,8 +18,10 @@ export const useAlgorithmInputsStore = defineStore('algorithm-inputs', () => {
   const graphStartNode = ref<(typeof graphNodeIds)[number]>('A');
   const dataVersion = ref(0);
 
-  function randomizeAlgorithmInput() {
-    sortingInput.value = createRandomSortingData(sortingInput.value.length || 8);
+  function randomizeAlgorithmInput(size?: number) {
+    const baseSize = size ?? sortingInput.value.length;
+    const targetSize = clampSortingSize(Math.trunc(baseSize > 0 ? baseSize : 8));
+    sortingInput.value = createRandomSortingData(targetSize);
     graphStartNode.value = graphNodeIds[Math.floor(Math.random() * graphNodeIds.length)];
     dataVersion.value += 1;
   }
