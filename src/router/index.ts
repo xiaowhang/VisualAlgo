@@ -7,6 +7,11 @@ const routes = [
     name: 'Home',
     component: Home,
   },
+  {
+    path: '/algorithm/:category/:slug',
+    name: 'AlgorithmView',
+    component: () => import('@/views/AlgorithmView.vue'),
+  },
 ];
 
 const router = createRouter({
