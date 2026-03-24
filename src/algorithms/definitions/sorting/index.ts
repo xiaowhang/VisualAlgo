@@ -1,0 +1,12 @@
+import { bubbleSortRegistry } from '@/algorithms/definitions/sorting/bubble-sort.registry';
+import { insertionSortRegistry } from '@/algorithms/definitions/sorting/insertion-sort.registry';
+import { mergeSortRegistry } from '@/algorithms/definitions/sorting/merge-sort.registry';
+import { quickSortRegistry } from '@/algorithms/definitions/sorting/quick-sort.registry';
+import type { AlgorithmDefinition } from '@/types/algorithm';
+
+export const sortingRegistries: AlgorithmDefinition[] = [
+  quickSortRegistry,
+  mergeSortRegistry,
+  bubbleSortRegistry,
+  insertionSortRegistry,
+];
