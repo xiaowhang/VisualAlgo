@@ -84,6 +84,12 @@
 - `src/router/index.ts`：路由入口
 - `src/views/AlgorithmView.vue`：算法页面主流程
 
+### 4.8 参考资料与技能资源
+
+- Vue、Pinia、Vue Router：查看 `.agents/skills` 中对应内容（如 `vue-best-practices`、`vue-pinia-best-practices`、`vue-router-best-practices`）
+- shadcn-vue：查看 shadcn mcp
+- D3：查看 context7 mcp
+
 ## 5. Commit 规范
 
 采用 Conventional Commits 规范，所有 commit message 必须遵循此格式，确保提交历史清晰、可读且便于自动生成 changelog。
