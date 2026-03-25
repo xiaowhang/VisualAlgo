@@ -10,7 +10,7 @@ function clampSortingSize(size: number) {
 }
 
 function createRandomSortingData(size: number) {
-  return Array.from({ length: clampSortingSize(size) }, () => Math.floor(Math.random() * 90) + 10);
+  return Array.from({ length: clampSortingSize(size) }, () => Math.floor(Math.random() * 40) + 10);
 }
 
 export const useAlgorithmInputsStore = defineStore('algorithm-inputs', () => {

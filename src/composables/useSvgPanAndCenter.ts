@@ -7,6 +7,38 @@ interface Bounds {
   maxY: number;
 }
 
+function resolveSvgElement(target: EventTarget | null) {
+  if (target instanceof SVGSVGElement) {
+    return target;
+  }
+
+  if (target instanceof Element) {
+    const nestedSvg = target.querySelector('svg');
+    if (nestedSvg instanceof SVGSVGElement) {
+      return nestedSvg;
+    }
+  }
+
+  return null;
+}
+
+function toSvgPoint(svgElement: SVGSVGElement, event: PointerEvent) {
+  const screenMatrix = svgElement.getScreenCTM();
+  if (!screenMatrix) {
+    return null;
+  }
+
+  const point = svgElement.createSVGPoint();
+  point.x = event.clientX;
+  point.y = event.clientY;
+
+  const svgPoint = point.matrixTransform(screenMatrix.inverse());
+  return {
+    x: svgPoint.x,
+    y: svgPoint.y,
+  };
+}
+
 export function useSvgPanAndCenter(disabled: () => boolean) {
   const offsetX = ref(0);
   const offsetY = ref(0);
@@ -14,17 +46,34 @@ export function useSvgPanAndCenter(disabled: () => boolean) {
 
   let startClientX = 0;
   let startClientY = 0;
+  let activeSvgElement: SVGSVGElement | null = null;
+  let previousSvgX = 0;
+  let previousSvgY = 0;
 
   function handlePointerMove(event: PointerEvent) {
     if (!dragging.value) {
       return;
     }
 
-    const deltaX = event.clientX - startClientX;
-    const deltaY = event.clientY - startClientY;
+    if (activeSvgElement) {
+      const currentPoint = toSvgPoint(activeSvgElement, event);
+      if (currentPoint) {
+        const deltaX = currentPoint.x - previousSvgX;
+        const deltaY = currentPoint.y - previousSvgY;
 
-    offsetX.value += deltaX;
-    offsetY.value += deltaY;
+        offsetX.value += deltaX;
+        offsetY.value += deltaY;
+
+        previousSvgX = currentPoint.x;
+        previousSvgY = currentPoint.y;
+      }
+    } else {
+      const deltaX = event.clientX - startClientX;
+      const deltaY = event.clientY - startClientY;
+
+      offsetX.value += deltaX;
+      offsetY.value += deltaY;
+    }
 
     startClientX = event.clientX;
     startClientY = event.clientY;
@@ -32,6 +81,7 @@ export function useSvgPanAndCenter(disabled: () => boolean) {
 
   function handlePointerUp() {
     dragging.value = false;
+    activeSvgElement = null;
     window.removeEventListener('pointermove', handlePointerMove);
     window.removeEventListener('pointerup', handlePointerUp);
   }
@@ -41,9 +91,19 @@ export function useSvgPanAndCenter(disabled: () => boolean) {
       return;
     }
 
+    activeSvgElement = resolveSvgElement(event.currentTarget);
+
     dragging.value = true;
     startClientX = event.clientX;
     startClientY = event.clientY;
+
+    if (activeSvgElement) {
+      const startPoint = toSvgPoint(activeSvgElement, event);
+      if (startPoint) {
+        previousSvgX = startPoint.x;
+        previousSvgY = startPoint.y;
+      }
+    }
 
     window.addEventListener('pointermove', handlePointerMove);
     window.addEventListener('pointerup', handlePointerUp);

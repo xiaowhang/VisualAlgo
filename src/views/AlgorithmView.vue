@@ -68,7 +68,7 @@ watch(
 </script>
 
 <template>
-  <div class="mx-auto flex h-full w-full max-w-5xl flex-col p-6">
+  <div class="mx-auto flex h-full w-full flex-col p-6">
     <SortingChart
       v-if="activeAlgorithm && activeAlgorithm.visualization === 'sorting'"
       :step="sortingStep"
