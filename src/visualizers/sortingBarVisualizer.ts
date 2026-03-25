@@ -8,6 +8,12 @@ interface RenderSortingBarsContext {
   transform?: string;
 }
 
+interface SortingBarDatum {
+  index: number;
+  value: number;
+  fill: string;
+}
+
 function resolveCssColorToken(svgElement: SVGSVGElement, colorToken: string) {
   const token = colorToken.trim();
 
@@ -64,14 +70,14 @@ export function renderSortingBars(context: RenderSortingBarsContext) {
 
   const transition = d3.transition().duration(260).ease(d3.easeCubicOut);
 
-  const barsData = step.values.map((value, index) => ({
+  const barsData: SortingBarDatum[] = step.values.map((value, index) => ({
     index,
     value,
     fill: resolveCssColorToken(svgElement, resolveSortingBarColor(step, index)),
   }));
 
   const bars = group
-    .selectAll('rect')
+    .selectAll<SVGRectElement, SortingBarDatum>('rect')
     .data(barsData, item => item.index)
     .join(
       enter =>
@@ -100,7 +106,7 @@ export function renderSortingBars(context: RenderSortingBarsContext) {
     .attr('fill', item => item.fill);
 
   const labels = group
-    .selectAll('text.value')
+    .selectAll<SVGTextElement, SortingBarDatum>('text.value')
     .data(barsData, item => item.index)
     .join(
       enter =>

@@ -20,6 +20,8 @@ const algorithmInputs = {
   ...algorithmInputsRefs,
   randomizeAlgorithmInput: algorithmInputsStore.randomizeAlgorithmInput,
   applyCustomSortingInput: algorithmInputsStore.applyCustomSortingInput,
+  exportSortingAsJsonText: algorithmInputsStore.exportSortingAsJsonText,
+  importSortingFromJsonText: algorithmInputsStore.importSortingFromJsonText,
 };
 const playback = {
   ...playbackRefs,
@@ -47,6 +49,7 @@ const sizeError = ref(false);
 const customData = ref(algorithmInputs.sortingInput.value.join(', '));
 const customDataMessage = ref('');
 const customDataError = ref(false);
+const fileInputRef = ref<HTMLInputElement | null>(null);
 
 watch(sortingSize, value => {
   sizeInput.value = String(value);
@@ -99,6 +102,64 @@ function randomizeData() {
   customData.value = algorithmInputs.sortingInput.value.join(', ');
   customDataError.value = false;
   customDataMessage.value = `已按 ${size} 个元素生成随机输入。`;
+}
+
+function downloadTextFile(fileName: string, content: string, mimeType: string) {
+  const blob = new Blob([content], { type: mimeType });
+  const objectUrl = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = objectUrl;
+  link.download = fileName;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(objectUrl);
+}
+
+function exportJsonFile() {
+  const text = algorithmInputs.exportSortingAsJsonText();
+  const now = new Date();
+  const pad = (value: number) => String(value).padStart(2, '0');
+  const fileName = `sorting-input-${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}-${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}.json`;
+  downloadTextFile(fileName, text, 'application/json;charset=utf-8');
+  customDataError.value = false;
+  customDataMessage.value = '已导出 JSON 文件。';
+}
+
+function openImportFileDialog() {
+  fileInputRef.value?.click();
+}
+
+async function handleImportFile(event: Event) {
+  const input = event.target as HTMLInputElement;
+  const file = input.files?.[0];
+
+  if (!file) {
+    return;
+  }
+
+  try {
+    const text = await file.text();
+    const lowerCaseName = file.name.toLowerCase();
+    const result = lowerCaseName.endsWith('.json')
+      ? algorithmInputs.importSortingFromJsonText(text)
+      : {
+          ok: false,
+          message: '仅支持 .json 文件。',
+        };
+
+    customDataError.value = !result.ok;
+    customDataMessage.value = result.message;
+
+    if (result.ok) {
+      customData.value = algorithmInputs.sortingInput.value.join(', ');
+    }
+  } catch {
+    customDataError.value = true;
+    customDataMessage.value = '读取文件失败，请重试。';
+  } finally {
+    input.value = '';
+  }
 }
 </script>
 
@@ -166,6 +227,26 @@ function randomizeData() {
             >
               {{ customDataMessage }}
             </span>
+          </div>
+        </FieldGroup>
+      </FieldContent>
+    </Fieldset>
+
+    <Fieldset>
+      <FieldLegend>Import / Export</FieldLegend>
+      <FieldContent>
+        <FieldGroup class="flex flex-col gap-2">
+          <FieldDescription>支持 JSON 文件</FieldDescription>
+          <div class="flex flex-wrap items-center gap-2">
+            <Button variant="outline" size="sm" @click="exportJsonFile">Export JSON</Button>
+            <Button size="sm" @click="openImportFileDialog">Import File</Button>
+            <input
+              ref="fileInputRef"
+              type="file"
+              accept=".json"
+              class="hidden"
+              @change="handleImportFile"
+            />
           </div>
         </FieldGroup>
       </FieldContent>

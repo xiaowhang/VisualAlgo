@@ -1,10 +1,18 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
+import {
+  SORTING_DEFAULT_SIZE,
+  SORTING_MAX_SIZE,
+  SORTING_MIN_SIZE,
+  SORTING_SNAPSHOT_FORMAT_VERSION,
+  parseCustomSortingInputText,
+  parseSortingImportJson,
+  validateSortingNumbers,
+  type SortingInputResult,
+} from '@/lib/validation/sortingInput';
 
 const graphNodeIds = ['A', 'B', 'C', 'D', 'E', 'F'] as const;
-export const SORTING_MIN_SIZE = 3;
-export const SORTING_MAX_SIZE = 50;
-const SORTING_DEFAULT_SIZE = 14;
+export { SORTING_MIN_SIZE, SORTING_MAX_SIZE };
 
 function clampSortingSize(size: number) {
   return Math.min(SORTING_MAX_SIZE, Math.max(SORTING_MIN_SIZE, size));
@@ -19,6 +27,22 @@ export const useAlgorithmInputsStore = defineStore('algorithm-inputs', () => {
   const graphStartNode = ref<(typeof graphNodeIds)[number]>('A');
   const dataVersion = ref(0);
 
+  function applySortingInput(numbers: number[], successMessage: string): SortingInputResult {
+    const validationResult = validateSortingNumbers(numbers);
+
+    if (!validationResult.ok) {
+      return validationResult;
+    }
+
+    sortingInput.value = numbers;
+    dataVersion.value += 1;
+
+    return {
+      ok: true,
+      message: successMessage,
+    };
+  }
+
   function randomizeAlgorithmInput(size?: number) {
     const baseSize = size ?? sortingInput.value.length;
     const targetSize = clampSortingSize(Math.trunc(baseSize > 0 ? baseSize : SORTING_DEFAULT_SIZE));
@@ -28,34 +52,43 @@ export const useAlgorithmInputsStore = defineStore('algorithm-inputs', () => {
   }
 
   function applyCustomSortingInput(rawText: string) {
-    const parts = rawText
-      .split(',')
-      .map(part => part.trim())
-      .filter(Boolean);
+    const parseResult = parseCustomSortingInputText(rawText);
 
-    if (parts.length < SORTING_MIN_SIZE || parts.length > SORTING_MAX_SIZE) {
+    if (!parseResult.ok) {
       return {
         ok: false,
-        message: `请输入 ${SORTING_MIN_SIZE}-${SORTING_MAX_SIZE} 个整数。`,
+        message: parseResult.message,
+      };
+    }
+
+    const numbers = parseResult.numbers;
+    return applySortingInput(numbers, `已应用 ${numbers.length} 个元素。`);
+  }
+
+  function exportSortingAsJsonText() {
+    return JSON.stringify(
+      {
+        formatVersion: SORTING_SNAPSHOT_FORMAT_VERSION,
+        sortingInput: sortingInput.value,
+      },
+      null,
+      2
+    );
+  }
+
+  function importSortingFromJsonText(rawText: string) {
+    const importResult = parseSortingImportJson(rawText);
+
+    if (!importResult.ok) {
+      return {
+        ok: false,
+        message: importResult.message,
       } as const;
     }
 
-    const numbers = parts.map(value => Number(value));
+    const numbers = importResult.numbers;
 
-    if (numbers.some(value => !Number.isInteger(value) || Number.isNaN(value))) {
-      return {
-        ok: false,
-        message: '仅支持逗号分隔的整数。',
-      } as const;
-    }
-
-    sortingInput.value = numbers;
-    dataVersion.value += 1;
-
-    return {
-      ok: true,
-      message: `已应用 ${numbers.length} 个元素。`,
-    } as const;
+    return applySortingInput(numbers, `已导入 ${numbers.length} 个元素。`);
   }
 
   return {
@@ -64,5 +97,7 @@ export const useAlgorithmInputsStore = defineStore('algorithm-inputs', () => {
     dataVersion,
     randomizeAlgorithmInput,
     applyCustomSortingInput,
+    exportSortingAsJsonText,
+    importSortingFromJsonText,
   };
 });
