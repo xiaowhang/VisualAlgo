@@ -1,14 +1,15 @@
-import { adjacencyList } from '@/algorithms/shared/graph/fixtures';
 import { createGraphStep } from '@/algorithms/shared/graph/createGraphStep';
-import { getGraphStartNode } from '@/algorithms/shared/inputs';
+import { getGraphSnapshot, getGraphStartNode } from '@/algorithms/shared/inputs';
 import type { AlgorithmDefinition, AlgorithmStep } from '@/types/algorithm';
 
 function buildDfsSteps(startNode = 'A'): AlgorithmStep[] {
+  const graph = getGraphSnapshot();
+  const adjacencyList = graph.adjacencyList;
   const visited = new Set<string>();
   const stack: string[] = [startNode];
   const order: string[] = [];
   const steps: AlgorithmStep[] = [
-    createGraphStep(null, visited, stack, order, `初始化栈：${startNode}`),
+    createGraphStep(graph, null, visited, stack, order, `初始化栈：${startNode}`),
   ];
 
   while (stack.length > 0) {
@@ -20,7 +21,7 @@ function buildDfsSteps(startNode = 'A'): AlgorithmStep[] {
 
     visited.add(current);
     order.push(current);
-    steps.push(createGraphStep(current, visited, stack, order, `访问节点 ${current}`));
+    steps.push(createGraphStep(graph, current, visited, stack, order, `访问节点 ${current}`));
 
     const neighbors = (adjacencyList.get(current) ?? []).toReversed();
     for (const neighbor of neighbors) {
@@ -29,10 +30,12 @@ function buildDfsSteps(startNode = 'A'): AlgorithmStep[] {
       }
     }
 
-    steps.push(createGraphStep(current, visited, stack, order, `深入 ${current} 的邻接节点`));
+    steps.push(
+      createGraphStep(graph, current, visited, stack, order, `深入 ${current} 的邻接节点`)
+    );
   }
 
-  steps.push(createGraphStep(null, visited, [], order, '遍历完成'));
+  steps.push(createGraphStep(graph, null, visited, [], order, '遍历完成'));
   return steps;
 }
 

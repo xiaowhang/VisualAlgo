@@ -1,7 +1,8 @@
-import { graphEdges, graphNodes } from '@/algorithms/shared/graph/fixtures';
+import type { GraphSnapshot } from '@/algorithms/shared/inputs';
 import type { AlgorithmStep } from '@/types/algorithm';
 
 export function createGraphStep(
+  graph: GraphSnapshot,
   current: string | null,
   visited: Set<string>,
   frontier: string[],
@@ -10,8 +11,8 @@ export function createGraphStep(
 ): AlgorithmStep {
   return {
     kind: 'graph',
-    nodes: graphNodes,
-    edges: graphEdges,
+    nodes: graph.nodes,
+    edges: graph.edges,
     current,
     visited: [...visited],
     frontier: [...frontier],

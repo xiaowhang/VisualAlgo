@@ -57,6 +57,13 @@ const graphStep = computed(() => {
   return step as GraphStep;
 });
 
+const graphAlgorithmKey = computed(() => {
+  if (!activeAlgorithm.value || activeAlgorithm.value.visualization !== 'graph') {
+    return null;
+  }
+  return `${activeAlgorithm.value.category}:${activeAlgorithm.value.id}`;
+});
+
 watch(
   [() => activeAlgorithm.value?.id, () => algorithmInputs.dataVersion.value],
   () => {
@@ -73,7 +80,11 @@ watch(
       v-if="activeAlgorithm && activeAlgorithm.visualization === 'sorting'"
       :step="sortingStep"
     />
-    <GraphTraversalView v-else-if="activeAlgorithm" :step="graphStep" />
+    <GraphTraversalView
+      v-else-if="activeAlgorithm"
+      :step="graphStep"
+      :algorithm-key="graphAlgorithmKey"
+    />
     <div v-else class="rounded-md border bg-muted/30 p-3 text-sm text-muted-foreground">
       算法未找到，请从左侧重新选择算法。
     </div>

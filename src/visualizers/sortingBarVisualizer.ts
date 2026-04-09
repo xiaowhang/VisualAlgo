@@ -1,6 +1,7 @@
 import * as d3 from 'd3';
 import type { SortingStep } from '@/types/algorithm';
 import { resolveSortingBarColor, VISUALIZATION_COLOR_TOKENS } from './colorSemantics';
+import { resolveCssColorToken } from './resolveCssColorToken';
 
 interface RenderSortingBarsContext {
   svgElement: SVGSVGElement;
@@ -12,29 +13,6 @@ interface SortingBarDatum {
   index: number;
   value: number;
   fill: string;
-}
-
-function resolveCssColorToken(svgElement: SVGSVGElement, colorToken: string) {
-  const token = colorToken.trim();
-
-  if (!token.startsWith('var(')) {
-    return token;
-  }
-
-  const variableName = token.slice(4, -1).trim();
-  if (!variableName) {
-    return token;
-  }
-
-  const computedColor = getComputedStyle(svgElement).getPropertyValue(variableName).trim();
-  if (computedColor) {
-    return computedColor;
-  }
-
-  const rootColor = getComputedStyle(document.documentElement)
-    .getPropertyValue(variableName)
-    .trim();
-  return rootColor || token;
 }
 
 export function renderSortingBars(context: RenderSortingBarsContext) {
