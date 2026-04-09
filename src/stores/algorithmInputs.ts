@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import type { GraphEdge, GraphNode } from '@/types/algorithm';
+import { computeStableForceLayout } from '@/visualizers/graphLayout';
 import {
   SORTING_DEFAULT_SIZE,
   SORTING_MAX_SIZE,
@@ -36,28 +37,7 @@ function createGraphNodeIds(count: number) {
 }
 
 function createRandomGraphData(nodeIds: readonly string[]) {
-  const width = 760;
-  const height = 340;
-  const margin = 56;
-  const radius = Math.min(width, height) * 0.34;
-  const centerX = width / 2;
-  const centerY = height / 2;
-
-  const nodes: GraphNode[] = nodeIds.map((id, index) => {
-    const baseAngle = (Math.PI * 2 * index) / nodeIds.length;
-    const jitterAngle = (Math.random() - 0.5) * 0.48;
-    const jitterRadius = radius * (Math.random() * 0.24 - 0.12);
-    const x = centerX + Math.cos(baseAngle + jitterAngle) * (radius + jitterRadius);
-    const y = centerY + Math.sin(baseAngle + jitterAngle) * (radius + jitterRadius);
-
-    return {
-      id,
-      x: Math.max(margin, Math.min(width - margin, Math.round(x))),
-      y: Math.max(margin, Math.min(height - margin, Math.round(y))),
-    };
-  });
-
-  const indexById = new Map(nodes.map((node, index) => [node.id, index]));
+  const indexById = new Map(nodeIds.map((id, index) => [id, index]));
   const edgeSet = new Set<string>();
 
   function createEdgeKey(a: string, b: string) {
@@ -100,6 +80,14 @@ function createRandomGraphData(nodeIds: readonly string[]) {
   const edges: GraphEdge[] = [...edgeSet].map(key => {
     const [source, target] = key.split('|');
     return { source, target };
+  });
+
+  const nodes = computeStableForceLayout(nodeIds, edges, {
+    width: 760,
+    height: 340,
+    margin: 56,
+    nodeRadius: 24,
+    collisionPadding: 8,
   });
 
   const adjacencyList = new Map<string, string[]>(nodeIds.map(id => [id, []]));

@@ -14,7 +14,7 @@ const GRAPH_VIEWBOX = {
 } as const;
 const GRAPH_ANIMATION_DURATION = 260;
 const GRAPH_NODE_RADIUS = 24;
-const GRAPH_BOUNDS_PADDING = 28;
+const GRAPH_BOUNDS_PADDING = GRAPH_NODE_RADIUS + 10;
 
 const props = defineProps<{
   step: GraphStep | null;
