@@ -70,7 +70,7 @@ const isCompareActive = computed(() => route.name === 'CompareView');
         <Collapsible :default-open="section.defaultOpen" class="group/collapsible">
           <SidebarGroupLabel as-child>
             <CollapsibleTrigger
-              class="flex h-11 w-full items-center rounded-lg px-3 py-2 text-base font-semibold tracking-[0.08em] text-muted-foreground uppercase hover:bg-muted"
+              class="flex h-9 w-full items-center rounded-lg px-3 py-2 text-[11px] font-semibold tracking-[0.16em] text-zinc-500 uppercase hover:bg-muted hover:text-zinc-600 dark:text-zinc-400 dark:hover:text-zinc-300"
             >
               <span>{{ section.label }}</span>
             </CollapsibleTrigger>
@@ -94,6 +94,7 @@ const isCompareActive = computed(() => route.name === 'CompareView');
                         name: 'AlgorithmView',
                         params: { category: item.category, slug: item.slug },
                       }"
+                      class="w-full text-inherit no-underline"
                     >
                       <span
                         :class="
