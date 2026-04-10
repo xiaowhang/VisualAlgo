@@ -15,6 +15,7 @@ const GRAPH_VIEWBOX = {
 const GRAPH_ANIMATION_DURATION = 260;
 const GRAPH_NODE_RADIUS = 24;
 const GRAPH_BOUNDS_PADDING = GRAPH_NODE_RADIUS + 10;
+const GRAPH_DRAG_PADDING = 2;
 
 const props = defineProps<{
   step: GraphStep | null;
@@ -24,6 +25,9 @@ const props = defineProps<{
 const svgRef = ref<SVGSVGElement | null>(null);
 const playbackStore = useAlgorithmPlaybackStore();
 const { isPlaying } = storeToRefs(playbackStore);
+const draggedNodeOffsets = ref(new Map<string, { dx: number; dy: number }>());
+const dragGrabOffsets = ref(new Map<string, { x: number; y: number }>());
+const lastGraphSignature = ref('');
 
 const pan = useSvgPanAndCenter(() => isPlaying.value);
 
@@ -44,9 +48,60 @@ function getEdgeKey(edge: GraphEdge) {
 
 function resolveNodePosition(nodeMap: Map<string, GraphNode>, nodeId: string) {
   const node = nodeMap.get(nodeId);
+  const offset = draggedNodeOffsets.value.get(nodeId);
   return {
-    x: node?.x ?? 0,
-    y: node?.y ?? 0,
+    x: (node?.x ?? 0) + (offset?.dx ?? 0),
+    y: (node?.y ?? 0) + (offset?.dy ?? 0),
+  };
+}
+
+function createGraphSignature(step: GraphStep | null) {
+  if (!step) {
+    return 'none';
+  }
+
+  const nodeSignature = [...step.nodes]
+    .sort((left, right) => left.id.localeCompare(right.id))
+    .map(node => `${node.id}:${node.x.toFixed(2)}:${node.y.toFixed(2)}`)
+    .join('|');
+
+  const edgeSignature = [...step.edges]
+    .map(edge => getEdgeKey(edge))
+    .sort((left, right) => left.localeCompare(right))
+    .join('|');
+
+  return `${nodeSignature}::${edgeSignature}`;
+}
+
+function clearDraggedNodeOffsets() {
+  draggedNodeOffsets.value.clear();
+  dragGrabOffsets.value.clear();
+}
+
+function clampNodePosition(baseNode: GraphNode, offsetDx: number, offsetDy: number) {
+  const minX = GRAPH_NODE_RADIUS + GRAPH_DRAG_PADDING;
+  const maxX = GRAPH_VIEWBOX.width - GRAPH_NODE_RADIUS - GRAPH_DRAG_PADDING;
+  const minY = GRAPH_NODE_RADIUS + GRAPH_DRAG_PADDING;
+  const maxY = GRAPH_VIEWBOX.height - GRAPH_NODE_RADIUS - GRAPH_DRAG_PADDING;
+
+  const x = Math.min(maxX, Math.max(minX, baseNode.x + offsetDx));
+  const y = Math.min(maxY, Math.max(minY, baseNode.y + offsetDy));
+
+  return {
+    dx: x - baseNode.x,
+    dy: y - baseNode.y,
+  };
+}
+
+function resolvePointerGraphPosition(sourceEvent: unknown) {
+  if (!svgRef.value || !(sourceEvent instanceof MouseEvent)) {
+    return null;
+  }
+
+  const [svgX, svgY] = d3.pointer(sourceEvent, svgRef.value);
+  return {
+    x: svgX - pan.offsetX.value,
+    y: svgY - pan.offsetY.value,
   };
 }
 
@@ -129,6 +184,14 @@ function renderGraph(step: GraphStep | null) {
     .attr('stroke-width', 2)
     .attr('stroke-opacity', 1);
 
+  function updateEdgePositions() {
+    edgeSelection
+      .attr('x1', (edge: GraphEdge) => resolveNodePosition(nodeMap, edge.source).x)
+      .attr('y1', (edge: GraphEdge) => resolveNodePosition(nodeMap, edge.source).y)
+      .attr('x2', (edge: GraphEdge) => resolveNodePosition(nodeMap, edge.target).x)
+      .attr('y2', (edge: GraphEdge) => resolveNodePosition(nodeMap, edge.target).y);
+  }
+
   const nodeLayer = root
     .selectAll<SVGGElement, null>('g.graph-nodes')
     .data([null])
@@ -178,7 +241,10 @@ function renderGraph(step: GraphStep | null) {
   nodeGroup
     .interrupt()
     .transition(transition)
-    .attr('transform', (node: GraphNode) => `translate(${node.x}, ${node.y})`)
+    .attr('transform', (node: GraphNode) => {
+      const position = resolveNodePosition(nodeMap, node.id);
+      return `translate(${position.x}, ${position.y})`;
+    })
     .attr('opacity', 1);
 
   nodeGroup
@@ -203,6 +269,54 @@ function renderGraph(step: GraphStep | null) {
     .attr('font-weight', 600)
     .attr('fill', VISUALIZATION_COLOR_TOKENS.text)
     .text((node: GraphNode) => node.id);
+
+  if (!isPlaying.value) {
+    const dragBehavior = d3
+      .drag<SVGGElement, GraphNode>()
+      .filter(event => event.button === 0)
+      .on('start', function (event, node) {
+        event.sourceEvent?.stopPropagation();
+        d3.select(this).interrupt();
+
+        if (!draggedNodeOffsets.value.has(node.id)) {
+          draggedNodeOffsets.value.set(node.id, { dx: 0, dy: 0 });
+        }
+
+        const pointer = resolvePointerGraphPosition(event.sourceEvent);
+        const nodePosition = resolveNodePosition(nodeMap, node.id);
+        if (pointer) {
+          dragGrabOffsets.value.set(node.id, {
+            x: pointer.x - nodePosition.x,
+            y: pointer.y - nodePosition.y,
+          });
+        }
+      })
+      .on('drag', function (event, node) {
+        const pointer = resolvePointerGraphPosition(event.sourceEvent);
+        if (!pointer) {
+          return;
+        }
+
+        const grabOffset = dragGrabOffsets.value.get(node.id) ?? { x: 0, y: 0 };
+        const nextOffset = clampNodePosition(
+          node,
+          pointer.x - grabOffset.x - node.x,
+          pointer.y - grabOffset.y - node.y
+        );
+        draggedNodeOffsets.value.set(node.id, nextOffset);
+
+        const position = resolveNodePosition(nodeMap, node.id);
+        d3.select(this).attr('transform', `translate(${position.x}, ${position.y})`);
+        updateEdgePositions();
+      })
+      .on('end', (_, node) => {
+        dragGrabOffsets.value.delete(node.id);
+      });
+
+    nodeGroup.call(dragBehavior);
+  } else {
+    nodeGroup.on('.drag', null);
+  }
 }
 
 function centerGraph(step: GraphStep | null) {
@@ -212,7 +326,17 @@ function centerGraph(step: GraphStep | null) {
   pan.centerContent(GRAPH_VIEWBOX.width, GRAPH_VIEWBOX.height, getNodeBounds(step.nodes));
 }
 
+function handlePanPointerDown(event: PointerEvent) {
+  const target = event.target;
+  if (target instanceof Element && target.closest('g.node')) {
+    return;
+  }
+
+  pan.onPointerDown(event);
+}
+
 onMounted(() => {
+  lastGraphSignature.value = createGraphSignature(props.step);
   centerGraph(props.step);
   renderGraph(props.step);
 });
@@ -227,6 +351,12 @@ watch(
 watch(
   () => props.step,
   step => {
+    const nextSignature = createGraphSignature(step);
+    if (lastGraphSignature.value !== nextSignature) {
+      clearDraggedNodeOffsets();
+      lastGraphSignature.value = nextSignature;
+    }
+
     renderGraph(step);
   },
   { deep: true }
@@ -235,6 +365,8 @@ watch(
 watch(
   () => props.algorithmKey,
   () => {
+    clearDraggedNodeOffsets();
+    lastGraphSignature.value = createGraphSignature(props.step);
     centerGraph(props.step);
     renderGraph(props.step);
   }
@@ -242,7 +374,7 @@ watch(
 </script>
 
 <template>
-  <div class="h-full w-full" @pointerdown="pan.onPointerDown">
+  <div class="h-full w-full" @pointerdown="handlePanPointerDown">
     <svg ref="svgRef" class="h-full w-full cursor-grab active:cursor-grabbing" />
   </div>
 </template>
