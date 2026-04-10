@@ -75,17 +75,16 @@ watch(
 </script>
 
 <template>
-  <div class="mx-auto flex h-full w-full flex-col p-6">
-    <SortingChart
-      v-if="activeAlgorithm && activeAlgorithm.visualization === 'sorting'"
-      :step="sortingStep"
-    />
-    <GraphTraversalView
-      v-else-if="activeAlgorithm"
-      :step="graphStep"
-      :algorithm-key="graphAlgorithmKey"
-    />
-    <div v-else class="rounded-md border bg-muted/30 p-3 text-sm text-muted-foreground">
+  <div class="mx-auto flex h-full w-full max-w-300 flex-col px-6 py-6 md:px-10 md:py-8">
+    <Card v-if="activeAlgorithm" class="min-h-0 flex-1 px-4 py-4 md:px-5 md:py-5">
+      <SortingChart v-if="activeAlgorithm.visualization === 'sorting'" :step="sortingStep" />
+      <GraphTraversalView v-else :step="graphStep" :algorithm-key="graphAlgorithmKey" />
+    </Card>
+
+    <div
+      v-else
+      class="rounded-lg bg-muted/50 px-4 py-3 text-sm text-muted-foreground shadow-sm ring-1 ring-border/60"
+    >
       算法未找到，请从左侧重新选择算法。
     </div>
   </div>

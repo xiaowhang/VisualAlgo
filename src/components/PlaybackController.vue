@@ -2,12 +2,17 @@
 import { computed } from 'vue';
 import { storeToRefs } from 'pinia';
 import { Pause, Play, RotateCcw, StepForward } from 'lucide-vue-next';
+import type { PlaybackController as PlaybackControllerState } from '@/composables/usePlaybackController';
 import { useAlgorithmPlaybackStore } from '@/stores/algorithmPlayback';
+
+const props = defineProps<{
+  controller?: PlaybackControllerState;
+}>();
 
 const playbackStore = useAlgorithmPlaybackStore();
 const playbackRefs = storeToRefs(playbackStore);
 
-const playback = {
+const storePlayback = {
   ...playbackRefs,
   seekTo: playbackStore.seekTo,
   setSpeed: playbackStore.setSpeed,
@@ -17,6 +22,8 @@ const playback = {
   step: playbackStore.step,
   stepBack: playbackStore.stepBack,
 };
+
+const playback = props.controller ?? storePlayback;
 
 const progressLabel = computed(() => {
   if (playback.totalSteps.value === 0) {
@@ -33,8 +40,13 @@ function handleSeek(value: string | number) {
 </script>
 
 <template>
-  <div class="flex h-20 w-full items-center gap-3 border-t bg-background px-4">
-    <Button variant="outline" size="sm" :disabled="!playback.canPlay.value" @click="playback.play">
+  <div class="flex h-20 w-full items-center gap-2 bg-background px-4 md:gap-3 md:px-5">
+    <Button
+      variant="darkPrimary"
+      size="sm"
+      :disabled="!playback.canPlay.value"
+      @click="playback.play"
+    >
       <Play class="mr-1 h-4 w-4" />
       Play
     </Button>
@@ -65,7 +77,7 @@ function handleSeek(value: string | number) {
       Reset
     </Button>
 
-    <div class="ml-2 flex min-w-36 items-center gap-2 text-sm text-muted-foreground">
+    <div class="ml-1 hidden min-w-36 items-center gap-2 text-sm text-muted-foreground lg:flex">
       <span>Speed</span>
       <Input
         :model-value="playback.speed.value"
@@ -79,7 +91,7 @@ function handleSeek(value: string | number) {
       <span>{{ playback.speed.value.toFixed(2) }}x</span>
     </div>
 
-    <div class="flex min-w-64 items-center gap-2 text-sm text-muted-foreground">
+    <div class="hidden min-w-64 items-center gap-2 text-sm text-muted-foreground xl:flex">
       <span>Progress</span>
       <Input
         :model-value="playback.currentStep.value"
@@ -94,7 +106,9 @@ function handleSeek(value: string | number) {
       <span>{{ playback.progressPercent.value.toFixed(0) }}%</span>
     </div>
 
-    <div class="ml-auto rounded-md border bg-muted/30 px-3 py-1 text-sm text-muted-foreground">
+    <div
+      class="ml-auto rounded-lg bg-muted/50 px-3 py-1 text-sm text-muted-foreground shadow-sm ring-1 ring-border/70"
+    >
       Step {{ progressLabel }}
     </div>
   </div>

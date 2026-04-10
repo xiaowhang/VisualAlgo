@@ -2,18 +2,31 @@
 import { computed, onScopeDispose, ref, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useRoute, useRouter } from 'vue-router';
-import { Pause, Play, RotateCcw, StepForward } from 'lucide-vue-next';
 import SortingChart from '@/components/visualization/SortingChart.vue';
 import { findAlgorithm } from '@/algorithms/registry';
 import { algorithmMenuByCategory } from '@/algorithms/registry/algorithmMenu';
 import { useAlgorithmInputsStore } from '@/stores/algorithmInputs';
-import { usePlaybackController } from '@/composables/usePlaybackController';
+import { useAlgorithmPlaybackStore } from '@/stores/algorithmPlayback';
 import type { SortingStep } from '@/types/algorithm';
 
 const route = useRoute();
 const router = useRouter();
 const algorithmInputsStore = useAlgorithmInputsStore();
-const playback = usePlaybackController();
+const playbackStore = useAlgorithmPlaybackStore();
+const playbackRefs = storeToRefs(playbackStore);
+
+const playback = {
+  ...playbackRefs,
+  seekTo: playbackStore.seekTo,
+  setSpeed: playbackStore.setSpeed,
+  play: playbackStore.play,
+  pause: playbackStore.pause,
+  reset: playbackStore.reset,
+  step: playbackStore.step,
+  stepBack: playbackStore.stepBack,
+  setTotalSteps: playbackStore.setTotalSteps,
+};
+
 const { dataVersion } = storeToRefs(algorithmInputsStore);
 const continueLonger = ref(true);
 const completionNotice = ref('');
@@ -237,19 +250,6 @@ watch(
   }
 );
 
-const progressLabel = computed(() => {
-  if (playback.totalSteps.value === 0) {
-    return '0 / 0';
-  }
-  return `${playback.currentStep.value + 1} / ${playback.totalSteps.value}`;
-});
-
-const seekMax = computed(() => Math.max(playback.totalSteps.value - 1, 0));
-
-function handleSeek(value: string | number) {
-  playback.seekTo(Number(value));
-}
-
 function handleSwapSide() {
   const prevLeft = leftSlug.value;
   leftSlug.value = rightSlug.value;
@@ -258,7 +258,7 @@ function handleSwapSide() {
 </script>
 
 <template>
-  <div class="mx-auto flex h-full w-full flex-col gap-4 p-6">
+  <div class="mx-auto flex h-full w-full max-w-300 flex-col gap-5 px-6 py-6 md:px-10 md:py-8">
     <Card>
       <CardHeader>
         <CardTitle>排序算法对比</CardTitle>
@@ -267,62 +267,84 @@ function handleSwapSide() {
         >
       </CardHeader>
       <CardContent class="flex flex-col gap-4">
-        <div class="grid grid-cols-1 gap-3 lg:grid-cols-[1fr_auto_1fr]">
-          <div class="flex items-center gap-3">
-            <Label for="left-algo" class="min-w-16 text-sm text-muted-foreground">左侧</Label>
-            <select
-              id="left-algo"
-              v-model="leftSlug"
-              class="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
-            >
-              <option v-for="item in sortingOptions" :key="`left-${item.slug}`" :value="item.slug">
-                {{ item.title }}
-              </option>
-            </select>
-          </div>
+        <FieldSet>
+          <FieldLegend>算法选择</FieldLegend>
+          <FieldContent class="grid grid-cols-1 gap-3 lg:grid-cols-[1fr_auto_1fr]">
+            <Field class="gap-2">
+              <FieldLabel for="left-algo" class="text-sm text-muted-foreground"
+                >左侧算法</FieldLabel
+              >
+              <select
+                id="left-algo"
+                v-model="leftSlug"
+                class="h-9 w-full rounded-lg border border-input bg-background px-3 text-sm shadow-sm"
+              >
+                <option
+                  v-for="item in sortingOptions"
+                  :key="`left-${item.slug}`"
+                  :value="item.slug"
+                >
+                  {{ item.title }}
+                </option>
+              </select>
+            </Field>
 
-          <div class="flex items-center justify-center">
-            <Button variant="outline" size="sm" @click="handleSwapSide">Swap</Button>
-          </div>
+            <div class="flex items-end justify-center">
+              <Button variant="outline" size="sm" class="w-full lg:w-auto" @click="handleSwapSide">
+                交换左右
+              </Button>
+            </div>
 
-          <div class="flex items-center gap-3">
-            <Label for="right-algo" class="min-w-16 text-sm text-muted-foreground">右侧</Label>
-            <select
-              id="right-algo"
-              v-model="rightSlug"
-              class="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
-            >
-              <option v-for="item in sortingOptions" :key="`right-${item.slug}`" :value="item.slug">
-                {{ item.title }}
-              </option>
-            </select>
-          </div>
-        </div>
+            <Field class="gap-2">
+              <FieldLabel for="right-algo" class="text-sm text-muted-foreground"
+                >右侧算法</FieldLabel
+              >
+              <select
+                id="right-algo"
+                v-model="rightSlug"
+                class="h-9 w-full rounded-lg border border-input bg-background px-3 text-sm shadow-sm"
+              >
+                <option
+                  v-for="item in sortingOptions"
+                  :key="`right-${item.slug}`"
+                  :value="item.slug"
+                >
+                  {{ item.title }}
+                </option>
+              </select>
+            </Field>
+          </FieldContent>
+        </FieldSet>
+
+        <FieldSet class="rounded-lg bg-muted/50 p-3 shadow-sm ring-1 ring-border/70">
+          <FieldLegend>执行模式</FieldLegend>
+          <FieldContent>
+            <Field orientation="responsive" class="gap-2">
+              <FieldLabel class="flex items-center gap-2 text-sm text-muted-foreground">
+                <input
+                  v-model="continueLonger"
+                  type="checkbox"
+                  class="h-4 w-4 rounded border-input accent-primary"
+                />
+                继续执行较长算法
+              </FieldLabel>
+              <FieldDescription>
+                {{ continueLonger ? '模式：执行到较长算法结束' : '模式：同步对比（最短步数）' }}
+              </FieldDescription>
+            </Field>
+          </FieldContent>
+        </FieldSet>
 
         <div
-          class="flex flex-wrap items-center justify-between gap-3 rounded-md border bg-muted/30 p-3"
+          class="rounded-lg bg-muted/50 p-3 text-sm text-muted-foreground shadow-sm ring-1 ring-border/70"
         >
-          <label class="flex items-center gap-2 text-sm text-muted-foreground">
-            <input
-              v-model="continueLonger"
-              type="checkbox"
-              class="h-4 w-4 rounded border-input accent-primary"
-            />
-            继续执行较长算法
-          </label>
-          <span class="text-sm text-muted-foreground">
-            {{ continueLonger ? '模式：执行到较长算法结束' : '模式：同步对比（最短步数）' }}
-          </span>
-        </div>
-
-        <div class="rounded-md border bg-muted/30 p-3 text-sm text-muted-foreground">
           当前总步数：{{ playback.totalSteps.value }}（左 {{ leftSteps.length }} / 右
           {{ rightSteps.length }}）
         </div>
 
         <div
           v-if="completionNotice"
-          class="rounded-md border border-primary/35 bg-primary/10 p-3 text-sm text-primary"
+          class="rounded-lg border border-primary/30 bg-primary/10 p-3 text-sm text-primary"
         >
           {{ completionNotice }}
         </div>
@@ -335,7 +357,7 @@ function handleSwapSide() {
           <CardTitle class="flex items-center gap-2 text-base">
             <span>{{ leftAlgorithm?.title ?? '左侧算法不可用' }}</span>
             <span
-              class="rounded-sm border bg-muted/40 px-2 py-0.5 text-xs font-normal text-muted-foreground"
+              class="rounded-md bg-muted/50 px-2 py-0.5 text-xs font-medium text-muted-foreground ring-1 ring-border/70"
             >
               {{ leftStatusText }}
             </span>
@@ -352,7 +374,7 @@ function handleSwapSide() {
           <CardTitle class="flex items-center gap-2 text-base">
             <span>{{ rightAlgorithm?.title ?? '右侧算法不可用' }}</span>
             <span
-              class="rounded-sm border bg-muted/40 px-2 py-0.5 text-xs font-normal text-muted-foreground"
+              class="rounded-md bg-muted/50 px-2 py-0.5 text-xs font-medium text-muted-foreground ring-1 ring-border/70"
             >
               {{ rightStatusText }}
             </span>
@@ -363,82 +385,6 @@ function handleSwapSide() {
           <SortingChart :step="rightStep" :is-playing-override="playback.isPlaying.value" />
         </CardContent>
       </Card>
-    </div>
-
-    <div class="flex h-20 w-full items-center gap-3 border bg-background px-4">
-      <Button
-        variant="outline"
-        size="sm"
-        :disabled="!playback.canPlay.value"
-        @click="playback.play"
-      >
-        <Play class="mr-1 h-4 w-4" />
-        Play
-      </Button>
-      <Button
-        variant="outline"
-        size="sm"
-        :disabled="!playback.canStepBack.value"
-        @click="playback.stepBack"
-      >
-        <StepForward class="mr-1 h-4 w-4 rotate-180" />
-        Prev
-      </Button>
-      <Button
-        variant="outline"
-        size="sm"
-        :disabled="!playback.isPlaying.value"
-        @click="playback.pause"
-      >
-        <Pause class="mr-1 h-4 w-4" />
-        Pause
-      </Button>
-      <Button
-        variant="outline"
-        size="sm"
-        :disabled="!playback.canStep.value"
-        @click="playback.step"
-      >
-        <StepForward class="mr-1 h-4 w-4" />
-        Step
-      </Button>
-      <Button variant="ghost" size="sm" @click="playback.reset">
-        <RotateCcw class="mr-1 h-4 w-4" />
-        Reset
-      </Button>
-
-      <div class="ml-2 flex min-w-36 items-center gap-2 text-sm text-muted-foreground">
-        <span>Speed</span>
-        <Input
-          :model-value="playback.speed.value"
-          type="range"
-          min="0.5"
-          max="2"
-          step="0.25"
-          class="h-8 w-28"
-          @update:model-value="value => playback.setSpeed(Number(value))"
-        />
-        <span>{{ playback.speed.value.toFixed(2) }}x</span>
-      </div>
-
-      <div class="flex min-w-64 items-center gap-2 text-sm text-muted-foreground">
-        <span>Progress</span>
-        <Input
-          :model-value="playback.currentStep.value"
-          type="range"
-          min="0"
-          :max="seekMax"
-          :step="1"
-          class="h-8 w-44"
-          :disabled="playback.totalSteps.value <= 1"
-          @update:model-value="handleSeek"
-        />
-        <span>{{ playback.progressPercent.value.toFixed(0) }}%</span>
-      </div>
-
-      <div class="ml-auto rounded-md border bg-muted/30 px-3 py-1 text-sm text-muted-foreground">
-        Step {{ progressLabel }}
-      </div>
     </div>
   </div>
 </template>

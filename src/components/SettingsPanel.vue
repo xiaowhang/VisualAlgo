@@ -286,14 +286,18 @@ async function handleImportFile(event: Event) {
 </script>
 
 <template>
-  <div class="flex w-80 flex-col gap-8 border-l border-sidebar-border bg-sidebar p-6">
+  <div
+    class="hidden h-full w-72 flex-col gap-8 overflow-y-auto border-l border-sidebar-border/80 bg-sidebar px-4 py-6 lg:flex xl:w-80 xl:px-5"
+  >
     <Card>
       <CardHeader>
         <CardTitle>{{ panelTitle }}</CardTitle>
         <CardDescription>{{ panelDescription }}</CardDescription>
       </CardHeader>
       <CardContent v-if="activeAlgorithm || isCompareView">
-        <p class="rounded-md border bg-muted/30 p-3 text-sm text-muted-foreground">
+        <p
+          class="rounded-lg bg-muted/50 p-3 text-sm text-muted-foreground shadow-sm ring-1 ring-border/70"
+        >
           {{ stepDescription }}
         </p>
       </CardContent>
@@ -359,7 +363,7 @@ async function handleImportFile(event: Event) {
           <div class="flex items-center gap-2">
             <select
               v-model="graphStartNodeInput"
-              class="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+              class="h-9 w-full rounded-lg border border-input bg-background px-3 text-sm"
             >
               <option v-for="nodeId in graphNodeOptions" :key="nodeId" :value="nodeId">
                 {{ nodeId }}

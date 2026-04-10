@@ -44,18 +44,22 @@ const isCompareActive = computed(() => route.name === 'CompareView');
 
 <template>
   <Sidebar>
-    <SidebarHeader class="px-4 pt-4">
-      <Input v-model="keyword" placeholder="Search algo..." />
+    <SidebarHeader class="px-4 pt-5">
+      <div class="mb-3 px-1">
+        <p class="font-display text-xs tracking-[0.18em] text-muted-foreground uppercase">Algo</p>
+        <h2 class="mt-1 text-2xl leading-[1.1] text-charcoal">Algorithm Navigator</h2>
+      </div>
+      <Input v-model="keyword" placeholder="Search algorithm..." class="h-10 rounded-lg" />
     </SidebarHeader>
-    <SidebarContent class="gap-0 px-2 pt-2 pb-6">
-      <div class="mb-3 px-2">
+    <SidebarContent class="gap-0 px-2 pt-3 pb-6">
+      <div class="mb-4 px-2">
         <RouterLink
           :to="{ name: 'CompareView' }"
-          class="flex h-10 items-center rounded-md border px-3 text-sm transition-colors"
+          class="flex h-10 items-center rounded-lg px-3 text-sm font-medium transition-colors"
           :class="
             isCompareActive
-              ? 'border-border bg-background text-primary'
-              : 'border-transparent text-muted-foreground hover:bg-muted hover:text-foreground'
+              ? 'bg-background text-charcoal shadow-sm ring-1 ring-border/70'
+              : 'text-muted-foreground hover:bg-muted hover:text-foreground'
           "
         >
           对比模式
@@ -66,7 +70,7 @@ const isCompareActive = computed(() => route.name === 'CompareView');
         <Collapsible :default-open="section.defaultOpen" class="group/collapsible">
           <SidebarGroupLabel as-child>
             <CollapsibleTrigger
-              class="flex h-12 w-full items-center rounded-md px-3 py-2 text-2xl font-semibold tracking-wide text-muted-foreground uppercase hover:bg-muted"
+              class="flex h-11 w-full items-center rounded-lg px-3 py-2 text-base font-semibold tracking-[0.08em] text-muted-foreground uppercase hover:bg-muted"
             >
               <span>{{ section.label }}</span>
             </CollapsibleTrigger>
@@ -78,10 +82,10 @@ const isCompareActive = computed(() => route.name === 'CompareView');
                   <SidebarMenuButton
                     as-child
                     :isActive="isActive(item.category, item.slug)"
-                    class="h-10 gap-3 rounded-md px-3 py-2 text-sm hover:bg-muted"
+                    class="h-10 gap-3 rounded-lg px-3 py-2 text-sm hover:bg-muted"
                     :class="
                       isActive(item.category, item.slug)
-                        ? 'border border-border bg-background'
+                        ? 'bg-background shadow-sm ring-1 ring-border/70'
                         : 'border border-transparent'
                     "
                   >
@@ -93,7 +97,9 @@ const isCompareActive = computed(() => route.name === 'CompareView');
                     >
                       <span
                         :class="
-                          isActive(item.category, item.slug) ? 'text-primary' : 'text-inherit'
+                          isActive(item.category, item.slug)
+                            ? 'font-semibold text-charcoal'
+                            : 'text-inherit'
                         "
                       >
                         {{ item.title }}

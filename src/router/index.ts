@@ -6,16 +6,25 @@ const routes = [
     path: '/',
     name: 'Home',
     component: Home,
+    meta: {
+      hideGlobalPlayback: true,
+    },
   },
   {
     path: '/algorithm/:category/:slug',
     name: 'AlgorithmView',
     component: () => import('@/views/AlgorithmView.vue'),
+    meta: {
+      hideGlobalPlayback: false,
+    },
   },
   {
     path: '/compare',
     name: 'CompareView',
     component: () => import('@/views/CompareView.vue'),
+    meta: {
+      hideGlobalPlayback: false,
+    },
   },
 ];
 

@@ -1,5 +1,9 @@
 import type { GraphStep, SortingHighlightKind, SortingStep } from '@/types/algorithm';
 
+// Keep algorithm semantics colors independent from the grayscale UI brand palette.
+// UI shell (cards, typography, surfaces) follows DESIGN.md monochrome tokens,
+// while data states (compare/swap/pivot/frontier/current) stay chromatic for readability.
+// If you need to animate colors in D3, resolve CSS variables before transition.
 const COLOR_TOKENS = {
   default: 'var(--chart-1)',
   compare: 'var(--chart-2)',
