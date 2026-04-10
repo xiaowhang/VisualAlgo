@@ -1,8 +1,13 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue';
+import { computed, nextTick, ref, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useRoute } from 'vue-router';
 import { findAlgorithm } from '@/algorithms/registry';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import SettingsOverviewTab from '@/components/settings-panel/SettingsOverviewTab.vue';
+import SettingsPanelDataTab from '@/components/settings-panel/SettingsPanelDataTab.vue';
+import SettingsPanelFileTab from '@/components/settings-panel/SettingsPanelFileTab.vue';
+import SettingsPanelHeaderBar from '@/components/settings-panel/SettingsPanelHeaderBar.vue';
 import {
   GRAPH_MAX_NODES,
   GRAPH_MIN_NODES,
@@ -90,7 +95,15 @@ const graphNodeOptions = computed(() => algorithmInputs.graphNodes.value.map(nod
 const customData = ref(algorithmInputs.sortingInput.value.join(', '));
 const customDataMessage = ref('');
 const customDataError = ref(false);
-const fileInputRef = ref<HTMLInputElement | null>(null);
+const activeTab = ref<'overview' | 'data' | 'files'>('overview');
+const panelScrollRef = ref<HTMLDivElement | null>(null);
+
+const modeLabel = computed(() => {
+  if (isCompareView.value) {
+    return '对比模式';
+  }
+  return isGraphAlgorithm.value ? '图算法' : '排序算法';
+});
 
 watch(sortingSize, value => {
   sizeInput.value = String(value);
@@ -115,6 +128,13 @@ watch(graphNodeOptions, options => {
 
   if (!options.includes(graphStartNodeInput.value)) {
     graphStartNodeInput.value = options[0];
+  }
+});
+
+watch(activeTab, async () => {
+  await nextTick();
+  if (panelScrollRef.value) {
+    panelScrollRef.value.scrollTop = 0;
   }
 });
 
@@ -248,10 +268,6 @@ function exportJsonFile() {
   customDataMessage.value = '已导出 JSON 文件。';
 }
 
-function openImportFileDialog() {
-  fileInputRef.value?.click();
-}
-
 async function handleImportFile(event: Event) {
   const input = event.target as HTMLInputElement;
   const file = input.files?.[0];
@@ -287,144 +303,64 @@ async function handleImportFile(event: Event) {
 
 <template>
   <div
-    class="hidden h-full w-72 flex-col gap-8 overflow-y-auto border-l border-sidebar-border/80 bg-sidebar px-4 py-6 lg:flex xl:w-80 xl:px-5"
+    ref="panelScrollRef"
+    class="hidden h-full w-72 flex-col gap-4 overflow-y-auto border-l border-sidebar-border/80 bg-sidebar px-4 py-6 lg:flex xl:w-80 xl:px-5"
   >
-    <Card>
-      <CardHeader>
-        <CardTitle>{{ panelTitle }}</CardTitle>
-        <CardDescription>{{ panelDescription }}</CardDescription>
-      </CardHeader>
-      <CardContent v-if="activeAlgorithm || isCompareView">
-        <p
-          class="rounded-lg bg-muted/50 p-3 text-sm text-muted-foreground shadow-sm ring-1 ring-border/70"
-        >
-          {{ stepDescription }}
-        </p>
-      </CardContent>
-    </Card>
+    <SettingsPanelHeaderBar :title="panelTitle" :mode-label="modeLabel" />
 
-    <Fieldset>
-      <FieldLegend>数据生成</FieldLegend>
-      <FieldContent>
-        <Button variant="outline" @click="randomizeData">随机生成</Button>
-      </FieldContent>
-    </Fieldset>
+    <Tabs v-model="activeTab" class="gap-3">
+      <TabsList class="grid h-9 w-full grid-cols-3">
+        <TabsTrigger value="overview">概览</TabsTrigger>
+        <TabsTrigger value="data">数据设置</TabsTrigger>
+        <TabsTrigger value="files">文件操作</TabsTrigger>
+      </TabsList>
 
-    <Fieldset v-if="isSortingAlgorithm">
-      <FieldLegend>数据规模</FieldLegend>
-      <FieldContent>
-        <FieldGroup class="flex flex-col gap-2">
-          <Input
-            v-model="sizeInput"
-            type="number"
-            :min="SORTING_MIN_SIZE"
-            :max="SORTING_MAX_SIZE"
-            @blur="applySizeFromInput"
-          />
-          <FieldDescription>范围：{{ SORTING_MIN_SIZE }} - {{ SORTING_MAX_SIZE }}</FieldDescription>
-          <span
-            v-if="sizeMessage"
-            class="text-xs"
-            :class="sizeError ? 'text-destructive' : 'text-muted-foreground'"
-          >
-            {{ sizeMessage }}
-          </span>
-        </FieldGroup>
-      </FieldContent>
-    </Fieldset>
+      <TabsContent value="overview" class="pt-1">
+        <SettingsOverviewTab
+          :panel-description="panelDescription"
+          :step-description="stepDescription"
+          :is-compare-view="isCompareView"
+        />
+      </TabsContent>
 
-    <Fieldset v-if="isGraphAlgorithm">
-      <FieldLegend>图设置</FieldLegend>
-      <FieldContent>
-        <FieldGroup class="flex flex-col gap-2">
-          <FieldDescription>节点数量</FieldDescription>
-          <div class="flex items-center gap-2">
-            <Input
-              v-model="graphNodeCountInput"
-              type="number"
-              :min="GRAPH_MIN_NODES"
-              :max="GRAPH_MAX_NODES"
-              @blur="applyGraphNodeCountFromInput"
-            />
-            <Button variant="outline" size="sm" @click="applyGraphNodeCountFromInput">应用</Button>
-          </div>
-          <FieldDescription>范围：{{ GRAPH_MIN_NODES }} - {{ GRAPH_MAX_NODES }}</FieldDescription>
-          <span
-            v-if="graphSizeMessage"
-            class="text-xs"
-            :class="graphSizeError ? 'text-destructive' : 'text-muted-foreground'"
-          >
-            {{ graphSizeMessage }}
-          </span>
-        </FieldGroup>
+      <TabsContent value="data" class="pt-1">
+        <SettingsPanelDataTab
+          v-model:size-input="sizeInput"
+          v-model:graph-node-count-input="graphNodeCountInput"
+          v-model:graph-start-node-input="graphStartNodeInput"
+          v-model:custom-data="customData"
+          :is-sorting-algorithm="isSortingAlgorithm"
+          :is-graph-algorithm="isGraphAlgorithm"
+          :sorting-min-size="SORTING_MIN_SIZE"
+          :sorting-max-size="SORTING_MAX_SIZE"
+          :size-message="sizeMessage"
+          :size-error="sizeError"
+          :graph-min-nodes="GRAPH_MIN_NODES"
+          :graph-max-nodes="GRAPH_MAX_NODES"
+          :graph-size-message="graphSizeMessage"
+          :graph-size-error="graphSizeError"
+          :graph-node-options="graphNodeOptions"
+          :graph-message="graphMessage"
+          :graph-message-error="graphMessageError"
+          :custom-data-message="customDataMessage"
+          :custom-data-error="customDataError"
+          :randomize-data="randomizeData"
+          :apply-size-from-input="applySizeFromInput"
+          :apply-graph-node-count-from-input="applyGraphNodeCountFromInput"
+          :apply-graph-start-node="applyGraphStartNode"
+          :apply-custom-data="applyCustomData"
+        />
+      </TabsContent>
 
-        <FieldGroup class="mt-4 flex flex-col gap-2">
-          <FieldDescription>起始节点</FieldDescription>
-          <div class="flex items-center gap-2">
-            <select
-              v-model="graphStartNodeInput"
-              class="h-9 w-full rounded-lg border border-input bg-background px-3 text-sm"
-            >
-              <option v-for="nodeId in graphNodeOptions" :key="nodeId" :value="nodeId">
-                {{ nodeId }}
-              </option>
-            </select>
-            <Button variant="outline" size="sm" @click="applyGraphStartNode">应用</Button>
-          </div>
-        </FieldGroup>
-
-        <span
-          v-if="graphMessage"
-          class="mt-2 block text-xs"
-          :class="graphMessageError ? 'text-destructive' : 'text-muted-foreground'"
-        >
-          {{ graphMessage }}
-        </span>
-      </FieldContent>
-    </Fieldset>
-
-    <Fieldset v-if="isSortingAlgorithm">
-      <FieldLegend>自定义数据</FieldLegend>
-      <FieldContent>
-        <FieldGroup class="flex flex-col gap-2">
-          <FieldDescription>请输入逗号分隔的整数</FieldDescription>
-          <Textarea
-            v-model="customData"
-            placeholder="12, 5, 8, 30, 2..."
-            class="min-h-30 resize-none"
-          />
-          <div class="flex items-center justify-between gap-2">
-            <Button variant="outline" size="sm" @click="applyCustomData">应用</Button>
-            <span
-              v-if="customDataMessage"
-              class="text-xs"
-              :class="customDataError ? 'text-destructive' : 'text-muted-foreground'"
-            >
-              {{ customDataMessage }}
-            </span>
-          </div>
-        </FieldGroup>
-      </FieldContent>
-    </Fieldset>
-
-    <Fieldset v-if="isSortingAlgorithm">
-      <FieldLegend>导入 / 导出</FieldLegend>
-      <FieldContent>
-        <FieldGroup class="flex flex-col gap-2">
-          <FieldDescription>支持 JSON 文件</FieldDescription>
-          <div class="flex flex-wrap items-center gap-2">
-            <Button variant="outline" size="sm" @click="exportJsonFile">导出 JSON</Button>
-            <Button size="sm" @click="openImportFileDialog">导入文件</Button>
-            <input
-              ref="fileInputRef"
-              type="file"
-              accept=".json"
-              class="hidden"
-              @change="handleImportFile"
-            />
-          </div>
-        </FieldGroup>
-      </FieldContent>
-    </Fieldset>
+      <TabsContent value="files" class="pt-1">
+        <SettingsPanelFileTab
+          :is-sorting-algorithm="isSortingAlgorithm"
+          :custom-data-message="customDataMessage"
+          :custom-data-error="customDataError"
+          :export-json-file="exportJsonFile"
+          :handle-import-file="handleImportFile"
+        />
+      </TabsContent>
+    </Tabs>
   </div>
 </template>
