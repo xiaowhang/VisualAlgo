@@ -68,7 +68,7 @@ function buildQuickSortSteps(source: number[]): AlgorithmStep[] {
 export const quickSortRegistry: AlgorithmDefinition = {
   id: 'quick-sort',
   slug: 'quick-sort',
-  title: 'Quick Sort',
+  title: '快速排序',
   description: '通过分区策略将数组递归拆分并完成排序。',
   category: 'sorting',
   visualization: 'sorting',

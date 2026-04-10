@@ -304,14 +304,14 @@ async function handleImportFile(event: Event) {
     </Card>
 
     <Fieldset>
-      <FieldLegend>Generation</FieldLegend>
+      <FieldLegend>数据生成</FieldLegend>
       <FieldContent>
-        <Button variant="outline" @click="randomizeData">Random</Button>
+        <Button variant="outline" @click="randomizeData">随机生成</Button>
       </FieldContent>
     </Fieldset>
 
     <Fieldset v-if="isSortingAlgorithm">
-      <FieldLegend>Size</FieldLegend>
+      <FieldLegend>数据规模</FieldLegend>
       <FieldContent>
         <FieldGroup class="flex flex-col gap-2">
           <Input
@@ -334,10 +334,10 @@ async function handleImportFile(event: Event) {
     </Fieldset>
 
     <Fieldset v-if="isGraphAlgorithm">
-      <FieldLegend>Graph</FieldLegend>
+      <FieldLegend>图设置</FieldLegend>
       <FieldContent>
         <FieldGroup class="flex flex-col gap-2">
-          <FieldDescription>Node Count</FieldDescription>
+          <FieldDescription>节点数量</FieldDescription>
           <div class="flex items-center gap-2">
             <Input
               v-model="graphNodeCountInput"
@@ -346,7 +346,7 @@ async function handleImportFile(event: Event) {
               :max="GRAPH_MAX_NODES"
               @blur="applyGraphNodeCountFromInput"
             />
-            <Button variant="outline" size="sm" @click="applyGraphNodeCountFromInput">Apply</Button>
+            <Button variant="outline" size="sm" @click="applyGraphNodeCountFromInput">应用</Button>
           </div>
           <FieldDescription>范围：{{ GRAPH_MIN_NODES }} - {{ GRAPH_MAX_NODES }}</FieldDescription>
           <span
@@ -359,7 +359,7 @@ async function handleImportFile(event: Event) {
         </FieldGroup>
 
         <FieldGroup class="mt-4 flex flex-col gap-2">
-          <FieldDescription>Start Node</FieldDescription>
+          <FieldDescription>起始节点</FieldDescription>
           <div class="flex items-center gap-2">
             <select
               v-model="graphStartNodeInput"
@@ -369,7 +369,7 @@ async function handleImportFile(event: Event) {
                 {{ nodeId }}
               </option>
             </select>
-            <Button variant="outline" size="sm" @click="applyGraphStartNode">Apply</Button>
+            <Button variant="outline" size="sm" @click="applyGraphStartNode">应用</Button>
           </div>
         </FieldGroup>
 
@@ -384,17 +384,17 @@ async function handleImportFile(event: Event) {
     </Fieldset>
 
     <Fieldset v-if="isSortingAlgorithm">
-      <FieldLegend>Custom Data</FieldLegend>
+      <FieldLegend>自定义数据</FieldLegend>
       <FieldContent>
         <FieldGroup class="flex flex-col gap-2">
-          <FieldDescription>Enter comma separated numbers</FieldDescription>
+          <FieldDescription>请输入逗号分隔的整数</FieldDescription>
           <Textarea
             v-model="customData"
             placeholder="12, 5, 8, 30, 2..."
             class="min-h-30 resize-none"
           />
           <div class="flex items-center justify-between gap-2">
-            <Button variant="outline" size="sm" @click="applyCustomData">Apply</Button>
+            <Button variant="outline" size="sm" @click="applyCustomData">应用</Button>
             <span
               v-if="customDataMessage"
               class="text-xs"
@@ -408,13 +408,13 @@ async function handleImportFile(event: Event) {
     </Fieldset>
 
     <Fieldset v-if="isSortingAlgorithm">
-      <FieldLegend>Import / Export</FieldLegend>
+      <FieldLegend>导入 / 导出</FieldLegend>
       <FieldContent>
         <FieldGroup class="flex flex-col gap-2">
           <FieldDescription>支持 JSON 文件</FieldDescription>
           <div class="flex flex-wrap items-center gap-2">
-            <Button variant="outline" size="sm" @click="exportJsonFile">Export JSON</Button>
-            <Button size="sm" @click="openImportFileDialog">Import File</Button>
+            <Button variant="outline" size="sm" @click="exportJsonFile">导出 JSON</Button>
+            <Button size="sm" @click="openImportFileDialog">导入文件</Button>
             <input
               ref="fileInputRef"
               type="file"

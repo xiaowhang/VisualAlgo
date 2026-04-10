@@ -53,7 +53,7 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits);
         class="absolute top-4 right-4 rounded-xs opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none data-[state=open]:bg-secondary"
       >
         <X class="size-4" />
-        <span class="sr-only">Close</span>
+        <span class="sr-only">关闭</span>
       </DialogClose>
     </DialogContent>
   </DialogPortal>

@@ -8,13 +8,13 @@ const keyword = ref('');
 
 const sections = computed(() => [
   {
-    label: 'Sorting',
+    label: '排序算法',
     category: 'sorting' as const,
     defaultOpen: true,
     items: algorithmMenuByCategory.sorting,
   },
   {
-    label: 'Graphs',
+    label: '图算法',
     category: 'graphs' as const,
     defaultOpen: false,
     items: algorithmMenuByCategory.graphs,
@@ -46,10 +46,12 @@ const isCompareActive = computed(() => route.name === 'CompareView');
   <Sidebar>
     <SidebarHeader class="px-4 pt-5">
       <div class="mb-3 px-1">
-        <p class="font-display text-xs tracking-[0.18em] text-muted-foreground uppercase">Algo</p>
-        <h2 class="mt-1 text-2xl leading-[1.1] text-charcoal">Algorithm Navigator</h2>
+        <p class="font-display text-xs tracking-[0.18em] text-muted-foreground uppercase">
+          算法实验
+        </p>
+        <h2 class="mt-1 text-2xl leading-[1.1] text-charcoal">算法导航</h2>
       </div>
-      <Input v-model="keyword" placeholder="Search algorithm..." class="h-10 rounded-lg" />
+      <Input v-model="keyword" placeholder="搜索算法..." class="h-10 rounded-lg" />
     </SidebarHeader>
     <SidebarContent class="gap-0 px-2 pt-3 pb-6">
       <div class="mb-4 px-2">

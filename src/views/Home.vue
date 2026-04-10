@@ -3,7 +3,9 @@
     class="mx-auto flex h-full w-full max-w-[1200px] flex-col justify-center px-6 py-20 md:px-10 md:py-24"
   >
     <section class="mx-auto flex max-w-4xl flex-col items-center gap-8 text-center">
-      <p class="font-display text-xs tracking-[0.22em] text-muted-foreground uppercase">Algo Lab</p>
+      <p class="font-display text-xs tracking-[0.22em] text-muted-foreground uppercase">
+        算法实验室
+      </p>
       <h1 class="max-w-3xl text-4xl leading-[1.1] tracking-tight text-charcoal md:text-6xl">
         把抽象算法，变成一眼可懂的可视化流程
       </h1>

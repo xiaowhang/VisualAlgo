@@ -38,7 +38,7 @@ function buildBubbleSortSteps(source: number[]): AlgorithmStep[] {
 export const bubbleSortRegistry: AlgorithmDefinition = {
   id: 'bubble-sort',
   slug: 'bubble-sort',
-  title: 'Bubble Sort',
+  title: '冒泡排序',
   description: '通过相邻交换将较大元素逐步移动到末尾。',
   category: 'sorting',
   visualization: 'sorting',

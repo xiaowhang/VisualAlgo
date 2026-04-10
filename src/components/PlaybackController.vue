@@ -48,7 +48,7 @@ function handleSeek(value: string | number) {
       @click="playback.play"
     >
       <Play class="mr-1 h-4 w-4" />
-      Play
+      播放
     </Button>
     <Button
       variant="outline"
@@ -57,7 +57,7 @@ function handleSeek(value: string | number) {
       @click="playback.stepBack"
     >
       <StepForward class="mr-1 h-4 w-4 rotate-180" />
-      Prev
+      上一步
     </Button>
     <Button
       variant="outline"
@@ -66,19 +66,19 @@ function handleSeek(value: string | number) {
       @click="playback.pause"
     >
       <Pause class="mr-1 h-4 w-4" />
-      Pause
+      暂停
     </Button>
     <Button variant="outline" size="sm" :disabled="!playback.canStep.value" @click="playback.step">
       <StepForward class="mr-1 h-4 w-4" />
-      Step
+      下一步
     </Button>
     <Button variant="ghost" size="sm" @click="playback.reset">
       <RotateCcw class="mr-1 h-4 w-4" />
-      Reset
+      重置
     </Button>
 
     <div class="ml-1 hidden min-w-36 items-center gap-2 text-sm text-muted-foreground lg:flex">
-      <span>Speed</span>
+      <span>速度</span>
       <Input
         :model-value="playback.speed.value"
         type="range"
@@ -92,7 +92,7 @@ function handleSeek(value: string | number) {
     </div>
 
     <div class="hidden min-w-64 items-center gap-2 text-sm text-muted-foreground xl:flex">
-      <span>Progress</span>
+      <span>进度</span>
       <Input
         :model-value="playback.currentStep.value"
         type="range"
@@ -109,7 +109,7 @@ function handleSeek(value: string | number) {
     <div
       class="ml-auto rounded-lg bg-muted/50 px-3 py-1 text-sm text-muted-foreground shadow-sm ring-1 ring-border/70"
     >
-      Step {{ progressLabel }}
+      步骤 {{ progressLabel }}
     </div>
   </div>
 </template>

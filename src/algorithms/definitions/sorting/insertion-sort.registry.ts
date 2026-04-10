@@ -46,7 +46,7 @@ function buildInsertionSortSteps(source: number[]): AlgorithmStep[] {
 export const insertionSortRegistry: AlgorithmDefinition = {
   id: 'insertion-sort',
   slug: 'insertion-sort',
-  title: 'Insertion Sort',
+  title: '插入排序',
   description: '将每个元素插入到已排序区间的正确位置。',
   category: 'sorting',
   visualization: 'sorting',

@@ -42,7 +42,7 @@ function buildBfsSteps(startNode = 'A'): AlgorithmStep[] {
 export const bfsRegistry: AlgorithmDefinition = {
   id: 'bfs',
   slug: 'bfs',
-  title: 'BFS',
+  title: '广度优先搜索（BFS）',
   description: '以队列为核心按层访问图节点。',
   category: 'graphs',
   visualization: 'graph',

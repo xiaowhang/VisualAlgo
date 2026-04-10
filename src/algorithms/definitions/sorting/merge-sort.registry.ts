@@ -84,7 +84,7 @@ function buildMergeSortSteps(source: number[]): AlgorithmStep[] {
 export const mergeSortRegistry: AlgorithmDefinition = {
   id: 'merge-sort',
   slug: 'merge-sort',
-  title: 'Merge Sort',
+  title: '归并排序',
   description: '通过分治与归并过程构造有序序列。',
   category: 'sorting',
   visualization: 'sorting',
