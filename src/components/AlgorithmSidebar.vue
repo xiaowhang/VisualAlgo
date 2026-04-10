@@ -38,6 +38,8 @@ const filteredSections = computed(() => {
 function isActive(category: string, slug: string) {
   return route.params.category === category && route.params.slug === slug;
 }
+
+const isCompareActive = computed(() => route.name === 'CompareView');
 </script>
 
 <template>
@@ -46,6 +48,20 @@ function isActive(category: string, slug: string) {
       <Input v-model="keyword" placeholder="Search algo..." />
     </SidebarHeader>
     <SidebarContent class="gap-0 px-2 pt-2 pb-6">
+      <div class="mb-3 px-2">
+        <RouterLink
+          :to="{ name: 'CompareView' }"
+          class="flex h-10 items-center rounded-md border px-3 text-sm transition-colors"
+          :class="
+            isCompareActive
+              ? 'border-border bg-background text-primary'
+              : 'border-transparent text-muted-foreground hover:bg-muted hover:text-foreground'
+          "
+        >
+          对比模式
+        </RouterLink>
+      </div>
+
       <SidebarGroup v-for="section in filteredSections" :key="section.label" as-child>
         <Collapsible :default-open="section.defaultOpen" class="group/collapsible">
           <SidebarGroupLabel as-child>

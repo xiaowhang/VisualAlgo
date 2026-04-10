@@ -1,3 +1,11 @@
+<script setup lang="ts">
+import { computed } from 'vue';
+import { useRoute } from 'vue-router';
+
+const route = useRoute();
+const showGlobalPlaybackController = computed(() => route.name !== 'CompareView');
+</script>
+
 <template>
   <SidebarProvider>
     <AlgorithmSidebar />
@@ -5,7 +13,7 @@
       <div class="flex-1">
         <RouterView />
       </div>
-      <PlaybackController />
+      <PlaybackController v-if="showGlobalPlaybackController" />
     </main>
     <SettingsPanel />
   </SidebarProvider>

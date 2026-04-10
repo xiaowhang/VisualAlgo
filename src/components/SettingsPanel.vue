@@ -38,6 +38,8 @@ const activeAlgorithm = computed(() => {
   return findAlgorithm(category, slug);
 });
 
+const isCompareView = computed(() => route.name === 'CompareView');
+
 const steps = computed(() => activeAlgorithm.value?.createSteps() ?? []);
 
 const currentStepData = computed(() => {
@@ -47,8 +49,31 @@ const currentStepData = computed(() => {
   return steps.value[playback.currentStep.value] ?? steps.value[0];
 });
 
-const isSortingAlgorithm = computed(() => activeAlgorithm.value?.visualization === 'sorting');
+const isSortingAlgorithm = computed(
+  () => isCompareView.value || activeAlgorithm.value?.visualization === 'sorting'
+);
 const isGraphAlgorithm = computed(() => activeAlgorithm.value?.visualization === 'graph');
+
+const panelTitle = computed(() => {
+  if (isCompareView.value) {
+    return '排序算法对比';
+  }
+  return activeAlgorithm.value?.title ?? '算法未找到';
+});
+
+const panelDescription = computed(() => {
+  if (isCompareView.value) {
+    return '对比模式共享同一份排序输入。修改后会同时影响左右算法。';
+  }
+  return activeAlgorithm.value?.description ?? '请从左侧重新选择算法。';
+});
+
+const stepDescription = computed(() => {
+  if (isCompareView.value) {
+    return '对比模式下步骤描述请查看中间画布上方的左右算法说明。';
+  }
+  return currentStepData.value?.description ?? '暂无步骤数据';
+});
 
 const sortingSize = computed(() => algorithmInputs.sortingInput.value.length);
 const sizeInput = ref(String(sortingSize.value));
@@ -264,14 +289,12 @@ async function handleImportFile(event: Event) {
   <div class="flex w-80 flex-col gap-8 border-l border-sidebar-border bg-sidebar p-6">
     <Card>
       <CardHeader>
-        <CardTitle>{{ activeAlgorithm?.title ?? '算法未找到' }}</CardTitle>
-        <CardDescription>
-          {{ activeAlgorithm?.description ?? '请从左侧重新选择算法。' }}
-        </CardDescription>
+        <CardTitle>{{ panelTitle }}</CardTitle>
+        <CardDescription>{{ panelDescription }}</CardDescription>
       </CardHeader>
-      <CardContent v-if="activeAlgorithm">
+      <CardContent v-if="activeAlgorithm || isCompareView">
         <p class="rounded-md border bg-muted/30 p-3 text-sm text-muted-foreground">
-          {{ currentStepData?.description ?? '暂无步骤数据' }}
+          {{ stepDescription }}
         </p>
       </CardContent>
     </Card>

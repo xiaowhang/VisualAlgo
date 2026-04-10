@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 import type { SortingStep } from '@/types/algorithm';
 import { useAlgorithmPlaybackStore } from '@/stores/algorithmPlayback';
@@ -8,12 +8,14 @@ import { renderSortingBars } from '@/visualizers/sortingBarVisualizer';
 
 const props = defineProps<{
   step: SortingStep | null;
+  isPlayingOverride?: boolean;
 }>();
 
 const svgRef = ref<SVGSVGElement | null>(null);
 const playbackStore = useAlgorithmPlaybackStore();
 const { isPlaying } = storeToRefs(playbackStore);
-const pan = useSvgPanAndCenter(() => isPlaying.value);
+const resolvedIsPlaying = computed(() => props.isPlayingOverride ?? isPlaying.value);
+const pan = useSvgPanAndCenter(() => resolvedIsPlaying.value);
 
 function renderChart(step: SortingStep | null) {
   if (!svgRef.value || !step) {

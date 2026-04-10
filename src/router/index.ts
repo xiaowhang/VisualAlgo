@@ -12,6 +12,11 @@ const routes = [
     name: 'AlgorithmView',
     component: () => import('@/views/AlgorithmView.vue'),
   },
+  {
+    path: '/compare',
+    name: 'CompareView',
+    component: () => import('@/views/CompareView.vue'),
+  },
 ];
 
 const router = createRouter({
