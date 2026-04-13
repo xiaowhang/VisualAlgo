@@ -15,6 +15,9 @@ interface GraphLayoutOptions {
   margin?: number;
   nodeRadius?: number;
   collisionPadding?: number;
+  edgeClearance?: number;
+  edgeAvoidanceIterations?: number;
+  edgeAvoidanceStrength?: number;
   linkDistance?: number;
   linkStrength?: number;
   chargeStrength?: number;
@@ -46,6 +49,9 @@ function getAdaptiveDefaults(nodeCount: number): LayoutConfig {
 
   return {
     ...FIXED_DEFAULTS,
+    edgeClearance: 8,
+    edgeAvoidanceIterations: 16,
+    edgeAvoidanceStrength: 0.9,
     linkDistance: clamp(84 + normalized * 26, 60, 110),
     linkStrength: 0.74 - normalized * 0.18,
     chargeStrength: -220 - normalized * 180,
@@ -227,6 +233,117 @@ function resolveResidualOverlaps(
   }
 }
 
+function projectPointToSegment(
+  pointX: number,
+  pointY: number,
+  fromX: number,
+  fromY: number,
+  toX: number,
+  toY: number
+) {
+  const edgeX = toX - fromX;
+  const edgeY = toY - fromY;
+  const edgeLengthSquared = edgeX * edgeX + edgeY * edgeY;
+
+  if (edgeLengthSquared <= 1e-8) {
+    return {
+      projectedX: fromX,
+      projectedY: fromY,
+      distance: Math.hypot(pointX - fromX, pointY - fromY),
+    };
+  }
+
+  const t = clamp(((pointX - fromX) * edgeX + (pointY - fromY) * edgeY) / edgeLengthSquared, 0, 1);
+  const projectedX = fromX + edgeX * t;
+  const projectedY = fromY + edgeY * t;
+
+  return {
+    projectedX,
+    projectedY,
+    distance: Math.hypot(pointX - projectedX, pointY - projectedY),
+  };
+}
+
+function resolveNodeEdgeIntersections(
+  nodes: LayoutNode[],
+  edges: readonly GraphEdge[],
+  safeDistance: number,
+  minX: number,
+  maxX: number,
+  minY: number,
+  maxY: number,
+  random: () => number,
+  strength: number,
+  maxIterations: number
+) {
+  const nodeMap = new Map(nodes.map(node => [node.id, node]));
+
+  // 仅避让“第三方边”：节点 N 不检查包含 N 端点的边。
+  for (let iteration = 0; iteration < maxIterations; iteration += 1) {
+    let moved = false;
+
+    for (const node of nodes) {
+      for (const edge of edges) {
+        if (edge.source === node.id || edge.target === node.id) {
+          continue;
+        }
+
+        const source = nodeMap.get(edge.source);
+        const target = nodeMap.get(edge.target);
+        if (!source || !target) {
+          continue;
+        }
+
+        const fromX = source.x ?? 0;
+        const fromY = source.y ?? 0;
+        const toX = target.x ?? 0;
+        const toY = target.y ?? 0;
+        const nodeX = node.x ?? 0;
+        const nodeY = node.y ?? 0;
+
+        const projection = projectPointToSegment(nodeX, nodeY, fromX, fromY, toX, toY);
+        if (projection.distance >= safeDistance) {
+          continue;
+        }
+
+        let offsetX = nodeX - projection.projectedX;
+        let offsetY = nodeY - projection.projectedY;
+        let offsetLength = Math.hypot(offsetX, offsetY);
+
+        if (offsetLength <= 1e-6) {
+          const edgeX = toX - fromX;
+          const edgeY = toY - fromY;
+          const edgeLength = Math.hypot(edgeX, edgeY);
+
+          if (edgeLength > 1e-6) {
+            const normalSign = random() > 0.5 ? 1 : -1;
+            offsetX = (normalSign * -edgeY) / edgeLength;
+            offsetY = (normalSign * edgeX) / edgeLength;
+          } else {
+            const angle = random() * Math.PI * 2;
+            offsetX = Math.cos(angle);
+            offsetY = Math.sin(angle);
+          }
+
+          offsetLength = 1;
+        }
+
+        const overlap = safeDistance - projection.distance;
+        const displacement = overlap * strength + 0.05;
+        node.x = nodeX + (offsetX / offsetLength) * displacement;
+        node.y = nodeY + (offsetY / offsetLength) * displacement;
+        moved = true;
+      }
+    }
+
+    constrainNodesToBoundary(nodes, minX, maxX, minY, maxY);
+
+    if (!moved) {
+      break;
+    }
+  }
+}
+
 export function computeStableForceLayout(
   nodeIds: readonly string[],
   edges: readonly GraphEdge[],
@@ -284,6 +401,26 @@ export function computeStableForceLayout(
   const minDistance = collisionRadius * 2;
   if (hasOverlap(nodes, minDistance)) {
     resolveResidualOverlaps(nodes, minDistance, minX, maxX, minY, maxY, random, 12);
+  }
+
+  const edgeSafeDistance = config.nodeRadius + config.edgeClearance;
+  if (edges.length > 0) {
+    resolveNodeEdgeIntersections(
+      nodes,
+      edges,
+      edgeSafeDistance,
+      minX,
+      maxX,
+      minY,
+      maxY,
+      random,
+      config.edgeAvoidanceStrength,
+      config.edgeAvoidanceIterations
+    );
+
+    if (hasOverlap(nodes, minDistance)) {
+      resolveResidualOverlaps(nodes, minDistance, minX, maxX, minY, maxY, random, 8);
+    }
   }
 
   return nodes.map(node => {

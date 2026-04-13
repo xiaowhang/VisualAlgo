@@ -13,9 +13,9 @@ import {
   type SortingInputResult,
 } from '@/lib/validation/sortingInput';
 
-const GRAPH_DEFAULT_NODE_COUNT = 6;
-const GRAPH_MIN_NODES = 4;
-const GRAPH_MAX_NODES = 12;
+const GRAPH_DEFAULT_NODE_COUNT = 8;
+const GRAPH_MIN_NODES = 6;
+const GRAPH_MAX_NODES = 14;
 
 export { SORTING_MIN_SIZE, SORTING_MAX_SIZE };
 export { GRAPH_MIN_NODES, GRAPH_MAX_NODES };
