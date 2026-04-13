@@ -67,7 +67,6 @@
 - 默认使用 Composition API 与 `<script setup lang="ts">`
 - 优先复用现有 UI 组件与主题变量，不引入额外设计系统
 - 不手动编辑 `auto-imports.d.ts`、`components.d.ts`（由插件生成）
-- 更改代码与执行 git commit 时，忽略 `auto-imports.d.ts`、`components.d.ts` 的变更；提交前无需手动修复，由 `lint-staged` 自动处理
 - 保持修改最小化，避免与任务无关的重构
 
 ### 4.6 常见坑

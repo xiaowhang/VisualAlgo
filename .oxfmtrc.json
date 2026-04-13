@@ -1,12 +1,12 @@
 {
   "$schema": "./node_modules/oxfmt/configuration_schema.json",
-  "ignorePatterns": [".agents/*"],
+  "ignorePatterns": [".agents/*", "auto-imports.d.ts", "components.d.ts"],
   "arrowParens": "avoid",
   "singleQuote": true,
   "trailingComma": "es5",
   "sortTailwindcss": {
     "stylesheet": "./src/style/index.css",
     "functions": ["clsx", "cn", "cva", "tw"],
-    "preserveWhitespace": true
-  }
+    "preserveWhitespace": true,
+  },
 }
