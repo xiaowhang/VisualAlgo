@@ -1,1 +1,10 @@
-export { algorithmRegistry, algorithmMenuByCategory, findAlgorithm } from './registry/index';
+export {
+  algorithmRegistry,
+  algorithmMenuByCategory,
+  COMPARE_DEFAULT_CATEGORY,
+  findAlgorithm,
+  getCompareOptionsByCategory,
+  isAlgorithmCategory,
+  normalizeComparePair,
+  resolveAlgorithmBySlug,
+} from './registry/index';

@@ -96,14 +96,16 @@ const props = defineProps<Props>();
         <FieldGroup class="mt-4 flex flex-col gap-2">
           <FieldDescription>起始节点</FieldDescription>
           <div class="flex items-center gap-2">
-            <select
-              v-model="graphStartNodeInput"
-              class="h-9 w-full rounded-lg border border-input bg-background px-3 text-sm"
-            >
-              <option v-for="nodeId in props.graphNodeOptions" :key="nodeId" :value="nodeId">
-                {{ nodeId }}
-              </option>
-            </select>
+            <Select v-model="graphStartNodeInput">
+              <SelectTrigger class="w-full">
+                <SelectValue placeholder="选择起始节点" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem v-for="nodeId in props.graphNodeOptions" :key="nodeId" :value="nodeId">
+                  {{ nodeId }}
+                </SelectItem>
+              </SelectContent>
+            </Select>
             <Button variant="outline" size="sm" @click="props.applyGraphStartNode">应用</Button>
           </div>
         </FieldGroup>

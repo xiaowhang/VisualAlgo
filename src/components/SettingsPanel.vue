@@ -2,7 +2,12 @@
 import { computed, nextTick, ref, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useRoute } from 'vue-router';
-import { findAlgorithm } from '@/algorithms/registry';
+import {
+  COMPARE_DEFAULT_CATEGORY,
+  isAlgorithmCategory,
+  normalizeComparePair,
+  findAlgorithm,
+} from '@/algorithms/registry';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import SettingsOverviewTab from '@/components/settings-panel/SettingsOverviewTab.vue';
 import SettingsPanelDataTab from '@/components/settings-panel/SettingsPanelDataTab.vue';
@@ -43,7 +48,35 @@ const activeAlgorithm = computed(() => {
   return findAlgorithm(category, slug);
 });
 
+function readStoredCompareCategory() {
+  if (typeof window === 'undefined') {
+    return undefined;
+  }
+
+  const rawValue = window.localStorage.getItem('algo-compare:last-category');
+  if (!rawValue || !isAlgorithmCategory(rawValue)) {
+    return undefined;
+  }
+
+  return rawValue;
+}
+
 const isCompareView = computed(() => route.name === 'CompareView');
+
+const compareCategory = computed(() => {
+  if (!isCompareView.value) {
+    return null;
+  }
+
+  const queryLeft = typeof route.query.left === 'string' ? route.query.left : '';
+  const queryRight = typeof route.query.right === 'string' ? route.query.right : '';
+  const normalized = normalizeComparePair({
+    leftSlug: queryLeft,
+    rightSlug: queryRight,
+    preferredCategory: readStoredCompareCategory() ?? COMPARE_DEFAULT_CATEGORY,
+  });
+  return normalized.category;
+});
 
 const steps = computed(() => activeAlgorithm.value?.createSteps() ?? []);
 
@@ -55,19 +88,28 @@ const currentStepData = computed(() => {
 });
 
 const isSortingAlgorithm = computed(
-  () => isCompareView.value || activeAlgorithm.value?.visualization === 'sorting'
+  () =>
+    (isCompareView.value && compareCategory.value === 'sorting') ||
+    activeAlgorithm.value?.visualization === 'sorting'
 );
-const isGraphAlgorithm = computed(() => activeAlgorithm.value?.visualization === 'graph');
+const isGraphAlgorithm = computed(
+  () =>
+    (isCompareView.value && compareCategory.value === 'graphs') ||
+    activeAlgorithm.value?.visualization === 'graph'
+);
 
 const panelTitle = computed(() => {
   if (isCompareView.value) {
-    return '排序算法对比';
+    return compareCategory.value === 'graphs' ? '图算法对比' : '排序算法对比';
   }
   return activeAlgorithm.value?.title ?? '算法未找到';
 });
 
 const panelDescription = computed(() => {
   if (isCompareView.value) {
+    if (compareCategory.value === 'graphs') {
+      return '对比模式共享同一份图输入。修改后会同时影响左右算法。';
+    }
     return '对比模式共享同一份排序输入。修改后会同时影响左右算法。';
   }
   return activeAlgorithm.value?.description ?? '请从左侧重新选择算法。';
@@ -100,7 +142,7 @@ const panelScrollRef = ref<HTMLDivElement | null>(null);
 
 const modeLabel = computed(() => {
   if (isCompareView.value) {
-    return '对比模式';
+    return compareCategory.value === 'graphs' ? '图算法对比模式' : '排序算法对比模式';
   }
   return isGraphAlgorithm.value ? '图算法' : '排序算法';
 });
