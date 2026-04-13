@@ -1,13 +1,16 @@
 <script setup lang="ts">
 import { computed, nextTick, ref, watch } from 'vue';
 import { storeToRefs } from 'pinia';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import {
   COMPARE_DEFAULT_CATEGORY,
+  getCompareOptionsByCategory,
   isAlgorithmCategory,
   normalizeComparePair,
   findAlgorithm,
+  resolveAlgorithmBySlug,
 } from '@/algorithms/registry';
+import type { AlgorithmCategory } from '@/types/algorithm';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import SettingsOverviewTab from '@/components/settings-panel/SettingsOverviewTab.vue';
 import SettingsPanelDataTab from '@/components/settings-panel/SettingsPanelDataTab.vue';
@@ -25,6 +28,7 @@ import { useAlgorithmPlaybackStore } from '@/stores/algorithmPlayback';
 const algorithmInputsStore = useAlgorithmInputsStore();
 const playbackStore = useAlgorithmPlaybackStore();
 const route = useRoute();
+const router = useRouter();
 const algorithmInputsRefs = storeToRefs(algorithmInputsStore);
 const playbackRefs = storeToRefs(playbackStore);
 
@@ -40,6 +44,7 @@ const algorithmInputs = {
 };
 const playback = {
   ...playbackRefs,
+  setCompareContinueLonger: playbackStore.setCompareContinueLonger,
 };
 
 const activeAlgorithm = computed(() => {
@@ -77,6 +82,142 @@ const compareCategory = computed(() => {
   });
   return normalized.category;
 });
+
+const compareOptions = computed(() => {
+  if (!compareCategory.value) {
+    return [];
+  }
+  return getCompareOptionsByCategory(compareCategory.value);
+});
+
+const compareLeftSlug = computed(() => {
+  const queryLeft = typeof route.query.left === 'string' ? route.query.left : '';
+  const queryRight = typeof route.query.right === 'string' ? route.query.right : '';
+  const normalized = normalizeComparePair({
+    leftSlug: queryLeft,
+    rightSlug: queryRight,
+    preferredCategory: readStoredCompareCategory() ?? COMPARE_DEFAULT_CATEGORY,
+  });
+  return normalized.left;
+});
+
+const compareRightSlug = computed(() => {
+  const queryLeft = typeof route.query.left === 'string' ? route.query.left : '';
+  const queryRight = typeof route.query.right === 'string' ? route.query.right : '';
+  const normalized = normalizeComparePair({
+    leftSlug: queryLeft,
+    rightSlug: queryRight,
+    preferredCategory: readStoredCompareCategory() ?? COMPARE_DEFAULT_CATEGORY,
+  });
+  return normalized.right;
+});
+
+const compareLeftAlgorithm = computed(() => resolveAlgorithmBySlug(compareLeftSlug.value));
+const compareRightAlgorithm = computed(() => resolveAlgorithmBySlug(compareRightSlug.value));
+const compareLeftStepsCount = computed(() => compareLeftAlgorithm.value?.createSteps().length ?? 0);
+const compareRightStepsCount = computed(
+  () => compareRightAlgorithm.value?.createSteps().length ?? 0
+);
+const compareLeftCurrentStep = computed(() => {
+  if (compareLeftStepsCount.value === 0) {
+    return 0;
+  }
+  return Math.min(playback.currentStep.value + 1, compareLeftStepsCount.value);
+});
+const compareRightCurrentStep = computed(() => {
+  if (compareRightStepsCount.value === 0) {
+    return 0;
+  }
+  return Math.min(playback.currentStep.value + 1, compareRightStepsCount.value);
+});
+const compareLeftCompleted = computed(
+  () =>
+    compareLeftStepsCount.value > 0 && playback.currentStep.value >= compareLeftStepsCount.value - 1
+);
+const compareRightCompleted = computed(
+  () =>
+    compareRightStepsCount.value > 0 &&
+    playback.currentStep.value >= compareRightStepsCount.value - 1
+);
+const compareLeftStatusText = computed(() => {
+  if (
+    playback.compareContinueLonger.value &&
+    compareLeftCompleted.value &&
+    !compareRightCompleted.value
+  ) {
+    return '已完成，等待右侧';
+  }
+  return compareLeftCompleted.value ? '已完成' : '执行中';
+});
+const compareRightStatusText = computed(() => {
+  if (
+    playback.compareContinueLonger.value &&
+    compareRightCompleted.value &&
+    !compareLeftCompleted.value
+  ) {
+    return '已完成，等待左侧';
+  }
+  return compareRightCompleted.value ? '已完成' : '执行中';
+});
+
+function persistCompareCategory(category: string) {
+  if (typeof window === 'undefined') {
+    return;
+  }
+  window.localStorage.setItem('algo-compare:last-category', category);
+}
+
+function updateCompareQuery(
+  rawLeft: string,
+  rawRight: string,
+  preferredCategory?: AlgorithmCategory
+) {
+  const normalized = normalizeComparePair({
+    leftSlug: rawLeft,
+    rightSlug: rawRight,
+    preferredCategory: preferredCategory ?? readStoredCompareCategory() ?? COMPARE_DEFAULT_CATEGORY,
+  });
+
+  persistCompareCategory(normalized.category);
+
+  void router.replace({
+    name: 'CompareView',
+    query: {
+      left: normalized.left,
+      right: normalized.right,
+    },
+  });
+}
+
+function handleCompareCategorySwitch(nextCategory: string) {
+  if (!isAlgorithmCategory(nextCategory) || nextCategory === compareCategory.value) {
+    return;
+  }
+
+  updateCompareQuery('', '', nextCategory);
+}
+
+function handleCompareLeftChange(nextSlug: string) {
+  if (!nextSlug) {
+    return;
+  }
+  updateCompareQuery(nextSlug, compareRightSlug.value, compareCategory.value ?? undefined);
+}
+
+function handleCompareRightChange(nextSlug: string) {
+  if (!nextSlug) {
+    return;
+  }
+  updateCompareQuery(compareLeftSlug.value, nextSlug, compareCategory.value ?? undefined);
+}
+
+function handleCompareSwap() {
+  updateCompareQuery(
+    compareRightSlug.value,
+    compareLeftSlug.value,
+    compareCategory.value ?? undefined
+  );
+}
 
 const steps = computed(() => activeAlgorithm.value?.createSteps() ?? []);
 
@@ -137,7 +278,9 @@ const graphNodeOptions = computed(() => algorithmInputs.graphNodes.value.map(nod
 const customData = ref(algorithmInputs.sortingInput.value.join(', '));
 const customDataMessage = ref('');
 const customDataError = ref(false);
-const activeTab = ref<'overview' | 'data' | 'files'>('overview');
+const activeTab = ref<'overview' | 'compare' | 'data' | 'files'>(
+  isCompareView.value ? 'compare' : 'overview'
+);
 const panelScrollRef = ref<HTMLDivElement | null>(null);
 
 const modeLabel = computed(() => {
@@ -177,6 +320,12 @@ watch(activeTab, async () => {
   await nextTick();
   if (panelScrollRef.value) {
     panelScrollRef.value.scrollTop = 0;
+  }
+});
+
+watch(isCompareView, value => {
+  if (value && activeTab.value === 'overview') {
+    activeTab.value = 'compare';
   }
 });
 
@@ -352,17 +501,146 @@ async function handleImportFile(event: Event) {
 
     <Tabs v-model="activeTab" class="gap-3">
       <TabsList class="grid h-9 w-full grid-cols-3">
-        <TabsTrigger value="overview">概览</TabsTrigger>
+        <TabsTrigger v-if="!isCompareView" value="overview">概览</TabsTrigger>
+        <TabsTrigger v-if="isCompareView" value="compare">对比配置</TabsTrigger>
         <TabsTrigger value="data">数据设置</TabsTrigger>
         <TabsTrigger value="files">文件操作</TabsTrigger>
       </TabsList>
 
-      <TabsContent value="overview" class="pt-1">
+      <TabsContent v-if="!isCompareView" value="overview" class="pt-1">
         <SettingsOverviewTab
           :panel-description="panelDescription"
           :step-description="stepDescription"
           :is-compare-view="isCompareView"
         />
+      </TabsContent>
+
+      <TabsContent v-if="isCompareView" value="compare" class="pt-1">
+        <div class="space-y-4">
+          <FieldSet>
+            <FieldLegend>算法组</FieldLegend>
+            <FieldContent>
+              <Select
+                :model-value="compareCategory ?? COMPARE_DEFAULT_CATEGORY"
+                @update:model-value="
+                  value =>
+                    typeof value === 'string' &&
+                    isAlgorithmCategory(value) &&
+                    handleCompareCategorySwitch(value)
+                "
+              >
+                <SelectTrigger class="w-full">
+                  <SelectValue placeholder="选择算法组" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="sorting">排序算法</SelectItem>
+                  <SelectItem value="graphs">图算法</SelectItem>
+                </SelectContent>
+              </Select>
+            </FieldContent>
+          </FieldSet>
+
+          <FieldSet>
+            <FieldLegend>算法选择</FieldLegend>
+            <FieldContent class="space-y-3">
+              <Field class="gap-2">
+                <FieldLabel class="text-sm text-muted-foreground">左侧算法</FieldLabel>
+                <Select
+                  :model-value="compareLeftSlug"
+                  @update:model-value="
+                    value => typeof value === 'string' && handleCompareLeftChange(value)
+                  "
+                >
+                  <SelectTrigger class="w-full">
+                    <SelectValue placeholder="选择左侧算法" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem
+                      v-for="item in compareOptions"
+                      :key="`panel-left-${item.slug}`"
+                      :value="item.slug"
+                    >
+                      {{ item.title }}
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </Field>
+
+              <Button variant="outline" size="sm" class="w-full" @click="handleCompareSwap">
+                交换左右算法
+              </Button>
+
+              <Field class="gap-2">
+                <FieldLabel class="text-sm text-muted-foreground">右侧算法</FieldLabel>
+                <Select
+                  :model-value="compareRightSlug"
+                  @update:model-value="
+                    value => typeof value === 'string' && handleCompareRightChange(value)
+                  "
+                >
+                  <SelectTrigger class="w-full">
+                    <SelectValue placeholder="选择右侧算法" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem
+                      v-for="item in compareOptions"
+                      :key="`panel-right-${item.slug}`"
+                      :value="item.slug"
+                    >
+                      {{ item.title }}
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </Field>
+            </FieldContent>
+          </FieldSet>
+
+          <FieldSet>
+            <FieldLegend>执行模式</FieldLegend>
+            <FieldContent>
+              <Field orientation="responsive" class="gap-2">
+                <FieldLabel class="flex items-center gap-2 text-sm text-muted-foreground">
+                  <input
+                    :checked="playback.compareContinueLonger.value"
+                    type="checkbox"
+                    class="h-4 w-4 rounded border-input accent-primary"
+                    @change="
+                      event =>
+                        playback.setCompareContinueLonger(
+                          (event.target as HTMLInputElement).checked
+                        )
+                    "
+                  />
+                  继续执行较长算法
+                </FieldLabel>
+                <FieldDescription>
+                  {{
+                    playback.compareContinueLonger.value
+                      ? '模式：执行到较长算法结束'
+                      : '模式：同步对比（最短步数）'
+                  }}
+                </FieldDescription>
+              </Field>
+            </FieldContent>
+          </FieldSet>
+
+          <div class="space-y-2 rounded-lg bg-muted/50 p-3 text-xs ring-1 ring-border/70">
+            <p class="font-medium text-foreground">对比进度</p>
+            <p class="text-muted-foreground">总步数：{{ playback.totalSteps.value }}</p>
+            <div class="rounded-md bg-background/80 p-2 ring-1 ring-border/70">
+              <p class="text-muted-foreground">
+                左侧：{{ compareLeftCurrentStep }} / {{ compareLeftStepsCount }}
+              </p>
+              <p class="mt-1 text-foreground">状态：{{ compareLeftStatusText }}</p>
+            </div>
+            <div class="rounded-md bg-background/80 p-2 ring-1 ring-border/70">
+              <p class="text-muted-foreground">
+                右侧：{{ compareRightCurrentStep }} / {{ compareRightStepsCount }}
+              </p>
+              <p class="mt-1 text-foreground">状态：{{ compareRightStatusText }}</p>
+            </div>
+          </div>
+        </div>
       </TabsContent>
 
       <TabsContent value="data" class="pt-1">

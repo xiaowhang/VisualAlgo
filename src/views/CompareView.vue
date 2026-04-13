@@ -1,12 +1,11 @@
 <script setup lang="ts">
-import { computed, onScopeDispose, ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useRoute, useRouter } from 'vue-router';
 import GraphTraversalView from '@/components/visualization/GraphTraversalView.vue';
 import SortingChart from '@/components/visualization/SortingChart.vue';
 import {
   COMPARE_DEFAULT_CATEGORY,
-  getCompareOptionsByCategory,
   isAlgorithmCategory,
   normalizeComparePair,
   resolveAlgorithmBySlug,
@@ -32,12 +31,9 @@ const playback = {
   stepBack: playbackStore.stepBack,
   setTotalSteps: playbackStore.setTotalSteps,
 };
+const continueLonger = playback.compareContinueLonger;
 
 const { dataVersion } = storeToRefs(algorithmInputsStore);
-const continueLonger = ref(true);
-const completionNotice = ref('');
-
-let completionNoticeTimer: number | null = null;
 const COMPARE_LAST_CATEGORY_KEY = 'algo-compare:last-category';
 
 function readStoredCompareCategory(): AlgorithmCategory | undefined {
@@ -61,31 +57,11 @@ function storeCompareCategory(category: AlgorithmCategory) {
   window.localStorage.setItem(COMPARE_LAST_CATEGORY_KEY, category);
 }
 
-function clearCompletionNoticeTimer() {
-  if (completionNoticeTimer !== null) {
-    window.clearTimeout(completionNoticeTimer);
-    completionNoticeTimer = null;
-  }
-}
-
-function showCompletionNotice(message: string) {
-  completionNotice.value = message;
-  clearCompletionNoticeTimer();
-  completionNoticeTimer = window.setTimeout(() => {
-    completionNotice.value = '';
-    completionNoticeTimer = null;
-  }, 2600);
-}
-
-onScopeDispose(clearCompletionNoticeTimer);
-
 const leftSlug = ref('');
 const rightSlug = ref('');
 const compareCategory = ref<AlgorithmCategory>(
   readStoredCompareCategory() ?? COMPARE_DEFAULT_CATEGORY
 );
-
-const compareOptions = computed(() => getCompareOptionsByCategory(compareCategory.value));
 
 function normalizePair(rawLeft: string, rawRight: string, preferredCategory?: AlgorithmCategory) {
   return normalizeComparePair({
@@ -212,8 +188,6 @@ watch(
     () => rightAlgorithm.value?.id ?? '',
   ],
   () => {
-    completionNotice.value = '';
-    clearCompletionNoticeTimer();
     playback.reset();
     playback.setTotalSteps(compareTotalSteps.value);
   },
@@ -325,53 +299,6 @@ const rightStatusText = computed(() => {
   }
   return rightCompleted.value ? '已完成' : '执行中';
 });
-
-watch(
-  () => playback.currentStep.value,
-  (current, previous) => {
-    if (!continueLonger.value || current <= previous) {
-      return;
-    }
-
-    const leftFinishIndex = leftSteps.value.length - 1;
-    const rightFinishIndex = rightSteps.value.length - 1;
-
-    if (
-      leftSteps.value.length > 0 &&
-      current === leftFinishIndex &&
-      rightFinishIndex > leftFinishIndex
-    ) {
-      showCompletionNotice('左侧算法已完成，右侧继续执行。');
-      return;
-    }
-
-    if (
-      rightSteps.value.length > 0 &&
-      current === rightFinishIndex &&
-      leftFinishIndex > rightFinishIndex
-    ) {
-      showCompletionNotice('右侧算法已完成，左侧继续执行。');
-    }
-  }
-);
-
-function handleSwapSide() {
-  const prevLeft = leftSlug.value;
-  leftSlug.value = rightSlug.value;
-  rightSlug.value = prevLeft;
-}
-
-function handleCompareCategorySwitch(nextCategory: AlgorithmCategory) {
-  if (nextCategory === compareCategory.value) {
-    return;
-  }
-
-  const normalized = normalizePair('', '', nextCategory);
-  compareCategory.value = normalized.category;
-  leftSlug.value = normalized.left;
-  rightSlug.value = normalized.right;
-  storeCompareCategory(normalized.category);
-}
 </script>
 
 <template>
@@ -381,114 +308,6 @@ function handleCompareCategorySwitch(nextCategory: AlgorithmCategory) {
         <CardTitle>{{ compareTitle }}</CardTitle>
         <CardDescription>{{ compareDescription }}</CardDescription>
       </CardHeader>
-      <CardContent class="flex flex-col gap-4">
-        <FieldSet>
-          <FieldLegend>算法组</FieldLegend>
-          <FieldContent>
-            <Select
-              :model-value="compareCategory"
-              @update:model-value="
-                value =>
-                  typeof value === 'string' &&
-                  isAlgorithmCategory(value) &&
-                  handleCompareCategorySwitch(value)
-              "
-            >
-              <SelectTrigger id="compare-category" class="w-full">
-                <SelectValue placeholder="选择算法组" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="sorting">排序算法</SelectItem>
-                <SelectItem value="graphs">图算法</SelectItem>
-              </SelectContent>
-            </Select>
-          </FieldContent>
-        </FieldSet>
-
-        <FieldSet>
-          <FieldLegend>算法选择</FieldLegend>
-          <FieldContent class="grid grid-cols-1 gap-3 lg:grid-cols-[1fr_auto_1fr]">
-            <Field class="gap-2">
-              <FieldLabel for="left-algo" class="text-sm text-muted-foreground"
-                >左侧算法</FieldLabel
-              >
-              <Select v-model="leftSlug">
-                <SelectTrigger id="left-algo" class="w-full">
-                  <SelectValue placeholder="选择左侧算法" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem
-                    v-for="item in compareOptions"
-                    :key="`left-${item.slug}`"
-                    :value="item.slug"
-                  >
-                    {{ item.title }}
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </Field>
-
-            <div class="flex items-end justify-center">
-              <Button variant="outline" size="sm" class="w-full lg:w-auto" @click="handleSwapSide">
-                交换左右
-              </Button>
-            </div>
-
-            <Field class="gap-2">
-              <FieldLabel for="right-algo" class="text-sm text-muted-foreground"
-                >右侧算法</FieldLabel
-              >
-              <Select v-model="rightSlug">
-                <SelectTrigger id="right-algo" class="w-full">
-                  <SelectValue placeholder="选择右侧算法" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem
-                    v-for="item in compareOptions"
-                    :key="`right-${item.slug}`"
-                    :value="item.slug"
-                  >
-                    {{ item.title }}
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </Field>
-          </FieldContent>
-        </FieldSet>
-
-        <FieldSet class="rounded-lg bg-muted/50 p-3 shadow-sm ring-1 ring-border/70">
-          <FieldLegend>执行模式</FieldLegend>
-          <FieldContent>
-            <Field orientation="responsive" class="gap-2">
-              <FieldLabel class="flex items-center gap-2 text-sm text-muted-foreground">
-                <input
-                  v-model="continueLonger"
-                  type="checkbox"
-                  class="h-4 w-4 rounded border-input accent-primary"
-                />
-                继续执行较长算法
-              </FieldLabel>
-              <FieldDescription>
-                {{ continueLonger ? '模式：执行到较长算法结束' : '模式：同步对比（最短步数）' }}
-              </FieldDescription>
-            </Field>
-          </FieldContent>
-        </FieldSet>
-
-        <div
-          class="rounded-lg bg-muted/50 p-3 text-sm text-muted-foreground shadow-sm ring-1 ring-border/70"
-        >
-          当前总步数：{{ playback.totalSteps.value }}（左 {{ leftSteps.length }} / 右
-          {{ rightSteps.length }}）
-        </div>
-
-        <div
-          v-if="completionNotice"
-          class="rounded-lg border border-primary/30 bg-primary/10 p-3 text-sm text-primary"
-        >
-          {{ completionNotice }}
-        </div>
-      </CardContent>
     </Card>
 
     <div class="grid min-h-0 flex-1 grid-cols-1 gap-4 lg:grid-cols-2">
