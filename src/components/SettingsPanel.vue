@@ -326,6 +326,11 @@ watch(activeTab, async () => {
 watch(isCompareView, value => {
   if (value && activeTab.value === 'overview') {
     activeTab.value = 'compare';
+    return;
+  }
+
+  if (!value) {
+    activeTab.value = 'overview';
   }
 });
 
