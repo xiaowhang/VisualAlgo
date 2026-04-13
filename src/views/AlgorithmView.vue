@@ -76,9 +76,20 @@ watch(
 
 <template>
   <div class="mx-auto flex h-full w-full max-w-300 flex-col px-6 py-6 md:px-10 md:py-8">
-    <Card v-if="activeAlgorithm" class="min-h-0 flex-1 px-4 py-4 md:px-5 md:py-5">
-      <SortingChart v-if="activeAlgorithm.visualization === 'sorting'" :step="sortingStep" />
-      <GraphTraversalView v-else :step="graphStep" :algorithm-key="graphAlgorithmKey" />
+    <Card v-if="activeAlgorithm" class="min-h-0 flex-1 px-0 py-0">
+      <div class="min-h-0 flex-1 overflow-hidden rounded-[inherit]">
+        <SortingChart
+          v-if="activeAlgorithm.visualization === 'sorting'"
+          class="h-full w-full"
+          :step="sortingStep"
+        />
+        <GraphTraversalView
+          v-else
+          class="h-full w-full"
+          :step="graphStep"
+          :algorithm-key="graphAlgorithmKey"
+        />
+      </div>
     </Card>
 
     <div
