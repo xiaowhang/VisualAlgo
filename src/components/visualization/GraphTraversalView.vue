@@ -126,6 +126,21 @@ function resolveNodeFillColor(svgElement: SVGSVGElement, step: GraphStep | null,
   return resolveCssColorToken(svgElement, resolveNodeFill(step, nodeId));
 }
 
+function resolveCurrentPaintColor(
+  svgElement: SVGSVGElement,
+  element: SVGElement,
+  paint: 'fill' | 'stroke',
+  fallback: string
+) {
+  const computed = getComputedStyle(element).getPropertyValue(paint).trim();
+  const attribute = element.getAttribute(paint)?.trim() ?? '';
+  const candidate = computed || attribute || fallback;
+  if (!candidate || candidate === 'none') {
+    return fallback;
+  }
+  return resolveCssColorToken(svgElement, candidate);
+}
+
 function renderGraph(step: GraphStep | null) {
   if (!svgRef.value) {
     return;
@@ -147,6 +162,14 @@ function renderGraph(step: GraphStep | null) {
   const transition = d3.transition().duration(GRAPH_ANIMATION_DURATION).ease(d3.easeCubicOut);
 
   const nodeMap = new Map(nodes.map(node => [node.id, node]));
+  const svgElement = svgRef.value;
+  const edgeStrokeColor = resolveCssColorToken(svgElement, VISUALIZATION_COLOR_TOKENS.border);
+  const nodeStrokeColor = edgeStrokeColor;
+  const textColor = resolveCssColorToken(svgElement, VISUALIZATION_COLOR_TOKENS.text);
+  const fallbackNodeFillColor = resolveCssColorToken(svgElement, VISUALIZATION_COLOR_TOKENS.idle);
+  const nodeFillColorMap = new Map(
+    nodes.map(node => [node.id, resolveNodeFillColor(svgElement, step, node.id)])
+  );
 
   const edgeLayer = root
     .selectAll<SVGGElement, null>('g.graph-edges')
@@ -166,7 +189,7 @@ function renderGraph(step: GraphStep | null) {
           .attr('y1', (edge: GraphEdge) => resolveEdgeMidpoint(nodeMap, edge).y)
           .attr('x2', (edge: GraphEdge) => resolveEdgeMidpoint(nodeMap, edge).x)
           .attr('y2', (edge: GraphEdge) => resolveEdgeMidpoint(nodeMap, edge).y)
-          .attr('stroke', VISUALIZATION_COLOR_TOKENS.border)
+          .attr('stroke', edgeStrokeColor)
           .attr('stroke-width', 2)
           .attr('stroke-opacity', 0),
       update => update,
@@ -180,9 +203,42 @@ function renderGraph(step: GraphStep | null) {
     .attr('y1', (edge: GraphEdge) => resolveNodePosition(nodeMap, edge.source).y)
     .attr('x2', (edge: GraphEdge) => resolveNodePosition(nodeMap, edge.target).x)
     .attr('y2', (edge: GraphEdge) => resolveNodePosition(nodeMap, edge.target).y)
-    .attr('stroke', VISUALIZATION_COLOR_TOKENS.border)
     .attr('stroke-width', 2)
     .attr('stroke-opacity', 1);
+
+  edgeSelection.each(function () {
+    const currentStroke = resolveCurrentPaintColor(
+      svgElement,
+      this as SVGLineElement,
+      'stroke',
+      edgeStrokeColor
+    );
+    if (currentStroke === edgeStrokeColor) {
+      d3.select(this).attr('stroke', edgeStrokeColor);
+    }
+  });
+
+  edgeSelection
+    .filter(function () {
+      const currentStroke = resolveCurrentPaintColor(
+        svgElement,
+        this as SVGLineElement,
+        'stroke',
+        edgeStrokeColor
+      );
+      return currentStroke !== edgeStrokeColor;
+    })
+    .transition(transition)
+    .attrTween('stroke', function () {
+      const from = resolveCurrentPaintColor(
+        svgElement,
+        this as SVGLineElement,
+        'stroke',
+        edgeStrokeColor
+      );
+      const interpolator = d3.interpolateRgb(from, edgeStrokeColor);
+      return t => interpolator(t);
+    });
 
   function updateEdgePositions() {
     edgeSelection
@@ -212,10 +268,8 @@ function renderGraph(step: GraphStep | null) {
         group
           .append('circle')
           .attr('r', 0)
-          .attr('fill', (node: GraphNode) =>
-            resolveNodeFillColor(svgRef.value as SVGSVGElement, step, node.id)
-          )
-          .attr('stroke', VISUALIZATION_COLOR_TOKENS.border)
+          .attr('fill', (node: GraphNode) => nodeFillColorMap.get(node.id) ?? fallbackNodeFillColor)
+          .attr('stroke', nodeStrokeColor)
           .attr('stroke-width', 2);
 
         group
@@ -225,7 +279,7 @@ function renderGraph(step: GraphStep | null) {
           .attr('text-anchor', 'middle')
           .attr('font-size', 14)
           .attr('font-weight', 600)
-          .attr('fill', VISUALIZATION_COLOR_TOKENS.text)
+          .attr('fill', textColor)
           .text((node: GraphNode) => node.id);
 
         return group;
@@ -247,16 +301,77 @@ function renderGraph(step: GraphStep | null) {
     })
     .attr('opacity', 1);
 
-  nodeGroup
-    .select('circle')
+  const nodeCircles = nodeGroup.select<SVGCircleElement>('circle');
+
+  nodeCircles
     .interrupt()
     .transition(transition)
     .attr('r', GRAPH_NODE_RADIUS)
-    .attr('fill', (node: GraphNode) =>
-      resolveNodeFillColor(svgRef.value as SVGSVGElement, step, node.id)
-    )
-    .attr('stroke', VISUALIZATION_COLOR_TOKENS.border)
     .attr('stroke-width', 2);
+
+  nodeCircles.each(function (node: GraphNode) {
+    const targetFill = nodeFillColorMap.get(node.id) ?? fallbackNodeFillColor;
+    const currentFill = resolveCurrentPaintColor(
+      svgElement,
+      this as SVGCircleElement,
+      'fill',
+      targetFill
+    );
+    if (currentFill === targetFill) {
+      d3.select(this).attr('fill', targetFill);
+    }
+
+    const currentStroke = resolveCurrentPaintColor(
+      svgElement,
+      this as SVGCircleElement,
+      'stroke',
+      nodeStrokeColor
+    );
+    if (currentStroke === nodeStrokeColor) {
+      d3.select(this).attr('stroke', nodeStrokeColor);
+    }
+  });
+
+  nodeCircles
+    .filter(function (node: GraphNode) {
+      const targetFill = nodeFillColorMap.get(node.id) ?? fallbackNodeFillColor;
+      const currentFill = resolveCurrentPaintColor(
+        svgElement,
+        this as SVGCircleElement,
+        'fill',
+        targetFill
+      );
+      return currentFill !== targetFill;
+    })
+    .transition(transition)
+    .attrTween('fill', function (node: GraphNode) {
+      const target = nodeFillColorMap.get(node.id) ?? fallbackNodeFillColor;
+      const from = resolveCurrentPaintColor(svgElement, this as SVGCircleElement, 'fill', target);
+      const interpolator = d3.interpolateRgb(from, target);
+      return t => interpolator(t);
+    });
+
+  nodeCircles
+    .filter(function () {
+      const currentStroke = resolveCurrentPaintColor(
+        svgElement,
+        this as SVGCircleElement,
+        'stroke',
+        nodeStrokeColor
+      );
+      return currentStroke !== nodeStrokeColor;
+    })
+    .transition(transition)
+    .attrTween('stroke', function () {
+      const from = resolveCurrentPaintColor(
+        svgElement,
+        this as SVGCircleElement,
+        'stroke',
+        nodeStrokeColor
+      );
+      const interpolator = d3.interpolateRgb(from, nodeStrokeColor);
+      return t => interpolator(t);
+    });
 
   nodeGroup
     .select('text')
@@ -267,7 +382,7 @@ function renderGraph(step: GraphStep | null) {
     .attr('text-anchor', 'middle')
     .attr('font-size', 14)
     .attr('font-weight', 600)
-    .attr('fill', VISUALIZATION_COLOR_TOKENS.text)
+    .attr('fill', textColor)
     .text((node: GraphNode) => node.id);
 
   if (!isPlaying.value) {
