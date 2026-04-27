@@ -5,11 +5,16 @@ interface Props {
   isSortingAlgorithm: boolean;
   customDataMessage: string;
   customDataError: boolean;
-  exportJsonFile: () => void;
-  handleImportFile: (event: Event) => Promise<void> | void;
 }
 
 const props = defineProps<Props>();
+
+interface Emits {
+  (event: 'export-json'): void;
+  (event: 'import-file', payload: Event): void;
+}
+
+const emit = defineEmits<Emits>();
 
 const fileInputRef = ref<HTMLInputElement | null>(null);
 
@@ -27,14 +32,14 @@ function openImportFileDialog() {
     <CardContent class="pt-0">
       <template v-if="props.isSortingAlgorithm">
         <div class="flex flex-wrap items-center gap-2">
-          <Button variant="outline" size="sm" @click="props.exportJsonFile">导出 JSON</Button>
+          <Button variant="outline" size="sm" @click="emit('export-json')">导出 JSON</Button>
           <Button size="sm" @click="openImportFileDialog">导入文件</Button>
           <input
             ref="fileInputRef"
             type="file"
             accept=".json"
             class="hidden"
-            @change="props.handleImportFile"
+            @change="event => emit('import-file', event)"
           />
         </div>
         <p

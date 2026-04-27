@@ -20,14 +20,19 @@ interface Props {
   graphMessageError: boolean;
   customDataMessage: string;
   customDataError: boolean;
-  randomizeData: () => void;
-  applySizeFromInput: () => number;
-  applyGraphNodeCountFromInput: () => number;
-  applyGraphStartNode: () => void;
-  applyCustomData: () => void;
 }
 
 const props = defineProps<Props>();
+
+interface Emits {
+  (event: 'randomize-data'): void;
+  (event: 'apply-size'): void;
+  (event: 'apply-graph-node-count'): void;
+  (event: 'apply-graph-start-node'): void;
+  (event: 'apply-custom-data'): void;
+}
+
+const emit = defineEmits<Emits>();
 </script>
 
 <template>
@@ -35,7 +40,7 @@ const props = defineProps<Props>();
     <FieldSet>
       <FieldLegend>数据生成</FieldLegend>
       <FieldContent>
-        <Button variant="outline" @click="props.randomizeData">随机生成</Button>
+        <Button variant="outline" @click="emit('randomize-data')">随机生成</Button>
       </FieldContent>
     </FieldSet>
 
@@ -48,7 +53,7 @@ const props = defineProps<Props>();
             type="number"
             :min="props.sortingMinSize"
             :max="props.sortingMaxSize"
-            @blur="props.applySizeFromInput"
+            @blur="emit('apply-size')"
           />
           <FieldDescription>
             范围：{{ props.sortingMinSize }} - {{ props.sortingMaxSize }}
@@ -75,9 +80,9 @@ const props = defineProps<Props>();
               type="number"
               :min="props.graphMinNodes"
               :max="props.graphMaxNodes"
-              @blur="props.applyGraphNodeCountFromInput"
+              @blur="emit('apply-graph-node-count')"
             />
-            <Button variant="outline" size="sm" @click="props.applyGraphNodeCountFromInput">
+            <Button variant="outline" size="sm" @click="emit('apply-graph-node-count')">
               应用
             </Button>
           </div>
@@ -106,7 +111,9 @@ const props = defineProps<Props>();
                 </SelectItem>
               </SelectContent>
             </Select>
-            <Button variant="outline" size="sm" @click="props.applyGraphStartNode">应用</Button>
+            <Button variant="outline" size="sm" @click="emit('apply-graph-start-node')">
+              应用
+            </Button>
           </div>
         </FieldGroup>
 
@@ -131,7 +138,7 @@ const props = defineProps<Props>();
             class="min-h-30 resize-none"
           />
           <div class="flex items-center justify-between gap-2">
-            <Button variant="outline" size="sm" @click="props.applyCustomData">应用</Button>
+            <Button variant="outline" size="sm" @click="emit('apply-custom-data')">应用</Button>
             <span
               v-if="props.customDataMessage"
               class="text-xs"

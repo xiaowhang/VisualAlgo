@@ -54,6 +54,7 @@ declare module 'vue' {
     Separator: typeof import('./src/components/ui/separator/Separator.vue')['default']
     SettingsOverviewTab: typeof import('./src/components/settings-panel/SettingsOverviewTab.vue')['default']
     SettingsPanel: typeof import('./src/components/SettingsPanel.vue')['default']
+    SettingsPanelCompareTab: typeof import('./src/components/settings-panel/SettingsPanelCompareTab.vue')['default']
     SettingsPanelDataTab: typeof import('./src/components/settings-panel/SettingsPanelDataTab.vue')['default']
     SettingsPanelFileTab: typeof import('./src/components/settings-panel/SettingsPanelFileTab.vue')['default']
     SettingsPanelHeaderBar: typeof import('./src/components/settings-panel/SettingsPanelHeaderBar.vue')['default']
