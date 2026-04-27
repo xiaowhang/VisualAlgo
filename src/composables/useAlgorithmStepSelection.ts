@@ -1,0 +1,51 @@
+import { computed, toValue, type MaybeRefOrGetter } from 'vue';
+import type { AlgorithmStep, GraphStep, SortingStep } from '@/types/algorithm';
+
+interface UseAlgorithmStepSelectionOptions {
+  steps: MaybeRefOrGetter<AlgorithmStep[]>;
+  currentStep: MaybeRefOrGetter<number>;
+}
+
+export function useAlgorithmStepSelection(options: UseAlgorithmStepSelectionOptions) {
+  const steps = computed(() => toValue(options.steps));
+  const currentStep = computed(() => toValue(options.currentStep));
+
+  const stepIndex = computed(() => {
+    if (steps.value.length === 0) {
+      return -1;
+    }
+
+    return Math.min(currentStep.value, steps.value.length - 1);
+  });
+
+  const step = computed<AlgorithmStep | null>(() => {
+    if (stepIndex.value < 0) {
+      return null;
+    }
+
+    return steps.value[stepIndex.value] ?? null;
+  });
+
+  const sortingStep = computed<SortingStep | null>(() => {
+    if (!step.value || step.value.kind !== 'sorting') {
+      return null;
+    }
+
+    return step.value;
+  });
+
+  const graphStep = computed<GraphStep | null>(() => {
+    if (!step.value || step.value.kind !== 'graph') {
+      return null;
+    }
+
+    return step.value;
+  });
+
+  return {
+    stepIndex,
+    step,
+    sortingStep,
+    graphStep,
+  };
+}

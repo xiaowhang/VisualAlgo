@@ -5,6 +5,12 @@ import {
   isAlgorithmCategory,
   normalizeComparePair,
 } from '@/algorithms/registry';
+import {
+  resolveCompareQuerySlug,
+  type CompareRouteQueryValue,
+  type CompareSelectionChangeInput,
+  type CompareSyncResult,
+} from '@/features/compare/types';
 import type { AlgorithmCategory } from '@/types/algorithm';
 
 const COMPARE_LAST_CATEGORY_KEY = 'algo-compare:last-category';
@@ -38,13 +44,6 @@ function normalizePair(rawLeft: string, rawRight: string, preferredCategory?: Al
   });
 }
 
-export interface CompareSyncResult {
-  left: string;
-  right: string;
-  category: AlgorithmCategory;
-  needsRouteFix: boolean;
-}
-
 export const useAlgorithmComparisonStore = defineStore('algorithm-comparison', () => {
   const leftSlug = ref('');
   const rightSlug = ref('');
@@ -52,9 +51,12 @@ export const useAlgorithmComparisonStore = defineStore('algorithm-comparison', (
     readStoredCompareCategory() ?? COMPARE_DEFAULT_CATEGORY
   );
 
-  function applyRouteQuery(queryLeft: unknown, queryRight: unknown): CompareSyncResult {
-    const rawLeft = typeof queryLeft === 'string' ? queryLeft : '';
-    const rawRight = typeof queryRight === 'string' ? queryRight : '';
+  function applyRouteQuery(
+    queryLeft: CompareRouteQueryValue,
+    queryRight: CompareRouteQueryValue
+  ): CompareSyncResult {
+    const rawLeft = resolveCompareQuerySlug(queryLeft);
+    const rawRight = resolveCompareQuerySlug(queryRight);
     const normalized = normalizePair(rawLeft, rawRight, readStoredCompareCategory());
 
     compareCategory.value = normalized.category;
@@ -70,14 +72,7 @@ export const useAlgorithmComparisonStore = defineStore('algorithm-comparison', (
     };
   }
 
-  function applySelectionChange(input: {
-    nextLeft: string;
-    nextRight: string;
-    prevLeft: string;
-    prevRight: string;
-    queryLeft: unknown;
-    queryRight: unknown;
-  }): CompareSyncResult {
+  function applySelectionChange(input: CompareSelectionChangeInput): CompareSyncResult {
     let candidateLeft = input.nextLeft;
     let candidateRight = input.nextRight;
 
@@ -101,8 +96,8 @@ export const useAlgorithmComparisonStore = defineStore('algorithm-comparison', (
     rightSlug.value = normalized.right;
     storeCompareCategory(normalized.category);
 
-    const routeLeft = typeof input.queryLeft === 'string' ? input.queryLeft : '';
-    const routeRight = typeof input.queryRight === 'string' ? input.queryRight : '';
+    const routeLeft = resolveCompareQuerySlug(input.queryLeft);
+    const routeRight = resolveCompareQuerySlug(input.queryRight);
 
     return {
       left: normalized.left,
@@ -112,11 +107,17 @@ export const useAlgorithmComparisonStore = defineStore('algorithm-comparison', (
     };
   }
 
+  function setPreferredCategory(category: AlgorithmCategory) {
+    compareCategory.value = category;
+    storeCompareCategory(category);
+  }
+
   return {
     leftSlug,
     rightSlug,
     compareCategory,
     applyRouteQuery,
     applySelectionChange,
+    setPreferredCategory,
   };
 });
