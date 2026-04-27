@@ -5,9 +5,9 @@ import { useRoute } from 'vue-router';
 import GraphTraversalView from '@/components/visualization/GraphTraversalView.vue';
 import SortingChart from '@/components/visualization/SortingChart.vue';
 import { findAlgorithm } from '@/algorithms/registry';
+import { useAlgorithmStepSelection } from '@/composables/useAlgorithmStepSelection';
 import { useAlgorithmInputsStore } from '@/stores/algorithmInputs';
 import { useAlgorithmPlaybackStore } from '@/stores/algorithmPlayback';
-import type { GraphStep, SortingStep } from '@/types/algorithm';
 
 const route = useRoute();
 const playbackStore = useAlgorithmPlaybackStore();
@@ -34,27 +34,9 @@ const activeAlgorithm = computed(() => {
 
 const steps = computed(() => activeAlgorithm.value?.createSteps() ?? []);
 
-const currentStepData = computed(() => {
-  if (steps.value.length === 0) {
-    return null;
-  }
-  return steps.value[playback.currentStep.value] ?? steps.value[0];
-});
-
-const sortingStep = computed(() => {
-  const step = currentStepData.value;
-  if (!step || step.kind !== 'sorting') {
-    return null;
-  }
-  return step as SortingStep;
-});
-
-const graphStep = computed(() => {
-  const step = currentStepData.value;
-  if (!step || step.kind !== 'graph') {
-    return null;
-  }
-  return step as GraphStep;
+const { sortingStep, graphStep } = useAlgorithmStepSelection({
+  steps,
+  currentStep: playback.currentStep,
 });
 
 const graphAlgorithmKey = computed(() => {
