@@ -6,7 +6,7 @@ import { findAlgorithm } from '@/algorithms/registry/findAlgorithm';
 export const COMPARE_DEFAULT_CATEGORY: AlgorithmCategory = 'sorting';
 
 export function isAlgorithmCategory(value: string): value is AlgorithmCategory {
-  return value === 'sorting' || value === 'graphs';
+  return value === 'sorting' || value === 'graphs' || value === 'trees';
 }
 
 export function getCompareOptionsByCategory(category: AlgorithmCategory): AlgorithmMenuItem[] {
@@ -23,7 +23,12 @@ export function resolveAlgorithmBySlug(slug: string) {
     return sortingAlgorithm;
   }
 
-  return findAlgorithm('graphs', slug) ?? null;
+  const graphAlgorithm = findAlgorithm('graphs', slug);
+  if (graphAlgorithm) {
+    return graphAlgorithm;
+  }
+
+  return findAlgorithm('trees', slug) ?? null;
 }
 
 function resolveFallbackCategory(preferredCategory?: AlgorithmCategory): AlgorithmCategory {

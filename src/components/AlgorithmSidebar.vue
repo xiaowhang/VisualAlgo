@@ -19,6 +19,12 @@ const sections = computed(() => [
     defaultOpen: false,
     items: algorithmMenuByCategory.graphs,
   },
+  {
+    label: '树算法',
+    category: 'trees' as const,
+    defaultOpen: false,
+    items: algorithmMenuByCategory.trees,
+  },
 ]);
 
 const filteredSections = computed(() => {

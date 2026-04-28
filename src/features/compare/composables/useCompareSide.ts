@@ -20,7 +20,7 @@ export function useCompareSide(options: UseCompareSideOptions) {
   });
 
   const steps = computed(() => algorithm.value?.createSteps() ?? []);
-  const { stepIndex, step, sortingStep, graphStep } = useAlgorithmStepSelection({
+  const { stepIndex, step, sortingStep, graphStep, treeStep } = useAlgorithmStepSelection({
     steps,
     currentStep: options.currentStep,
   });
@@ -43,6 +43,7 @@ export function useCompareSide(options: UseCompareSideOptions) {
     step,
     sortingStep,
     graphStep,
+    treeStep,
     graphAlgorithmKey,
     completed,
   };

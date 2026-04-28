@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import GraphTraversalView from '@/components/visualization/GraphTraversalView.vue';
 import SortingChart from '@/components/visualization/SortingChart.vue';
-import type { GraphStep, SortingStep, VisualizationKind } from '@/types/algorithm';
+import TreeVisualizer from '@/components/visualization/TreeVisualizer.vue';
+import type { GraphStep, SortingStep, TreeStep, VisualizationKind } from '@/types/algorithm';
 
 interface Props {
   title: string;
@@ -10,6 +11,7 @@ interface Props {
   visualization: VisualizationKind;
   sortingStep: SortingStep | null;
   graphStep: GraphStep | null;
+  treeStep: TreeStep | null;
   graphAlgorithmKey: string | null;
   isPlaying: boolean;
 }
@@ -36,7 +38,16 @@ defineProps<Props>();
         :step="sortingStep"
         :is-playing-override="isPlaying"
       />
-      <GraphTraversalView v-else :step="graphStep" :algorithm-key="graphAlgorithmKey" />
+      <GraphTraversalView
+        v-else-if="visualization === 'graph'"
+        :step="graphStep"
+        :algorithm-key="graphAlgorithmKey"
+      />
+      <TreeVisualizer
+        v-else-if="visualization === 'tree'"
+        :step="treeStep"
+        :is-playing-override="isPlaying"
+      />
     </CardContent>
   </Card>
 </template>

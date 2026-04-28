@@ -132,6 +132,12 @@ export function useSettingsPanelViewModel() {
       activeAlgorithm.value?.visualization === 'graph'
   );
 
+  const isTreeAlgorithm = computed(
+    () =>
+      (isCompareView.value && visibleCompareCategory.value === 'trees') ||
+      activeAlgorithm.value?.visualization === 'tree'
+  );
+
   const inputForm = useSettingsInputForm({
     isGraphAlgorithm,
   });
@@ -169,6 +175,7 @@ export function useSettingsPanelViewModel() {
     if (isCompareView.value) {
       return visibleCompareCategory.value === 'graphs' ? '图算法对比模式' : '排序算法对比模式';
     }
+    if (isTreeAlgorithm.value) return '树算法';
     return isGraphAlgorithm.value ? '图算法' : '排序算法';
   });
 
@@ -209,6 +216,7 @@ export function useSettingsPanelViewModel() {
     compareRightStatusText,
     isSortingAlgorithm,
     isGraphAlgorithm,
+    isTreeAlgorithm,
     panelTitle,
     panelDescription,
     stepDescription,

@@ -1,5 +1,5 @@
 import { computed, toValue, type MaybeRefOrGetter } from 'vue';
-import type { AlgorithmStep, GraphStep, SortingStep } from '@/types/algorithm';
+import type { AlgorithmStep, GraphStep, SortingStep, TreeStep } from '@/types/algorithm';
 
 interface UseAlgorithmStepSelectionOptions {
   steps: MaybeRefOrGetter<AlgorithmStep[]>;
@@ -42,10 +42,19 @@ export function useAlgorithmStepSelection(options: UseAlgorithmStepSelectionOpti
     return step.value;
   });
 
+  const treeStep = computed<TreeStep | null>(() => {
+    if (!step.value || step.value.kind !== 'tree') {
+      return null;
+    }
+
+    return step.value;
+  });
+
   return {
     stepIndex,
     step,
     sortingStep,
     graphStep,
+    treeStep,
   };
 }

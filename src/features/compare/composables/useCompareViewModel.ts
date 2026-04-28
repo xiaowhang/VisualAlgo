@@ -79,7 +79,9 @@ export function useCompareViewModel() {
   );
 
   const compareVisualization = computed(() => {
-    return compareCategory.value === 'graphs' ? 'graph' : 'sorting';
+    if (compareCategory.value === 'graphs') return 'graph';
+    if (compareCategory.value === 'trees') return 'tree';
+    return 'sorting';
   });
 
   const compareTitle = computed(() => {

@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import type { GraphEdge, GraphNode } from '@/types/algorithm';
 import { computeStableForceLayout } from '@/visualizers/graphLayout';
+import { getDefaultBST } from '@/algorithms/shared/tree/fixtures';
 import {
   SORTING_DEFAULT_SIZE,
   SORTING_MAX_SIZE,
@@ -115,12 +116,16 @@ function createRandomGraphData(nodeIds: readonly string[]) {
 export const useAlgorithmInputsStore = defineStore('algorithm-inputs', () => {
   const initialGraphNodeIds = createGraphNodeIds(GRAPH_DEFAULT_NODE_COUNT);
   const initialGraphData = createRandomGraphData(initialGraphNodeIds);
+  const defaultBST = getDefaultBST();
   const sortingInput = ref<number[]>(createRandomSortingData(SORTING_DEFAULT_SIZE));
   const graphNodeCount = ref(GRAPH_DEFAULT_NODE_COUNT);
   const graphStartNode = ref('A');
   const graphNodes = ref<GraphNode[]>(initialGraphData.nodes);
   const graphEdges = ref<GraphEdge[]>(initialGraphData.edges);
   const graphAdjacencyList = ref<Map<string, string[]>>(initialGraphData.adjacencyList);
+  const treeNodes = ref<GraphNode[]>(defaultBST.nodes);
+  const treeEdges = ref<GraphEdge[]>(defaultBST.edges);
+  const treeTargetValue = ref('7');
   const dataVersion = ref(0);
 
   function getGraphNodeIds() {
@@ -245,6 +250,14 @@ export const useAlgorithmInputsStore = defineStore('algorithm-inputs', () => {
     return applySortingInput(numbers, `已导入 ${numbers.length} 个元素。`);
   }
 
+  function randomizeTreeInput() {
+    const bst = getDefaultBST();
+    treeNodes.value = bst.nodes;
+    treeEdges.value = bst.edges;
+    treeTargetValue.value = '7';
+    dataVersion.value += 1;
+  }
+
   return {
     sortingInput,
     graphNodeCount,
@@ -252,9 +265,13 @@ export const useAlgorithmInputsStore = defineStore('algorithm-inputs', () => {
     graphNodes,
     graphEdges,
     graphAdjacencyList,
+    treeNodes,
+    treeEdges,
+    treeTargetValue,
     dataVersion,
     randomizeAlgorithmInput,
     randomizeGraphInput,
+    randomizeTreeInput,
     setGraphNodeCount,
     setGraphStartNode,
     applyCustomSortingInput,

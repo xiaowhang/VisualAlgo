@@ -35,6 +35,7 @@ const {
         :visualization="compareVisualization"
         :sorting-step="leftSide.sortingStep.value"
         :graph-step="leftSide.graphStep.value"
+        :tree-step="leftSide.treeStep.value"
         :graph-algorithm-key="leftSide.graphAlgorithmKey.value"
         :is-playing="playback.isPlaying.value"
       />
@@ -46,6 +47,7 @@ const {
         :visualization="compareVisualization"
         :sorting-step="rightSide.sortingStep.value"
         :graph-step="rightSide.graphStep.value"
+        :tree-step="rightSide.treeStep.value"
         :graph-algorithm-key="rightSide.graphAlgorithmKey.value"
         :is-playing="playback.isPlaying.value"
       />

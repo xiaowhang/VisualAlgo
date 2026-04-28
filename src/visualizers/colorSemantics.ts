@@ -1,4 +1,10 @@
-import type { GraphStep, SortingHighlightKind, SortingStep } from '@/types/algorithm';
+import type {
+  GraphStep,
+  SortingHighlightKind,
+  SortingStep,
+  TreeHighlightKind,
+  TreeStep,
+} from '@/types/algorithm';
 
 // Keep algorithm semantics colors independent from the grayscale UI brand palette.
 // UI shell (cards, typography, surfaces) follows DESIGN.md monochrome tokens,
@@ -45,6 +51,20 @@ export function resolveGraphNodeColor(step: GraphStep, nodeId: string) {
   }
 
   return COLOR_TOKENS.idle;
+}
+
+const TREE_COLOR_BY_KIND: Record<TreeHighlightKind, string> = {
+  default: COLOR_TOKENS.default,
+  current: COLOR_TOKENS.current,
+  compare: COLOR_TOKENS.compare,
+  swap: COLOR_TOKENS.swap,
+  visited: COLOR_TOKENS.visited,
+  done: COLOR_TOKENS.done,
+};
+
+export function resolveTreeNodeColor(step: TreeStep, nodeId: string) {
+  const highlightKind = step.highlights[nodeId] ?? 'default';
+  return TREE_COLOR_BY_KIND[highlightKind];
 }
 
 export const VISUALIZATION_COLOR_TOKENS = COLOR_TOKENS;

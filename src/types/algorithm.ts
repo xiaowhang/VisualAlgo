@@ -1,6 +1,6 @@
-export type AlgorithmCategory = 'sorting' | 'graphs';
+export type AlgorithmCategory = 'sorting' | 'graphs' | 'trees';
 
-export type VisualizationKind = 'sorting' | 'graph';
+export type VisualizationKind = 'sorting' | 'graph' | 'tree';
 
 export type SortingHighlightKind = 'default' | 'compare' | 'swap' | 'pivot' | 'done';
 
@@ -33,7 +33,18 @@ export interface GraphStep {
   description: string;
 }
 
-export type AlgorithmStep = SortingStep | GraphStep;
+export type TreeHighlightKind = 'default' | 'current' | 'compare' | 'swap' | 'visited' | 'done';
+
+export interface TreeStep {
+  kind: 'tree';
+  nodes: GraphNode[];
+  edges: GraphEdge[];
+  highlights: Partial<Record<string, TreeHighlightKind>>;
+  nodeLabels: Partial<Record<string, string>>;
+  description: string;
+}
+
+export type AlgorithmStep = SortingStep | GraphStep | TreeStep;
 
 export interface AlgorithmDefinition {
   id: string;

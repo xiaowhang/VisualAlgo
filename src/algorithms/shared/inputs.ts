@@ -26,3 +26,21 @@ export function getGraphSnapshot(): GraphSnapshot {
     ),
   };
 }
+
+export interface TreeSnapshot {
+  nodes: GraphNode[];
+  edges: GraphEdge[];
+}
+
+export function getTreeSnapshot(): TreeSnapshot {
+  const store = useAlgorithmInputsStore();
+
+  return {
+    nodes: store.treeNodes.map(node => ({ ...node })),
+    edges: store.treeEdges.map(edge => ({ ...edge })),
+  };
+}
+
+export function getTreeTargetValue(): string {
+  return useAlgorithmInputsStore().treeTargetValue;
+}

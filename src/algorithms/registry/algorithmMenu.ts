@@ -16,5 +16,6 @@ export const algorithmMenuByCategory = algorithmRegistry.reduce<
   {
     sorting: [],
     graphs: [],
+    trees: [],
   }
 );
