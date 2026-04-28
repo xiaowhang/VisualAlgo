@@ -1,6 +1,11 @@
-export type AlgorithmCategory = 'sorting' | 'graphs' | 'trees' | 'divide-conquer';
+export type AlgorithmCategory =
+  | 'sorting'
+  | 'graphs'
+  | 'trees'
+  | 'divide-conquer'
+  | 'dynamic-programming';
 
-export type VisualizationKind = 'sorting' | 'graph' | 'tree' | 'hanoi';
+export type VisualizationKind = 'sorting' | 'graph' | 'tree' | 'hanoi' | 'dp-table';
 
 export type SortingHighlightKind = 'default' | 'compare' | 'swap' | 'pivot' | 'done';
 
@@ -62,7 +67,21 @@ export interface HanoiStep {
   description: string;
 }
 
-export type AlgorithmStep = SortingStep | GraphStep | TreeStep | HanoiStep;
+export type DpHighlightKind = 'default' | 'current' | 'dependency' | 'computed' | 'backtrack';
+
+export interface DpTableStep {
+  kind: 'dp-table';
+  table: (number | null)[][];
+  rowLabels: string[];
+  colLabels: string[];
+  currentCell: [number, number] | null;
+  highlights: Partial<Record<string, DpHighlightKind>>;
+  backtrackPath: [number, number][] | null;
+  phase: 'init' | 'compute' | 'backtrack' | 'done';
+  description: string;
+}
+
+export type AlgorithmStep = SortingStep | GraphStep | TreeStep | HanoiStep | DpTableStep;
 
 export interface AlgorithmDefinition {
   id: string;

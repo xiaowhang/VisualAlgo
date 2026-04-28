@@ -1,4 +1,6 @@
 import type {
+  DpHighlightKind,
+  DpTableStep,
   GraphStep,
   SortingHighlightKind,
   SortingStep,
@@ -65,6 +67,24 @@ const TREE_COLOR_BY_KIND: Record<TreeHighlightKind, string> = {
 export function resolveTreeNodeColor(step: TreeStep, nodeId: string) {
   const highlightKind = step.highlights[nodeId] ?? 'default';
   return TREE_COLOR_BY_KIND[highlightKind];
+}
+
+const DP_COLOR_BY_KIND: Record<DpHighlightKind, string> = {
+  default: COLOR_TOKENS.default,
+  current: COLOR_TOKENS.current,
+  dependency: COLOR_TOKENS.compare,
+  computed: COLOR_TOKENS.done,
+  backtrack: COLOR_TOKENS.swap,
+};
+
+export function resolveDpCellColor(step: DpTableStep, row: number, col: number): string {
+  const key = `${row},${col}`;
+  const highlightKind = step.highlights[key];
+  if (highlightKind) return DP_COLOR_BY_KIND[highlightKind];
+
+  const value = step.table[row]?.[col];
+  if (value !== null && value !== undefined) return DP_COLOR_BY_KIND.computed;
+  return DP_COLOR_BY_KIND.default;
 }
 
 export const VISUALIZATION_COLOR_TOKENS = COLOR_TOKENS;

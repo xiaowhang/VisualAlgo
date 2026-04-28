@@ -144,6 +144,12 @@ export function useSettingsPanelViewModel() {
       activeAlgorithm.value?.category === 'divide-conquer'
   );
 
+  const isDpAlgorithm = computed(
+    () =>
+      (isCompareView.value && visibleCompareCategory.value === 'dynamic-programming') ||
+      activeAlgorithm.value?.category === 'dynamic-programming'
+  );
+
   const isHanoiAlgorithm = computed(
     () =>
       (isCompareView.value && visibleCompareCategory.value === 'divide-conquer') ||
@@ -161,6 +167,7 @@ export function useSettingsPanelViewModel() {
       if (visibleCompareCategory.value === 'graphs') return '图算法对比';
       if (visibleCompareCategory.value === 'trees') return '树算法对比';
       if (visibleCompareCategory.value === 'divide-conquer') return '分治算法对比';
+      if (visibleCompareCategory.value === 'dynamic-programming') return '动态规划对比';
       return '排序算法对比';
     }
     return activeAlgorithm.value?.title ?? '算法未找到';
@@ -175,6 +182,9 @@ export function useSettingsPanelViewModel() {
         return '对比模式共享同一份树输入。修改后会同时影响左右算法。';
       }
       if (visibleCompareCategory.value === 'divide-conquer') {
+        return '对比模式共享同一份输入。修改后会同时影响左右算法。';
+      }
+      if (visibleCompareCategory.value === 'dynamic-programming') {
         return '对比模式共享同一份输入。修改后会同时影响左右算法。';
       }
       return '对比模式共享同一份排序输入。修改后会同时影响左右算法。';
@@ -199,11 +209,13 @@ export function useSettingsPanelViewModel() {
       if (visibleCompareCategory.value === 'graphs') return '图算法对比模式';
       if (visibleCompareCategory.value === 'trees') return '树算法对比模式';
       if (visibleCompareCategory.value === 'divide-conquer') return '分治算法对比模式';
+      if (visibleCompareCategory.value === 'dynamic-programming') return '动态规划对比模式';
       return '排序算法对比模式';
     }
     if (isTreeAlgorithm.value) return '树算法';
     if (isGraphAlgorithm.value) return '图算法';
     if (isDivideConquerAlgorithm.value) return '分治算法';
+    if (isDpAlgorithm.value) return '动态规划';
     return '排序算法';
   });
 

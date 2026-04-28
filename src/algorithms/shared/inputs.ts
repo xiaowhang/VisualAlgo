@@ -48,3 +48,32 @@ export function getTreeTargetValue(): string {
 export function getHanoiDiskCount(): number {
   return useAlgorithmInputsStore().hanoiDiskCount;
 }
+
+export function getDpLcsStrings(): { x: string; y: string } {
+  const store = useAlgorithmInputsStore();
+  return { x: store.dpLcsStringX, y: store.dpLcsStringY };
+}
+
+export function getDpKnapsackInput(): {
+  capacity: number;
+  items: { weight: number; value: number }[];
+} {
+  const store = useAlgorithmInputsStore();
+  return {
+    capacity: store.dpKnapsackCapacity,
+    items: store.dpKnapsackItems.map(item => ({ ...item })),
+  };
+}
+
+export function getDpInvestmentInput(): {
+  investmentCount: number;
+  resources: number;
+  returns: number[][];
+} {
+  const store = useAlgorithmInputsStore();
+  return {
+    investmentCount: store.dpInvestmentCount,
+    resources: store.dpInvestmentResources,
+    returns: store.dpInvestmentReturns.map(row => [...row]),
+  };
+}

@@ -32,10 +32,34 @@ const HANOI_MIN_DISKS = 2;
 const HANOI_MAX_DISKS = 8;
 const HANOI_DEFAULT_DISK_COUNT = 4;
 
+const DP_INVESTMENT_MIN = 2;
+const DP_INVESTMENT_MAX = 5;
+const DP_RESOURCES_MIN = 3;
+const DP_RESOURCES_MAX = 10;
+const DP_INVESTMENT_DEFAULT_COUNT = 3;
+const DP_INVESTMENT_DEFAULT_RESOURCES = 5;
+const DP_KNAPSACK_CAPACITY_MIN = 3;
+const DP_KNAPSACK_CAPACITY_MAX = 15;
+const DP_KNAPSACK_ITEMS_MIN = 2;
+const DP_KNAPSACK_ITEMS_MAX = 6;
+const DP_KNAPSACK_DEFAULT_CAPACITY = 10;
+const DP_LCS_STRING_LEN_MIN = 3;
+const DP_LCS_STRING_LEN_MAX = 8;
+const DP_LCS_DEFAULT_X = 'ABCBDAB';
+const DP_LCS_DEFAULT_Y = 'BDCABA';
+
 export { SORTING_MIN_SIZE, SORTING_MAX_SIZE };
 export { GRAPH_MIN_NODES, GRAPH_MAX_NODES };
 export { HANOI_MIN_DISKS, HANOI_MAX_DISKS };
 export { TREE_MIN_NODES, TREE_MAX_NODES, TREE_VALUE_MIN, TREE_VALUE_MAX };
+export { DP_INVESTMENT_MIN, DP_INVESTMENT_MAX, DP_RESOURCES_MIN, DP_RESOURCES_MAX };
+export {
+  DP_KNAPSACK_CAPACITY_MIN,
+  DP_KNAPSACK_CAPACITY_MAX,
+  DP_KNAPSACK_ITEMS_MIN,
+  DP_KNAPSACK_ITEMS_MAX,
+};
+export { DP_LCS_STRING_LEN_MIN, DP_LCS_STRING_LEN_MAX };
 
 function clampSortingSize(size: number) {
   return Math.min(SORTING_MAX_SIZE, Math.max(SORTING_MIN_SIZE, size));
@@ -154,6 +178,22 @@ export const useAlgorithmInputsStore = defineStore('algorithm-inputs', () => {
   const treeMinValue = ref(TREE_VALUE_MIN);
   const treeMaxValue = ref(TREE_VALUE_MAX);
   const hanoiDiskCount = ref(HANOI_DEFAULT_DISK_COUNT);
+  const dpInvestmentCount = ref(DP_INVESTMENT_DEFAULT_COUNT);
+  const dpInvestmentResources = ref(DP_INVESTMENT_DEFAULT_RESOURCES);
+  const dpInvestmentReturns = ref<number[][]>([
+    [0, 11, 12, 13, 14, 15],
+    [0, 0, 5, 10, 15, 20],
+    [0, 2, 4, 6, 8, 10],
+  ]);
+  const dpKnapsackCapacity = ref(DP_KNAPSACK_DEFAULT_CAPACITY);
+  const dpKnapsackItems = ref<{ weight: number; value: number }[]>([
+    { weight: 2, value: 3 },
+    { weight: 3, value: 4 },
+    { weight: 4, value: 5 },
+    { weight: 5, value: 8 },
+  ]);
+  const dpLcsStringX = ref(DP_LCS_DEFAULT_X);
+  const dpLcsStringY = ref(DP_LCS_DEFAULT_Y);
   const dataVersion = ref(0);
 
   function getGraphNodeIds() {
@@ -334,6 +374,109 @@ export const useAlgorithmInputsStore = defineStore('algorithm-inputs', () => {
     dataVersion.value += 1;
   }
 
+  function randomizeDpInvestmentReturns() {
+    const n = dpInvestmentCount.value;
+    const M = dpInvestmentResources.value;
+    const newReturns: number[][] = [];
+    for (let i = 0; i < n; i++) {
+      const row: number[] = [0];
+      let acc = 0;
+      for (let j = 1; j <= M; j++) {
+        acc += Math.floor(Math.random() * 10) + 1;
+        row.push(acc);
+      }
+      newReturns.push(row);
+    }
+    dpInvestmentReturns.value = newReturns;
+    dataVersion.value += 1;
+  }
+
+  function setDpInvestmentCount(count: number) {
+    dpInvestmentCount.value = Math.min(
+      DP_INVESTMENT_MAX,
+      Math.max(DP_INVESTMENT_MIN, Math.trunc(count))
+    );
+    randomizeDpInvestmentReturns();
+  }
+
+  function setDpInvestmentResources(resources: number) {
+    dpInvestmentResources.value = Math.min(
+      DP_RESOURCES_MAX,
+      Math.max(DP_RESOURCES_MIN, Math.trunc(resources))
+    );
+    randomizeDpInvestmentReturns();
+  }
+
+  function randomizeDpKnapsackItems() {
+    const n = dpKnapsackItems.value.length;
+    dpKnapsackItems.value = Array.from({ length: n }, () => ({
+      weight: Math.floor(Math.random() * 8) + 1,
+      value: Math.floor(Math.random() * 10) + 1,
+    }));
+    dataVersion.value += 1;
+  }
+
+  function setDpKnapsackCapacity(capacity: number) {
+    dpKnapsackCapacity.value = Math.min(
+      DP_KNAPSACK_CAPACITY_MAX,
+      Math.max(DP_KNAPSACK_CAPACITY_MIN, Math.trunc(capacity))
+    );
+    dataVersion.value += 1;
+  }
+
+  function setDpKnapsackItemCount(count: number) {
+    const clamped = Math.min(
+      DP_KNAPSACK_ITEMS_MAX,
+      Math.max(DP_KNAPSACK_ITEMS_MIN, Math.trunc(count))
+    );
+    if (clamped !== dpKnapsackItems.value.length) {
+      dpKnapsackItems.value = Array.from({ length: clamped }, () => ({
+        weight: Math.floor(Math.random() * 8) + 1,
+        value: Math.floor(Math.random() * 10) + 1,
+      }));
+      dataVersion.value += 1;
+    }
+  }
+
+  function setDpLcsStringX(s: string) {
+    if (s !== dpLcsStringX.value) {
+      dpLcsStringX.value = s;
+      dataVersion.value += 1;
+    }
+  }
+
+  function setDpLcsStringY(s: string) {
+    if (s !== dpLcsStringY.value) {
+      dpLcsStringY.value = s;
+      dataVersion.value += 1;
+    }
+  }
+
+  function randomizeDpLcsStrings() {
+    const chars = 'ABCDEFGH';
+    const len1 =
+      Math.floor(Math.random() * (DP_LCS_STRING_LEN_MAX - DP_LCS_STRING_LEN_MIN + 1)) +
+      DP_LCS_STRING_LEN_MIN;
+    const len2 =
+      Math.floor(Math.random() * (DP_LCS_STRING_LEN_MAX - DP_LCS_STRING_LEN_MIN + 1)) +
+      DP_LCS_STRING_LEN_MIN;
+    dpLcsStringX.value = Array.from(
+      { length: len1 },
+      () => chars[Math.floor(Math.random() * chars.length)]
+    ).join('');
+    dpLcsStringY.value = Array.from(
+      { length: len2 },
+      () => chars[Math.floor(Math.random() * chars.length)]
+    ).join('');
+    dataVersion.value += 1;
+  }
+
+  function randomizeDpAlgorithmInput() {
+    randomizeDpInvestmentReturns();
+    randomizeDpKnapsackItems();
+    randomizeDpLcsStrings();
+  }
+
   function exportGraphAsJsonText() {
     const nodeIds = graphNodes.value.map(n => n.id);
     const edgeTuples = graphEdges.value.map(e => [e.source, e.target] as [string, string]);
@@ -427,6 +570,23 @@ export const useAlgorithmInputsStore = defineStore('algorithm-inputs', () => {
     treeMaxValue,
     hanoiDiskCount,
     setHanoiDiskCount,
+    dpInvestmentCount,
+    dpInvestmentResources,
+    dpInvestmentReturns,
+    dpKnapsackCapacity,
+    dpKnapsackItems,
+    dpLcsStringX,
+    dpLcsStringY,
+    setDpInvestmentCount,
+    setDpInvestmentResources,
+    randomizeDpInvestmentReturns,
+    setDpKnapsackCapacity,
+    setDpKnapsackItemCount,
+    randomizeDpKnapsackItems,
+    setDpLcsStringX,
+    setDpLcsStringY,
+    randomizeDpLcsStrings,
+    randomizeDpAlgorithmInput,
     dataVersion,
     randomizeAlgorithmInput,
     randomizeGraphInput,

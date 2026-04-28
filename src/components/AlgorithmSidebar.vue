@@ -31,6 +31,12 @@ const sections = computed(() => [
     defaultOpen: false,
     items: algorithmMenuByCategory['divide-conquer'],
   },
+  {
+    label: '动态规划',
+    category: 'dynamic-programming' as const,
+    defaultOpen: false,
+    items: algorithmMenuByCategory['dynamic-programming'],
+  },
 ]);
 
 const filteredSections = computed(() => {

@@ -2,6 +2,7 @@ import { graphRegistries } from '@/algorithms/definitions/graph';
 import { sortingRegistries } from '@/algorithms/definitions/sorting';
 import { treesRegistries } from '@/algorithms/definitions/trees';
 import { divideConquerRegistries } from '@/algorithms/definitions/divide-conquer';
+import { dynamicProgrammingRegistries } from '@/algorithms/definitions/dynamic-programming';
 import type { AlgorithmDefinition } from '@/types/algorithm';
 
 export const allAlgorithmRegistries: AlgorithmDefinition[] = [
@@ -9,4 +10,5 @@ export const allAlgorithmRegistries: AlgorithmDefinition[] = [
   ...graphRegistries,
   ...treesRegistries,
   ...divideConquerRegistries,
+  ...dynamicProgrammingRegistries,
 ];

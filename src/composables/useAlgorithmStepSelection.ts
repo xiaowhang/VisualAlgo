@@ -1,5 +1,12 @@
 import { computed, toValue, type MaybeRefOrGetter } from 'vue';
-import type { AlgorithmStep, GraphStep, HanoiStep, SortingStep, TreeStep } from '@/types/algorithm';
+import type {
+  AlgorithmStep,
+  DpTableStep,
+  GraphStep,
+  HanoiStep,
+  SortingStep,
+  TreeStep,
+} from '@/types/algorithm';
 
 interface UseAlgorithmStepSelectionOptions {
   steps: MaybeRefOrGetter<AlgorithmStep[]>;
@@ -58,6 +65,14 @@ export function useAlgorithmStepSelection(options: UseAlgorithmStepSelectionOpti
     return step.value;
   });
 
+  const dpTableStep = computed<DpTableStep | null>(() => {
+    if (!step.value || step.value.kind !== 'dp-table') {
+      return null;
+    }
+
+    return step.value;
+  });
+
   return {
     stepIndex,
     step,
@@ -65,5 +80,6 @@ export function useAlgorithmStepSelection(options: UseAlgorithmStepSelectionOpti
     graphStep,
     treeStep,
     hanoiStep,
+    dpTableStep,
   };
 }

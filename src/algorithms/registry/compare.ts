@@ -7,7 +7,11 @@ export const COMPARE_DEFAULT_CATEGORY: AlgorithmCategory = 'sorting';
 
 export function isAlgorithmCategory(value: string): value is AlgorithmCategory {
   return (
-    value === 'sorting' || value === 'graphs' || value === 'trees' || value === 'divide-conquer'
+    value === 'sorting' ||
+    value === 'graphs' ||
+    value === 'trees' ||
+    value === 'divide-conquer' ||
+    value === 'dynamic-programming'
   );
 }
 
@@ -34,6 +38,9 @@ export function resolveAlgorithmBySlug(slug: string) {
   if (treeAlgorithm) {
     return treeAlgorithm;
   }
+
+  const dpAlgorithm = findAlgorithm('dynamic-programming', slug);
+  if (dpAlgorithm) return dpAlgorithm;
 
   return findAlgorithm('divide-conquer', slug) ?? null;
 }
