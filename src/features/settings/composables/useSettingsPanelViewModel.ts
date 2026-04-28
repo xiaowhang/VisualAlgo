@@ -140,11 +140,14 @@ export function useSettingsPanelViewModel() {
 
   const inputForm = useSettingsInputForm({
     isGraphAlgorithm,
+    isTreeAlgorithm,
   });
 
   const panelTitle = computed(() => {
     if (isCompareView.value) {
-      return visibleCompareCategory.value === 'graphs' ? '图算法对比' : '排序算法对比';
+      if (visibleCompareCategory.value === 'graphs') return '图算法对比';
+      if (visibleCompareCategory.value === 'trees') return '树算法对比';
+      return '排序算法对比';
     }
     return activeAlgorithm.value?.title ?? '算法未找到';
   });
@@ -153,6 +156,9 @@ export function useSettingsPanelViewModel() {
     if (isCompareView.value) {
       if (visibleCompareCategory.value === 'graphs') {
         return '对比模式共享同一份图输入。修改后会同时影响左右算法。';
+      }
+      if (visibleCompareCategory.value === 'trees') {
+        return '对比模式共享同一份树输入。修改后会同时影响左右算法。';
       }
       return '对比模式共享同一份排序输入。修改后会同时影响左右算法。';
     }

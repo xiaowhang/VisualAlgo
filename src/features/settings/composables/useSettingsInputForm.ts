@@ -5,11 +5,16 @@ import {
   GRAPH_MIN_NODES,
   SORTING_MAX_SIZE,
   SORTING_MIN_SIZE,
+  TREE_MAX_NODES,
+  TREE_MIN_NODES,
+  TREE_VALUE_MAX,
+  TREE_VALUE_MIN,
   useAlgorithmInputsStore,
 } from '@/stores/algorithmInputs';
 
 interface UseSettingsInputFormOptions {
   isGraphAlgorithm: Readonly<Ref<boolean>>;
+  isTreeAlgorithm: Readonly<Ref<boolean>>;
 }
 
 export function useSettingsInputForm(options: UseSettingsInputFormOptions) {
@@ -25,6 +30,14 @@ export function useSettingsInputForm(options: UseSettingsInputFormOptions) {
     randomizeGraphInput: algorithmInputsStore.randomizeGraphInput,
     setGraphNodeCount: algorithmInputsStore.setGraphNodeCount,
     setGraphStartNode: algorithmInputsStore.setGraphStartNode,
+    randomizeTreeInput: algorithmInputsStore.randomizeTreeInput,
+    setTreeNodeCount: algorithmInputsStore.setTreeNodeCount,
+    setTreeValueRange: algorithmInputsStore.setTreeValueRange,
+    setTreeTargetValue: algorithmInputsStore.setTreeTargetValue,
+    exportGraphAsJsonText: algorithmInputsStore.exportGraphAsJsonText,
+    importGraphFromJsonText: algorithmInputsStore.importGraphFromJsonText,
+    exportTreeAsJsonText: algorithmInputsStore.exportTreeAsJsonText,
+    importTreeFromJsonText: algorithmInputsStore.importTreeFromJsonText,
   };
 
   const sortingSize = computed(() => algorithmInputs.sortingInput.value.length);
@@ -72,6 +85,45 @@ export function useSettingsInputForm(options: UseSettingsInputFormOptions) {
       graphStartNodeInput.value = options[0];
     }
   });
+
+  const treeNodeCountInput = ref(String(algorithmInputs.treeNodeCount.value));
+  const treeMinValueInput = ref(String(algorithmInputs.treeMinValue.value));
+  const treeMaxValueInput = ref(String(algorithmInputs.treeMaxValue.value));
+  const treeTargetValueInput = ref(algorithmInputs.treeTargetValue.value);
+  const treeSizeMessage = ref('');
+  const treeSizeError = ref(false);
+  const treeValueMessage = ref('');
+  const treeValueError = ref(false);
+  const treeMessage = ref('');
+  const treeMessageError = ref(false);
+
+  watch(
+    () => algorithmInputs.treeNodeCount.value,
+    value => {
+      treeNodeCountInput.value = String(value);
+    }
+  );
+
+  watch(
+    () => algorithmInputs.treeMinValue.value,
+    value => {
+      treeMinValueInput.value = String(value);
+    }
+  );
+
+  watch(
+    () => algorithmInputs.treeMaxValue.value,
+    value => {
+      treeMaxValueInput.value = String(value);
+    }
+  );
+
+  watch(
+    () => algorithmInputs.treeTargetValue.value,
+    value => {
+      treeTargetValueInput.value = value;
+    }
+  );
 
   function normalizeSizeInput(rawValue: string) {
     const parsed = Number(rawValue);
@@ -161,7 +213,101 @@ export function useSettingsInputForm(options: UseSettingsInputFormOptions) {
     }
   }
 
+  function normalizeTreeNodeCountInput(rawValue: string) {
+    const parsed = Number(rawValue);
+
+    if (!Number.isFinite(parsed)) {
+      return { normalized: algorithmInputs.treeNodeCount.value, adjusted: true };
+    }
+
+    const integerCount = Math.trunc(parsed);
+    const clamped = Math.min(TREE_MAX_NODES, Math.max(TREE_MIN_NODES, integerCount));
+
+    return { normalized: clamped, adjusted: clamped !== integerCount };
+  }
+
+  function applyTreeNodeCountFromInput() {
+    const { normalized, adjusted } = normalizeTreeNodeCountInput(treeNodeCountInput.value);
+    algorithmInputs.setTreeNodeCount(normalized);
+
+    treeNodeCountInput.value = String(algorithmInputs.treeNodeCount.value);
+    treeSizeError.value = adjusted;
+    treeSizeMessage.value = adjusted
+      ? `节点数量范围为 ${TREE_MIN_NODES}-${TREE_MAX_NODES}，已自动调整。`
+      : `已更新为 ${algorithmInputs.treeNodeCount.value} 个节点。`;
+
+    treeMessage.value = '';
+    treeMessageError.value = false;
+  }
+
+  function normalizeTreeValueRange(minRaw: string, maxRaw: string) {
+    const minParsed = Number(minRaw);
+    const maxParsed = Number(maxRaw);
+
+    if (!Number.isFinite(minParsed) || !Number.isFinite(maxParsed)) {
+      return {
+        min: algorithmInputs.treeMinValue.value,
+        max: algorithmInputs.treeMaxValue.value,
+        adjusted: true,
+      };
+    }
+
+    const minClamped = Math.min(TREE_VALUE_MAX, Math.max(TREE_VALUE_MIN, Math.trunc(minParsed)));
+    const maxClamped = Math.min(TREE_VALUE_MAX, Math.max(TREE_VALUE_MIN, Math.trunc(maxParsed)));
+
+    return {
+      min: minClamped,
+      max: maxClamped,
+      adjusted: minClamped !== minParsed || maxClamped !== maxParsed,
+    };
+  }
+
+  function applyTreeValueRangeFromInput() {
+    const { min, max, adjusted } = normalizeTreeValueRange(
+      treeMinValueInput.value,
+      treeMaxValueInput.value
+    );
+    algorithmInputs.setTreeValueRange(min, max);
+
+    treeMinValueInput.value = String(algorithmInputs.treeMinValue.value);
+    treeMaxValueInput.value = String(algorithmInputs.treeMaxValue.value);
+    treeValueError.value = adjusted;
+    treeValueMessage.value = adjusted
+      ? `数值范围为 ${TREE_VALUE_MIN}-${TREE_VALUE_MAX}，已自动调整。`
+      : `已更新范围为 ${algorithmInputs.treeMinValue.value} - ${algorithmInputs.treeMaxValue.value}。`;
+
+    treeMessage.value = '';
+    treeMessageError.value = false;
+  }
+
+  function applyTreeTargetValue() {
+    algorithmInputs.setTreeTargetValue(treeTargetValueInput.value);
+    treeMessage.value = `已设置查找目标为 ${algorithmInputs.treeTargetValue.value}。`;
+    treeMessageError.value = false;
+  }
+
   function randomizeData() {
+    if (options.isTreeAlgorithm.value) {
+      const count = normalizeTreeNodeCountInput(treeNodeCountInput.value).normalized;
+      algorithmInputs.randomizeTreeInput(
+        count,
+        Number(treeMinValueInput.value),
+        Number(treeMaxValueInput.value)
+      );
+
+      treeNodeCountInput.value = String(algorithmInputs.treeNodeCount.value);
+      treeMinValueInput.value = String(algorithmInputs.treeMinValue.value);
+      treeMaxValueInput.value = String(algorithmInputs.treeMaxValue.value);
+      treeTargetValueInput.value = algorithmInputs.treeTargetValue.value;
+      treeSizeMessage.value = '';
+      treeSizeError.value = false;
+      treeValueMessage.value = '';
+      treeValueError.value = false;
+      treeMessage.value = `已随机生成 ${algorithmInputs.treeNodeCount.value} 个节点，查找目标为 ${algorithmInputs.treeTargetValue.value}。`;
+      treeMessageError.value = false;
+      return;
+    }
+
     if (options.isGraphAlgorithm.value) {
       const count = normalizeGraphNodeCountInput(graphNodeCountInput.value).normalized;
       graphNodeCountInput.value = String(count);
@@ -194,10 +340,24 @@ export function useSettingsInputForm(options: UseSettingsInputFormOptions) {
   }
 
   function exportJsonFile() {
-    const text = algorithmInputs.exportSortingAsJsonText();
     const now = new Date();
     const pad = (value: number) => String(value).padStart(2, '0');
-    const fileName = `sorting-input-${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}-${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}.json`;
+    const timestamp = `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}-${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
+
+    let text: string;
+    let fileName: string;
+
+    if (options.isGraphAlgorithm.value) {
+      text = algorithmInputs.exportGraphAsJsonText();
+      fileName = `graph-input-${timestamp}.json`;
+    } else if (options.isTreeAlgorithm.value) {
+      text = algorithmInputs.exportTreeAsJsonText();
+      fileName = `tree-input-${timestamp}.json`;
+    } else {
+      text = algorithmInputs.exportSortingAsJsonText();
+      fileName = `sorting-input-${timestamp}.json`;
+    }
+
     downloadTextFile(fileName, text, 'application/json;charset=utf-8');
     customDataError.value = false;
     customDataMessage.value = '已导出 JSON 文件。';
@@ -214,18 +374,38 @@ export function useSettingsInputForm(options: UseSettingsInputFormOptions) {
     try {
       const text = await file.text();
       const lowerCaseName = file.name.toLowerCase();
-      const result = lowerCaseName.endsWith('.json')
-        ? algorithmInputs.importSortingFromJsonText(text)
-        : {
-            ok: false,
-            message: '仅支持 .json 文件。',
-          };
+
+      if (!lowerCaseName.endsWith('.json')) {
+        customDataError.value = true;
+        customDataMessage.value = '仅支持 .json 文件。';
+        return;
+      }
+
+      let result: { ok: boolean; message: string };
+
+      if (options.isGraphAlgorithm.value) {
+        result = algorithmInputs.importGraphFromJsonText(text);
+      } else if (options.isTreeAlgorithm.value) {
+        result = algorithmInputs.importTreeFromJsonText(text);
+      } else {
+        result = algorithmInputs.importSortingFromJsonText(text);
+      }
 
       customDataError.value = !result.ok;
       customDataMessage.value = result.message;
 
       if (result.ok) {
-        customData.value = algorithmInputs.sortingInput.value.join(', ');
+        if (!options.isGraphAlgorithm.value && !options.isTreeAlgorithm.value) {
+          customData.value = algorithmInputs.sortingInput.value.join(', ');
+        }
+        if (options.isGraphAlgorithm.value) {
+          graphNodeCountInput.value = String(algorithmInputs.graphNodeCount.value);
+          graphStartNodeInput.value = algorithmInputs.graphStartNode.value;
+        }
+        if (options.isTreeAlgorithm.value) {
+          treeNodeCountInput.value = String(algorithmInputs.treeNodeCount.value);
+          treeTargetValueInput.value = algorithmInputs.treeTargetValue.value;
+        }
       }
     } catch {
       customDataError.value = true;
@@ -246,12 +426,25 @@ export function useSettingsInputForm(options: UseSettingsInputFormOptions) {
     graphMessage,
     graphMessageError,
     graphNodeOptions,
+    treeNodeCountInput,
+    treeMinValueInput,
+    treeMaxValueInput,
+    treeTargetValueInput,
+    treeSizeMessage,
+    treeSizeError,
+    treeValueMessage,
+    treeValueError,
+    treeMessage,
+    treeMessageError,
     customData,
     customDataMessage,
     customDataError,
     applySizeFromInput,
     applyGraphNodeCountFromInput,
     applyGraphStartNode,
+    applyTreeNodeCountFromInput,
+    applyTreeValueRangeFromInput,
+    applyTreeTargetValue,
     applyCustomData,
     randomizeData,
     exportJsonFile,

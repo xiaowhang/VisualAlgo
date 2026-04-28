@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import type { GraphEdge, GraphNode } from '@/types/algorithm';
 import { computeStableForceLayout } from '@/visualizers/graphLayout';
-import { getDefaultBST } from '@/algorithms/shared/tree/fixtures';
+import { createRandomBSTData, getDefaultBST } from '@/algorithms/shared/tree/fixtures';
 import {
   SORTING_DEFAULT_SIZE,
   SORTING_MAX_SIZE,
@@ -13,13 +13,25 @@ import {
   validateSortingNumbers,
   type SortingInputResult,
 } from '@/lib/validation/sortingInput';
+import { GRAPH_SNAPSHOT_FORMAT_VERSION, parseGraphImportJson } from '@/lib/validation/graphInput';
+import {
+  TREE_MAX_NODES,
+  TREE_MIN_NODES,
+  TREE_SNAPSHOT_FORMAT_VERSION,
+  TREE_VALUE_MAX,
+  TREE_VALUE_MIN,
+  parseTreeImportJson,
+} from '@/lib/validation/treeInput';
 
 const GRAPH_DEFAULT_NODE_COUNT = 8;
 const GRAPH_MIN_NODES = 6;
 const GRAPH_MAX_NODES = 14;
+const TREE_DEFAULT_NODE_COUNT = 9;
+const TREE_DEFAULT_TARGET_VALUE = '7';
 
 export { SORTING_MIN_SIZE, SORTING_MAX_SIZE };
 export { GRAPH_MIN_NODES, GRAPH_MAX_NODES };
+export { TREE_MIN_NODES, TREE_MAX_NODES, TREE_VALUE_MIN, TREE_VALUE_MAX };
 
 function clampSortingSize(size: number) {
   return Math.min(SORTING_MAX_SIZE, Math.max(SORTING_MIN_SIZE, size));
@@ -31,6 +43,14 @@ function createRandomSortingData(size: number) {
 
 function clampGraphNodeCount(count: number) {
   return Math.min(GRAPH_MAX_NODES, Math.max(GRAPH_MIN_NODES, count));
+}
+
+function clampTreeNodeCount(count: number) {
+  return Math.min(TREE_MAX_NODES, Math.max(TREE_MIN_NODES, count));
+}
+
+function clampTreeValue(value: number) {
+  return Math.min(TREE_VALUE_MAX, Math.max(TREE_VALUE_MIN, value));
 }
 
 function createGraphNodeIds(count: number) {
@@ -125,7 +145,10 @@ export const useAlgorithmInputsStore = defineStore('algorithm-inputs', () => {
   const graphAdjacencyList = ref<Map<string, string[]>>(initialGraphData.adjacencyList);
   const treeNodes = ref<GraphNode[]>(defaultBST.nodes);
   const treeEdges = ref<GraphEdge[]>(defaultBST.edges);
-  const treeTargetValue = ref('7');
+  const treeTargetValue = ref(TREE_DEFAULT_TARGET_VALUE);
+  const treeNodeCount = ref(TREE_DEFAULT_NODE_COUNT);
+  const treeMinValue = ref(TREE_VALUE_MIN);
+  const treeMaxValue = ref(TREE_VALUE_MAX);
   const dataVersion = ref(0);
 
   function getGraphNodeIds() {
@@ -178,6 +201,19 @@ export const useAlgorithmInputsStore = defineStore('algorithm-inputs', () => {
 
     graphStartNode.value = normalized;
     dataVersion.value += 1;
+  }
+
+  function buildAdjacencyListFromEdges(nodeIds: readonly string[], edges: readonly GraphEdge[]) {
+    const adjacencyList = new Map<string, string[]>(nodeIds.map(id => [id, []]));
+    for (const edge of edges) {
+      adjacencyList.get(edge.source)?.push(edge.target);
+      adjacencyList.get(edge.target)?.push(edge.source);
+    }
+    for (const [id, neighbors] of adjacencyList) {
+      neighbors.sort((a, b) => a.localeCompare(b));
+      adjacencyList.set(id, neighbors);
+    }
+    return adjacencyList;
   }
 
   function applySortingInput(numbers: number[], successMessage: string): SortingInputResult {
@@ -250,12 +286,120 @@ export const useAlgorithmInputsStore = defineStore('algorithm-inputs', () => {
     return applySortingInput(numbers, `已导入 ${numbers.length} 个元素。`);
   }
 
-  function randomizeTreeInput() {
-    const bst = getDefaultBST();
-    treeNodes.value = bst.nodes;
-    treeEdges.value = bst.edges;
-    treeTargetValue.value = '7';
+  function randomizeTreeInput(nextCount?: number, nextMinValue?: number, nextMaxValue?: number) {
+    const count = clampTreeNodeCount(nextCount ?? treeNodeCount.value);
+    const minVal = clampTreeValue(nextMinValue ?? treeMinValue.value);
+    const maxVal = clampTreeValue(nextMaxValue ?? treeMaxValue.value);
+    const effectiveMax = Math.max(minVal, maxVal);
+    const effectiveMin = Math.min(minVal, maxVal);
+    const availableCount = effectiveMax - effectiveMin + 1;
+    const actualCount = Math.min(count, availableCount);
+
+    const data = createRandomBSTData({
+      nodeCount: actualCount,
+      minValue: effectiveMin,
+      maxValue: effectiveMax,
+    });
+
+    treeNodeCount.value = actualCount;
+    treeMinValue.value = effectiveMin;
+    treeMaxValue.value = effectiveMax;
+    treeNodes.value = data.nodes;
+    treeEdges.value = data.edges;
+    treeTargetValue.value =
+      data.nodes[Math.floor(Math.random() * data.nodes.length)]?.id ?? TREE_DEFAULT_TARGET_VALUE;
     dataVersion.value += 1;
+  }
+
+  function setTreeNodeCount(nextCount: number) {
+    randomizeTreeInput(nextCount, treeMinValue.value, treeMaxValue.value);
+  }
+
+  function setTreeValueRange(nextMin: number, nextMax: number) {
+    randomizeTreeInput(treeNodeCount.value, nextMin, nextMax);
+  }
+
+  function setTreeTargetValue(value: string) {
+    treeTargetValue.value = value;
+    dataVersion.value += 1;
+  }
+
+  function exportGraphAsJsonText() {
+    const nodeIds = graphNodes.value.map(n => n.id);
+    const edgeTuples = graphEdges.value.map(e => [e.source, e.target] as [string, string]);
+    return JSON.stringify(
+      {
+        formatVersion: GRAPH_SNAPSHOT_FORMAT_VERSION,
+        nodes: nodeIds,
+        edges: edgeTuples,
+        startNode: graphStartNode.value,
+      },
+      null,
+      2
+    );
+  }
+
+  function importGraphFromJsonText(rawText: string) {
+    const result = parseGraphImportJson(rawText);
+
+    if (!result.ok) {
+      return { ok: false, message: result.message } as const;
+    }
+
+    const { nodeIds, edges, startNode } = result;
+    const nodes = computeStableForceLayout(nodeIds, edges, {
+      width: 760,
+      height: 340,
+      margin: 56,
+      nodeRadius: 24,
+      collisionPadding: 8,
+    });
+    const adjacencyList = buildAdjacencyListFromEdges(nodeIds, edges);
+
+    graphNodes.value = nodes;
+    graphEdges.value = edges;
+    graphAdjacencyList.value = adjacencyList;
+    graphNodeCount.value = nodeIds.length;
+    graphStartNode.value = resolveGraphStartNode(startNode, nodeIds);
+    dataVersion.value += 1;
+
+    return {
+      ok: true,
+      message: `已导入 ${nodeIds.length} 个节点、${edges.length} 条边。`,
+    } as const;
+  }
+
+  function exportTreeAsJsonText() {
+    const nodeIds = treeNodes.value.map(n => n.id);
+    const edgeTuples = treeEdges.value.map(e => [e.source, e.target] as [string, string]);
+    return JSON.stringify(
+      {
+        formatVersion: TREE_SNAPSHOT_FORMAT_VERSION,
+        nodes: nodeIds,
+        edges: edgeTuples,
+        treeTargetValue: treeTargetValue.value,
+      },
+      null,
+      2
+    );
+  }
+
+  function importTreeFromJsonText(rawText: string) {
+    const result = parseTreeImportJson(rawText);
+
+    if (!result.ok) {
+      return { ok: false, message: result.message } as const;
+    }
+
+    const { nodes, edges, treeTargetValue: target } = result;
+
+    treeNodes.value = nodes;
+    treeEdges.value = edges;
+    treeTargetValue.value = target;
+    treeNodeCount.value = nodes.length;
+    dataVersion.value += 1;
+
+    return { ok: true, message: `已导入 ${nodes.length} 个树节点。` } as const;
   }
 
   return {
@@ -268,14 +412,24 @@ export const useAlgorithmInputsStore = defineStore('algorithm-inputs', () => {
     treeNodes,
     treeEdges,
     treeTargetValue,
+    treeNodeCount,
+    treeMinValue,
+    treeMaxValue,
     dataVersion,
     randomizeAlgorithmInput,
     randomizeGraphInput,
     randomizeTreeInput,
     setGraphNodeCount,
     setGraphStartNode,
+    setTreeNodeCount,
+    setTreeValueRange,
+    setTreeTargetValue,
     applyCustomSortingInput,
     exportSortingAsJsonText,
     importSortingFromJsonText,
+    exportGraphAsJsonText,
+    importGraphFromJsonText,
+    exportTreeAsJsonText,
+    importTreeFromJsonText,
   };
 });

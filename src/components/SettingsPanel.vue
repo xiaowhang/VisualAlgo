@@ -12,6 +12,10 @@ import {
   GRAPH_MIN_NODES,
   SORTING_MAX_SIZE,
   SORTING_MIN_SIZE,
+  TREE_MAX_NODES,
+  TREE_MIN_NODES,
+  TREE_VALUE_MAX,
+  TREE_VALUE_MIN,
 } from '@/stores/algorithmInputs';
 
 const {
@@ -33,6 +37,7 @@ const {
   compareRightStatusText,
   isSortingAlgorithm,
   isGraphAlgorithm,
+  isTreeAlgorithm,
   panelTitle,
   panelDescription,
   stepDescription,
@@ -49,12 +54,25 @@ const {
   graphMessage,
   graphMessageError,
   graphNodeOptions,
+  treeNodeCountInput,
+  treeMinValueInput,
+  treeMaxValueInput,
+  treeTargetValueInput,
+  treeSizeMessage,
+  treeSizeError,
+  treeValueMessage,
+  treeValueError,
+  treeMessage,
+  treeMessageError,
   customData,
   customDataMessage,
   customDataError,
   applySizeFromInput,
   applyGraphNodeCountFromInput,
   applyGraphStartNode,
+  applyTreeNodeCountFromInput,
+  applyTreeValueRangeFromInput,
+  applyTreeTargetValue,
   applyCustomData,
   randomizeData,
   exportJsonFile,
@@ -115,9 +133,14 @@ void panelScrollRef;
           v-model:size-input="sizeInput"
           v-model:graph-node-count-input="graphNodeCountInput"
           v-model:graph-start-node-input="graphStartNodeInput"
+          v-model:tree-node-count-input="treeNodeCountInput"
+          v-model:tree-min-value-input="treeMinValueInput"
+          v-model:tree-max-value-input="treeMaxValueInput"
+          v-model:tree-target-value-input="treeTargetValueInput"
           v-model:custom-data="customData"
           :is-sorting-algorithm="isSortingAlgorithm"
           :is-graph-algorithm="isGraphAlgorithm"
+          :is-tree-algorithm="isTreeAlgorithm"
           :sorting-min-size="SORTING_MIN_SIZE"
           :sorting-max-size="SORTING_MAX_SIZE"
           :size-message="sizeMessage"
@@ -129,12 +152,25 @@ void panelScrollRef;
           :graph-node-options="graphNodeOptions"
           :graph-message="graphMessage"
           :graph-message-error="graphMessageError"
+          :tree-min-nodes="TREE_MIN_NODES"
+          :tree-max-nodes="TREE_MAX_NODES"
+          :tree-value-min="TREE_VALUE_MIN"
+          :tree-value-max="TREE_VALUE_MAX"
+          :tree-size-message="treeSizeMessage"
+          :tree-size-error="treeSizeError"
+          :tree-value-message="treeValueMessage"
+          :tree-value-error="treeValueError"
+          :tree-message="treeMessage"
+          :tree-message-error="treeMessageError"
           :custom-data-message="customDataMessage"
           :custom-data-error="customDataError"
           @randomize-data="randomizeData"
           @apply-size="applySizeFromInput"
           @apply-graph-node-count="applyGraphNodeCountFromInput"
           @apply-graph-start-node="applyGraphStartNode"
+          @apply-tree-node-count="applyTreeNodeCountFromInput"
+          @apply-tree-value-range="applyTreeValueRangeFromInput"
+          @apply-tree-target-value="applyTreeTargetValue"
           @apply-custom-data="applyCustomData"
         />
       </TabsContent>
@@ -142,6 +178,8 @@ void panelScrollRef;
       <TabsContent value="files" class="pt-1">
         <SettingsPanelFileTab
           :is-sorting-algorithm="isSortingAlgorithm"
+          :is-graph-algorithm="isGraphAlgorithm"
+          :is-tree-algorithm="isTreeAlgorithm"
           :custom-data-message="customDataMessage"
           :custom-data-error="customDataError"
           @export-json="exportJsonFile"

@@ -2,11 +2,16 @@
 const sizeInput = defineModel<string>('sizeInput', { required: true });
 const graphNodeCountInput = defineModel<string>('graphNodeCountInput', { required: true });
 const graphStartNodeInput = defineModel<string>('graphStartNodeInput', { required: true });
+const treeNodeCountInput = defineModel<string>('treeNodeCountInput', { required: true });
+const treeMinValueInput = defineModel<string>('treeMinValueInput', { required: true });
+const treeMaxValueInput = defineModel<string>('treeMaxValueInput', { required: true });
+const treeTargetValueInput = defineModel<string>('treeTargetValueInput', { required: true });
 const customData = defineModel<string>('customData', { required: true });
 
 interface Props {
   isSortingAlgorithm: boolean;
   isGraphAlgorithm: boolean;
+  isTreeAlgorithm: boolean;
   sortingMinSize: number;
   sortingMaxSize: number;
   sizeMessage: string;
@@ -18,6 +23,16 @@ interface Props {
   graphNodeOptions: string[];
   graphMessage: string;
   graphMessageError: boolean;
+  treeMinNodes: number;
+  treeMaxNodes: number;
+  treeValueMin: number;
+  treeValueMax: number;
+  treeSizeMessage: string;
+  treeSizeError: boolean;
+  treeValueMessage: string;
+  treeValueError: boolean;
+  treeMessage: string;
+  treeMessageError: boolean;
   customDataMessage: string;
   customDataError: boolean;
 }
@@ -29,6 +44,9 @@ interface Emits {
   (event: 'apply-size'): void;
   (event: 'apply-graph-node-count'): void;
   (event: 'apply-graph-start-node'): void;
+  (event: 'apply-tree-node-count'): void;
+  (event: 'apply-tree-value-range'): void;
+  (event: 'apply-tree-target-value'): void;
   (event: 'apply-custom-data'): void;
 }
 
@@ -123,6 +141,92 @@ const emit = defineEmits<Emits>();
           :class="props.graphMessageError ? 'text-destructive' : 'text-muted-foreground'"
         >
           {{ props.graphMessage }}
+        </span>
+      </FieldContent>
+    </FieldSet>
+
+    <FieldSet v-if="props.isTreeAlgorithm">
+      <FieldLegend>树设置</FieldLegend>
+      <FieldContent>
+        <FieldGroup class="flex flex-col gap-2">
+          <FieldDescription>节点数量</FieldDescription>
+          <div class="flex items-center gap-2">
+            <Input
+              v-model="treeNodeCountInput"
+              type="number"
+              :min="props.treeMinNodes"
+              :max="props.treeMaxNodes"
+              @blur="emit('apply-tree-node-count')"
+            />
+            <Button variant="outline" size="sm" @click="emit('apply-tree-node-count')">
+              应用
+            </Button>
+          </div>
+          <FieldDescription
+            >范围：{{ props.treeMinNodes }} - {{ props.treeMaxNodes }}</FieldDescription
+          >
+          <span
+            v-if="props.treeSizeMessage"
+            class="text-xs"
+            :class="props.treeSizeError ? 'text-destructive' : 'text-muted-foreground'"
+          >
+            {{ props.treeSizeMessage }}
+          </span>
+        </FieldGroup>
+
+        <FieldGroup class="mt-4 flex flex-col gap-2">
+          <FieldDescription>数值范围</FieldDescription>
+          <div class="flex items-center gap-2">
+            <Input
+              v-model="treeMinValueInput"
+              type="number"
+              :min="props.treeValueMin"
+              :max="props.treeValueMax"
+              placeholder="最小值"
+              @blur="emit('apply-tree-value-range')"
+            />
+            <span class="text-sm text-muted-foreground">-</span>
+            <Input
+              v-model="treeMaxValueInput"
+              type="number"
+              :min="props.treeValueMin"
+              :max="props.treeValueMax"
+              placeholder="最大值"
+              @blur="emit('apply-tree-value-range')"
+            />
+            <Button variant="outline" size="sm" @click="emit('apply-tree-value-range')">
+              应用
+            </Button>
+          </div>
+          <span
+            v-if="props.treeValueMessage"
+            class="text-xs"
+            :class="props.treeValueError ? 'text-destructive' : 'text-muted-foreground'"
+          >
+            {{ props.treeValueMessage }}
+          </span>
+        </FieldGroup>
+
+        <FieldGroup class="mt-4 flex flex-col gap-2">
+          <FieldDescription>查找目标值</FieldDescription>
+          <div class="flex items-center gap-2">
+            <Input
+              v-model="treeTargetValueInput"
+              type="text"
+              @blur="emit('apply-tree-target-value')"
+            />
+            <Button variant="outline" size="sm" @click="emit('apply-tree-target-value')">
+              应用
+            </Button>
+          </div>
+        </FieldGroup>
+
+        <span
+          v-if="props.treeMessage"
+          class="mt-2 block text-xs"
+          :class="props.treeMessageError ? 'text-destructive' : 'text-muted-foreground'"
+        >
+          {{ props.treeMessage }}
         </span>
       </FieldContent>
     </FieldSet>
