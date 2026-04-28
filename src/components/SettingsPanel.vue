@@ -7,16 +7,6 @@ import SettingsPanelDataTab from '@/components/settings-panel/SettingsPanelDataT
 import SettingsPanelFileTab from '@/components/settings-panel/SettingsPanelFileTab.vue';
 import SettingsPanelHeaderBar from '@/components/settings-panel/SettingsPanelHeaderBar.vue';
 import { useSettingsPanelViewModel } from '@/features/settings/composables/useSettingsPanelViewModel';
-import {
-  GRAPH_MAX_NODES,
-  GRAPH_MIN_NODES,
-  SORTING_MAX_SIZE,
-  SORTING_MIN_SIZE,
-  TREE_MAX_NODES,
-  TREE_MIN_NODES,
-  TREE_VALUE_MAX,
-  TREE_VALUE_MIN,
-} from '@/stores/algorithmInputs';
 
 const {
   compareLeftSlug,
@@ -45,28 +35,18 @@ const {
   panelScrollRef,
   modeLabel,
   sizeInput,
-  sizeMessage,
-  sizeError,
   graphNodeCountInput,
-  graphSizeMessage,
-  graphSizeError,
   graphStartNodeInput,
-  graphMessage,
-  graphMessageError,
-  graphNodeOptions,
   treeNodeCountInput,
   treeMinValueInput,
   treeMaxValueInput,
   treeTargetValueInput,
-  treeSizeMessage,
-  treeSizeError,
-  treeValueMessage,
-  treeValueError,
-  treeMessage,
-  treeMessageError,
   customData,
   customDataMessage,
   customDataError,
+  sortingData,
+  graphData,
+  treeData,
   applySizeFromInput,
   applyGraphNodeCountFromInput,
   applyGraphStartNode,
@@ -141,29 +121,9 @@ void panelScrollRef;
           :is-sorting-algorithm="isSortingAlgorithm"
           :is-graph-algorithm="isGraphAlgorithm"
           :is-tree-algorithm="isTreeAlgorithm"
-          :sorting-min-size="SORTING_MIN_SIZE"
-          :sorting-max-size="SORTING_MAX_SIZE"
-          :size-message="sizeMessage"
-          :size-error="sizeError"
-          :graph-min-nodes="GRAPH_MIN_NODES"
-          :graph-max-nodes="GRAPH_MAX_NODES"
-          :graph-size-message="graphSizeMessage"
-          :graph-size-error="graphSizeError"
-          :graph-node-options="graphNodeOptions"
-          :graph-message="graphMessage"
-          :graph-message-error="graphMessageError"
-          :tree-min-nodes="TREE_MIN_NODES"
-          :tree-max-nodes="TREE_MAX_NODES"
-          :tree-value-min="TREE_VALUE_MIN"
-          :tree-value-max="TREE_VALUE_MAX"
-          :tree-size-message="treeSizeMessage"
-          :tree-size-error="treeSizeError"
-          :tree-value-message="treeValueMessage"
-          :tree-value-error="treeValueError"
-          :tree-message="treeMessage"
-          :tree-message-error="treeMessageError"
-          :custom-data-message="customDataMessage"
-          :custom-data-error="customDataError"
+          :sorting-data="sortingData"
+          :graph-data="graphData"
+          :tree-data="treeData"
           @randomize-data="randomizeData"
           @apply-size="applySizeFromInput"
           @apply-graph-node-count="applyGraphNodeCountFromInput"

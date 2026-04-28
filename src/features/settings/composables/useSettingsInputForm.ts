@@ -1,5 +1,10 @@
 import { computed, ref, watch, type Ref } from 'vue';
 import { storeToRefs } from 'pinia';
+import type {
+  GraphSectionData,
+  SortingSectionData,
+  TreeSectionData,
+} from '@/features/settings/types';
 import {
   GRAPH_MAX_NODES,
   GRAPH_MIN_NODES,
@@ -415,6 +420,27 @@ export function useSettingsInputForm(options: UseSettingsInputFormOptions) {
     }
   }
 
+  const sortingData = computed<SortingSectionData>(() => ({
+    sizeRange: { min: SORTING_MIN_SIZE, max: SORTING_MAX_SIZE },
+    sizeValidation: { message: sizeMessage.value, error: sizeError.value },
+    customValidation: { message: customDataMessage.value, error: customDataError.value },
+  }));
+
+  const graphData = computed<GraphSectionData>(() => ({
+    nodeCountRange: { min: GRAPH_MIN_NODES, max: GRAPH_MAX_NODES },
+    sizeValidation: { message: graphSizeMessage.value, error: graphSizeError.value },
+    nodeOptions: graphNodeOptions.value,
+    generalValidation: { message: graphMessage.value, error: graphMessageError.value },
+  }));
+
+  const treeData = computed<TreeSectionData>(() => ({
+    nodeCountRange: { min: TREE_MIN_NODES, max: TREE_MAX_NODES },
+    valueRange: { min: TREE_VALUE_MIN, max: TREE_VALUE_MAX },
+    sizeValidation: { message: treeSizeMessage.value, error: treeSizeError.value },
+    valueValidation: { message: treeValueMessage.value, error: treeValueError.value },
+    generalValidation: { message: treeMessage.value, error: treeMessageError.value },
+  }));
+
   return {
     sizeInput,
     sizeMessage,
@@ -439,6 +465,9 @@ export function useSettingsInputForm(options: UseSettingsInputFormOptions) {
     customData,
     customDataMessage,
     customDataError,
+    sortingData,
+    graphData,
+    treeData,
     applySizeFromInput,
     applyGraphNodeCountFromInput,
     applyGraphStartNode,

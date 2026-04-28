@@ -34,6 +34,7 @@ declare module 'vue' {
     FieldSeparator: typeof import('./src/components/ui/field/FieldSeparator.vue')['default']
     FieldSet: typeof import('./src/components/ui/field/FieldSet.vue')['default']
     FieldTitle: typeof import('./src/components/ui/field/FieldTitle.vue')['default']
+    GraphDataSection: typeof import('./src/components/settings-panel/GraphDataSection.vue')['default']
     GraphTraversalView: typeof import('./src/components/visualization/GraphTraversalView.vue')['default']
     Input: typeof import('./src/components/ui/input/Input.vue')['default']
     Label: typeof import('./src/components/ui/label/Label.vue')['default']
@@ -93,6 +94,7 @@ declare module 'vue' {
     SidebarTrigger: typeof import('./src/components/ui/sidebar/SidebarTrigger.vue')['default']
     Skeleton: typeof import('./src/components/ui/skeleton/Skeleton.vue')['default']
     SortingChart: typeof import('./src/components/visualization/SortingChart.vue')['default']
+    SortingDataSection: typeof import('./src/components/settings-panel/SortingDataSection.vue')['default']
     Tabs: typeof import('./src/components/ui/tabs/Tabs.vue')['default']
     TabsContent: typeof import('./src/components/ui/tabs/TabsContent.vue')['default']
     TabsList: typeof import('./src/components/ui/tabs/TabsList.vue')['default']
@@ -102,6 +104,8 @@ declare module 'vue' {
     TooltipContent: typeof import('./src/components/ui/tooltip/TooltipContent.vue')['default']
     TooltipProvider: typeof import('./src/components/ui/tooltip/TooltipProvider.vue')['default']
     TooltipTrigger: typeof import('./src/components/ui/tooltip/TooltipTrigger.vue')['default']
+    TreeDataSection: typeof import('./src/components/settings-panel/TreeDataSection.vue')['default']
     TreeVisualizer: typeof import('./src/components/visualization/TreeVisualizer.vue')['default']
+    ValidationMessage: typeof import('./src/components/settings-panel/ValidationMessage.vue')['default']
   }
 }
