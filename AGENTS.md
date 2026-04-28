@@ -1,5 +1,18 @@
 # AGENTS 开发规范
 
+## 0. 项目概述
+
+**算法可视化实验室** — 基于 Vue 3 + TypeScript + Vite 的单页算法可视化应用，内置 4 种排序算法（冒泡、插入、归并、快速）和 2 种图遍历算法（BFS、DFS），支持并排对比模式。
+
+- 前端框架：Vue 3（Composition API）+ TypeScript（严格模式）
+- 构建工具：Vite 8
+- 包管理器：pnpm
+- 状态管理：Pinia
+- 路由：Vue Router
+- 可视化：D3
+- UI 体系：Tailwind CSS v4 + Reka UI（shadcn-vue 风格）
+- Lint/格式化：oxlint + oxfmt
+
 ## 1. 环境设置
 
 - 安装 pnpm：`npm install -g pnpm`
@@ -19,20 +32,16 @@
 
 ## 3. 编码标准
 
-- 生成代码后必须执行 Lint 与格式化：`pnpm lint`、`pnpm fmt`
-
-## 4. AI 代理快速上手（Workspace Instructions）
-
-本仓库是 Vue 3 + TypeScript + Vite 的算法可视化项目。AI 代理在开始编码前，先遵循本节约定，再按需查阅对应源码文件。
-
-### 4.1 首选工作流
-
 1. 安装依赖：`pnpm install`
 2. 开发调试：`pnpm dev`
 3. 变更完成后至少执行：`pnpm lint` + `pnpm fmt`
 4. 涉及类型、路由、构建链路的改动，额外执行：`pnpm build`
 
-### 4.2 技术栈与边界
+## 4. AI 代理快速上手（Workspace Instructions）
+
+本仓库是 Vue 3 + TypeScript + Vite 的算法可视化项目。AI 代理在开始编码前，先遵循本节约定，再按需查阅对应源码文件。
+
+### 4.1 技术栈与边界
 
 - 前端框架：Vue 3（Composition API）+ TypeScript
 - 构建工具：Vite
@@ -41,18 +50,20 @@
 - 可视化：D3
 - UI 体系：Tailwind v4 + Reka UI（shadcn-vue 风格）
 
-### 4.3 核心目录职责（先读再改）
+### 4.2 核心目录职责（先读再改）
 
 - `src/algorithms/definitions/`：算法定义（`*.registry.ts`），按分类组织（`sorting/`、`graph/`）
-- `src/algorithms/registry/`：算法注册、菜单、查找逻辑
+- `src/algorithms/registry/`：算法注册、菜单、查找、对比逻辑
 - `src/algorithms/shared/`：算法共享输入与步骤构造工具
-- `src/stores/`：全局状态（输入与播放控制）
+- `src/stores/`：全局状态（输入、播放控制、对比选择）
+- `src/features/compare/`：对比功能模块（composables、类型、路由同步）
+- `src/features/settings/`：设置面板功能模块（composables、视图模型）
 - `src/views/AlgorithmView.vue`：算法页容器，连接路由、步骤与可视化组件
-- `src/components/visualization/`：具体可视化视图组件
-- `src/visualizers/`：D3 渲染与颜色语义
+- `src/components/visualization/`：具体可视化视图组件（SortingChart、GraphTraversalView）
+- `src/visualizers/`：D3 渲染函数、颜色语义、CSS 变量解析
 - `src/types/algorithm.ts`：算法领域类型单一真值源
 
-### 4.4 算法扩展约定
+### 4.3 算法扩展约定
 
 新增算法时，优先遵循现有 registry 模式：
 
@@ -62,20 +73,20 @@
 4. 确认能被 `src/algorithms/definitions/index.ts` 汇总
 5. 通过路由 `/algorithm/:category/:slug` 访问验证
 
-### 4.5 代码风格与实现约束
+### 4.4 代码风格与实现约束
 
 - 默认使用 Composition API 与 `<script setup lang="ts">`
 - 优先复用现有 UI 组件与主题变量，不引入额外设计系统
 - 不手动编辑 `auto-imports.d.ts`、`components.d.ts`（由插件生成）
 - 保持修改最小化，避免与任务无关的重构
 
-### 4.6 常见坑
+### 4.5 常见坑
 
 - 避免在 `src/algorithms/registry.ts` 中通过 `./registry` 重导出，使用 `./registry/index`
 - `tsconfig.app.json` 开启严格选项（`noUnusedLocals` / `noUnusedParameters`），提交前清理未使用符号
-- 修改可视化相关逻辑时，注意颜色语义与样式变量一致性
+- D3 无法直接动画化 CSS 变量，修改可视化颜色时需确保整条链路连通：`colorSemantics.ts` 将状态映射为 CSS `var()` token → `resolveCssColorToken.ts` 将 token 解析为 RGB 字符串 → D3 使用 RGB 值执行过渡动画。中断任何一环都会导致颜色过渡异常
 
-### 4.7 参考文件（链接优先，不复制）
+### 4.6 参考文件（链接优先，不复制）
 
 - `README.md`：项目基础说明
 - `package.json`：脚本命令与工具链
@@ -84,7 +95,7 @@
 - `src/router/index.ts`：路由入口
 - `src/views/AlgorithmView.vue`：算法页面主流程
 
-### 4.8 参考资料与技能资源
+### 4.7 参考资料与技能资源
 
 - Vue、Pinia、Vue Router：查看 `.agents/skills` 中对应内容（如 `vue-best-practices`、`vue-pinia-best-practices`、`vue-router-best-practices`）
 - shadcn-vue：查看 shadcn mcp
@@ -161,6 +172,7 @@
 - `footer` 在 `body` 之后空一行提供
 - 每个 footer 由 token + `: ` 或 ` #` + 字符串值组成
 - token 使用 `-` 代替空格（如 `Acked-by`），`BREAKING CHANGE` 除外
+- 禁止使用 `Co-Authored-By`：不添加 AI 联合署名 footer
 
 #### Breaking Changes
 
