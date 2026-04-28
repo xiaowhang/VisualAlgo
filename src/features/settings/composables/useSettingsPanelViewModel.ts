@@ -138,15 +138,29 @@ export function useSettingsPanelViewModel() {
       activeAlgorithm.value?.visualization === 'tree'
   );
 
+  const isDivideConquerAlgorithm = computed(
+    () =>
+      (isCompareView.value && visibleCompareCategory.value === 'divide-conquer') ||
+      activeAlgorithm.value?.category === 'divide-conquer'
+  );
+
+  const isHanoiAlgorithm = computed(
+    () =>
+      (isCompareView.value && visibleCompareCategory.value === 'divide-conquer') ||
+      activeAlgorithm.value?.visualization === 'hanoi'
+  );
+
   const inputForm = useSettingsInputForm({
     isGraphAlgorithm,
     isTreeAlgorithm,
+    isHanoiAlgorithm,
   });
 
   const panelTitle = computed(() => {
     if (isCompareView.value) {
       if (visibleCompareCategory.value === 'graphs') return '图算法对比';
       if (visibleCompareCategory.value === 'trees') return '树算法对比';
+      if (visibleCompareCategory.value === 'divide-conquer') return '分治算法对比';
       return '排序算法对比';
     }
     return activeAlgorithm.value?.title ?? '算法未找到';
@@ -159,6 +173,9 @@ export function useSettingsPanelViewModel() {
       }
       if (visibleCompareCategory.value === 'trees') {
         return '对比模式共享同一份树输入。修改后会同时影响左右算法。';
+      }
+      if (visibleCompareCategory.value === 'divide-conquer') {
+        return '对比模式共享同一份输入。修改后会同时影响左右算法。';
       }
       return '对比模式共享同一份排序输入。修改后会同时影响左右算法。';
     }
@@ -179,10 +196,15 @@ export function useSettingsPanelViewModel() {
 
   const modeLabel = computed(() => {
     if (isCompareView.value) {
-      return visibleCompareCategory.value === 'graphs' ? '图算法对比模式' : '排序算法对比模式';
+      if (visibleCompareCategory.value === 'graphs') return '图算法对比模式';
+      if (visibleCompareCategory.value === 'trees') return '树算法对比模式';
+      if (visibleCompareCategory.value === 'divide-conquer') return '分治算法对比模式';
+      return '排序算法对比模式';
     }
     if (isTreeAlgorithm.value) return '树算法';
-    return isGraphAlgorithm.value ? '图算法' : '排序算法';
+    if (isGraphAlgorithm.value) return '图算法';
+    if (isDivideConquerAlgorithm.value) return '分治算法';
+    return '排序算法';
   });
 
   watch(activeTab, async () => {
@@ -223,6 +245,8 @@ export function useSettingsPanelViewModel() {
     isSortingAlgorithm,
     isGraphAlgorithm,
     isTreeAlgorithm,
+    isDivideConquerAlgorithm,
+    isHanoiAlgorithm,
     panelTitle,
     panelDescription,
     stepDescription,

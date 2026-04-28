@@ -78,19 +78,25 @@ export function useCompareViewModel() {
     { immediate: true }
   );
 
-  const compareVisualization = computed(() => {
-    if (compareCategory.value === 'graphs') return 'graph';
-    if (compareCategory.value === 'trees') return 'tree';
-    return 'sorting';
-  });
+  const leftVisualization = computed(() => leftSide.algorithm.value?.visualization ?? 'sorting');
+  const rightVisualization = computed(() => rightSide.algorithm.value?.visualization ?? 'sorting');
 
   const compareTitle = computed(() => {
-    return compareCategory.value === 'graphs' ? '图算法对比' : '排序算法对比';
+    if (compareCategory.value === 'graphs') return '图算法对比';
+    if (compareCategory.value === 'trees') return '树算法对比';
+    if (compareCategory.value === 'divide-conquer') return '分治算法对比';
+    return '排序算法对比';
   });
 
   const compareDescription = computed(() => {
     if (compareCategory.value === 'graphs') {
       return '同一图输入下并行执行两个图算法，对比遍历路径与总步数差异。';
+    }
+    if (compareCategory.value === 'trees') {
+      return '同一树输入下并行执行两个树算法，对比搜索路径与总步数差异。';
+    }
+    if (compareCategory.value === 'divide-conquer') {
+      return '同一输入下并行执行两个分治算法，对比执行过程与总步数差异。';
     }
     return '同一输入下并行执行两个排序算法，对比执行过程与总步数差异。';
   });
@@ -122,7 +128,8 @@ export function useCompareViewModel() {
     playback,
     leftSide,
     rightSide,
-    compareVisualization,
+    leftVisualization,
+    rightVisualization,
     compareTitle,
     compareDescription,
     leftTitle,

@@ -5,6 +5,7 @@ interface Props {
   isSortingAlgorithm: boolean;
   isGraphAlgorithm: boolean;
   isTreeAlgorithm: boolean;
+  isHanoiAlgorithm: boolean;
   customDataMessage: string;
   customDataError: boolean;
 }
@@ -32,7 +33,14 @@ function openImportFileDialog() {
       <CardDescription>支持 JSON 文件</CardDescription>
     </CardHeader>
     <CardContent class="pt-0">
-      <template v-if="props.isSortingAlgorithm || props.isGraphAlgorithm || props.isTreeAlgorithm">
+      <template
+        v-if="
+          props.isSortingAlgorithm ||
+          props.isGraphAlgorithm ||
+          props.isTreeAlgorithm ||
+          props.isHanoiAlgorithm
+        "
+      >
         <div class="flex flex-wrap items-center gap-2">
           <Button variant="outline" size="sm" @click="emit('export-json')">导出 JSON</Button>
           <Button size="sm" @click="openImportFileDialog">导入文件</Button>

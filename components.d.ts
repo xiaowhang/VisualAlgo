@@ -36,6 +36,7 @@ declare module 'vue' {
     FieldTitle: typeof import('./src/components/ui/field/FieldTitle.vue')['default']
     GraphDataSection: typeof import('./src/components/settings-panel/GraphDataSection.vue')['default']
     GraphTraversalView: typeof import('./src/components/visualization/GraphTraversalView.vue')['default']
+    HanoiVisualizer: typeof import('./src/components/visualization/HanoiVisualizer.vue')['default']
     Input: typeof import('./src/components/ui/input/Input.vue')['default']
     Label: typeof import('./src/components/ui/label/Label.vue')['default']
     PlaybackController: typeof import('./src/components/PlaybackController.vue')['default']

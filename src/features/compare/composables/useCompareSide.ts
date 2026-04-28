@@ -20,10 +20,11 @@ export function useCompareSide(options: UseCompareSideOptions) {
   });
 
   const steps = computed(() => algorithm.value?.createSteps() ?? []);
-  const { stepIndex, step, sortingStep, graphStep, treeStep } = useAlgorithmStepSelection({
-    steps,
-    currentStep: options.currentStep,
-  });
+  const { stepIndex, step, sortingStep, graphStep, treeStep, hanoiStep } =
+    useAlgorithmStepSelection({
+      steps,
+      currentStep: options.currentStep,
+    });
 
   const graphAlgorithmKey = computed(() => {
     if (!algorithm.value || algorithm.value.visualization !== 'graph') {
@@ -44,6 +45,7 @@ export function useCompareSide(options: UseCompareSideOptions) {
     sortingStep,
     graphStep,
     treeStep,
+    hanoiStep,
     graphAlgorithmKey,
     completed,
   };

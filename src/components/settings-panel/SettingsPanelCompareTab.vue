@@ -54,6 +54,8 @@ function emitCategoryUpdate(value: unknown) {
           <SelectContent>
             <SelectItem value="sorting">排序算法</SelectItem>
             <SelectItem value="graphs">图算法</SelectItem>
+            <SelectItem value="trees">树算法</SelectItem>
+            <SelectItem value="divide-conquer">分治算法</SelectItem>
           </SelectContent>
         </Select>
       </FieldContent>

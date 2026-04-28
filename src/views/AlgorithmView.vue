@@ -3,6 +3,7 @@ import { computed, ref, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useRoute } from 'vue-router';
 import GraphTraversalView from '@/components/visualization/GraphTraversalView.vue';
+import HanoiVisualizer from '@/components/visualization/HanoiVisualizer.vue';
 import SortingChart from '@/components/visualization/SortingChart.vue';
 import TreeVisualizer from '@/components/visualization/TreeVisualizer.vue';
 import { findAlgorithm } from '@/algorithms/registry';
@@ -39,7 +40,7 @@ const activeAlgorithm = computed(() => {
 
 const steps = computed(() => activeAlgorithm.value?.createSteps() ?? []);
 
-const { sortingStep, graphStep, treeStep } = useAlgorithmStepSelection({
+const { sortingStep, graphStep, treeStep, hanoiStep } = useAlgorithmStepSelection({
   steps,
   currentStep: playback.currentStep,
 });
@@ -153,6 +154,11 @@ watch(
           v-else-if="activeAlgorithm.visualization === 'tree'"
           class="h-full w-full"
           :step="treeStep"
+        />
+        <HanoiVisualizer
+          v-else-if="activeAlgorithm.visualization === 'hanoi'"
+          class="h-full w-full"
+          :step="hanoiStep"
         />
       </div>
     </Card>

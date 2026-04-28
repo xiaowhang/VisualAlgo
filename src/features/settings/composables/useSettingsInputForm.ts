@@ -8,6 +8,8 @@ import type {
 import {
   GRAPH_MAX_NODES,
   GRAPH_MIN_NODES,
+  HANOI_MAX_DISKS,
+  HANOI_MIN_DISKS,
   SORTING_MAX_SIZE,
   SORTING_MIN_SIZE,
   TREE_MAX_NODES,
@@ -20,6 +22,7 @@ import {
 interface UseSettingsInputFormOptions {
   isGraphAlgorithm: Readonly<Ref<boolean>>;
   isTreeAlgorithm: Readonly<Ref<boolean>>;
+  isHanoiAlgorithm: Readonly<Ref<boolean>>;
 }
 
 export function useSettingsInputForm(options: UseSettingsInputFormOptions) {
@@ -43,6 +46,7 @@ export function useSettingsInputForm(options: UseSettingsInputFormOptions) {
     importGraphFromJsonText: algorithmInputsStore.importGraphFromJsonText,
     exportTreeAsJsonText: algorithmInputsStore.exportTreeAsJsonText,
     importTreeFromJsonText: algorithmInputsStore.importTreeFromJsonText,
+    setHanoiDiskCount: algorithmInputsStore.setHanoiDiskCount,
   };
 
   const sortingSize = computed(() => algorithmInputs.sortingInput.value.length);
@@ -129,6 +133,41 @@ export function useSettingsInputForm(options: UseSettingsInputFormOptions) {
       treeTargetValueInput.value = value;
     }
   );
+
+  const hanoiDiskCountInput = ref(String(algorithmInputs.hanoiDiskCount.value));
+  const hanoiMessage = ref('');
+  const hanoiMessageError = ref(false);
+
+  watch(
+    () => algorithmInputs.hanoiDiskCount.value,
+    value => {
+      hanoiDiskCountInput.value = String(value);
+    }
+  );
+
+  function normalizeHanoiDiskCountInput(rawValue: string) {
+    const parsed = Number(rawValue);
+
+    if (!Number.isFinite(parsed)) {
+      return { normalized: algorithmInputs.hanoiDiskCount.value, adjusted: true };
+    }
+
+    const integerCount = Math.trunc(parsed);
+    const clamped = Math.min(HANOI_MAX_DISKS, Math.max(HANOI_MIN_DISKS, integerCount));
+
+    return { normalized: clamped, adjusted: clamped !== integerCount };
+  }
+
+  function applyHanoiDiskCount() {
+    const { normalized, adjusted } = normalizeHanoiDiskCountInput(hanoiDiskCountInput.value);
+    algorithmInputs.setHanoiDiskCount(normalized);
+
+    hanoiDiskCountInput.value = String(algorithmInputs.hanoiDiskCount.value);
+    hanoiMessageError.value = adjusted;
+    hanoiMessage.value = adjusted
+      ? `圆盘数量范围为 ${HANOI_MIN_DISKS}-${HANOI_MAX_DISKS}，已自动调整。`
+      : `已设置 ${algorithmInputs.hanoiDiskCount.value} 个圆盘。`;
+  }
 
   function normalizeSizeInput(rawValue: string) {
     const parsed = Number(rawValue);
@@ -292,6 +331,15 @@ export function useSettingsInputForm(options: UseSettingsInputFormOptions) {
   }
 
   function randomizeData() {
+    if (options.isHanoiAlgorithm.value) {
+      const { normalized } = normalizeHanoiDiskCountInput(hanoiDiskCountInput.value);
+      algorithmInputs.setHanoiDiskCount(normalized);
+      hanoiDiskCountInput.value = String(algorithmInputs.hanoiDiskCount.value);
+      hanoiMessage.value = `已随机生成 ${algorithmInputs.hanoiDiskCount.value} 个圆盘。`;
+      hanoiMessageError.value = false;
+      return;
+    }
+
     if (options.isTreeAlgorithm.value) {
       const count = normalizeTreeNodeCountInput(treeNodeCountInput.value).normalized;
       algorithmInputs.randomizeTreeInput(
@@ -358,6 +406,9 @@ export function useSettingsInputForm(options: UseSettingsInputFormOptions) {
     } else if (options.isTreeAlgorithm.value) {
       text = algorithmInputs.exportTreeAsJsonText();
       fileName = `tree-input-${timestamp}.json`;
+    } else if (options.isHanoiAlgorithm.value) {
+      text = JSON.stringify({ hanoiDiskCount: algorithmInputs.hanoiDiskCount.value }, null, 2);
+      fileName = `hanoi-input-${timestamp}.json`;
     } else {
       text = algorithmInputs.exportSortingAsJsonText();
       fileName = `sorting-input-${timestamp}.json`;
@@ -392,6 +443,22 @@ export function useSettingsInputForm(options: UseSettingsInputFormOptions) {
         result = algorithmInputs.importGraphFromJsonText(text);
       } else if (options.isTreeAlgorithm.value) {
         result = algorithmInputs.importTreeFromJsonText(text);
+      } else if (options.isHanoiAlgorithm.value) {
+        try {
+          const parsed = JSON.parse(text);
+          if (typeof parsed.hanoiDiskCount === 'number') {
+            algorithmInputs.setHanoiDiskCount(parsed.hanoiDiskCount);
+            hanoiDiskCountInput.value = String(algorithmInputs.hanoiDiskCount.value);
+            result = {
+              ok: true,
+              message: `已导入 ${algorithmInputs.hanoiDiskCount.value} 个圆盘。`,
+            };
+          } else {
+            result = { ok: false, message: 'JSON 格式无效，缺少 hanoiDiskCount 字段。' };
+          }
+        } catch {
+          result = { ok: false, message: 'JSON 解析失败，请检查文件内容。' };
+        }
       } else {
         result = algorithmInputs.importSortingFromJsonText(text);
       }
@@ -468,6 +535,10 @@ export function useSettingsInputForm(options: UseSettingsInputFormOptions) {
     sortingData,
     graphData,
     treeData,
+    hanoiDiskCountInput,
+    hanoiMessage,
+    hanoiMessageError,
+    applyHanoiDiskCount,
     applySizeFromInput,
     applyGraphNodeCountFromInput,
     applyGraphStartNode,

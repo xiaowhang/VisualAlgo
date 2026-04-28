@@ -6,7 +6,8 @@ const {
   playback,
   leftSide,
   rightSide,
-  compareVisualization,
+  leftVisualization,
+  rightVisualization,
   compareTitle,
   compareDescription,
   leftTitle,
@@ -32,10 +33,11 @@ const {
         :title="leftTitle"
         :status-text="leftStatusText"
         :description="leftStepDescription"
-        :visualization="compareVisualization"
+        :visualization="leftVisualization"
         :sorting-step="leftSide.sortingStep.value"
         :graph-step="leftSide.graphStep.value"
         :tree-step="leftSide.treeStep.value"
+        :hanoi-step="leftSide.hanoiStep.value"
         :graph-algorithm-key="leftSide.graphAlgorithmKey.value"
         :is-playing="playback.isPlaying.value"
       />
@@ -44,10 +46,11 @@ const {
         :title="rightTitle"
         :status-text="rightStatusText"
         :description="rightStepDescription"
-        :visualization="compareVisualization"
+        :visualization="rightVisualization"
         :sorting-step="rightSide.sortingStep.value"
         :graph-step="rightSide.graphStep.value"
         :tree-step="rightSide.treeStep.value"
+        :hanoi-step="rightSide.hanoiStep.value"
         :graph-algorithm-key="rightSide.graphAlgorithmKey.value"
         :is-playing="playback.isPlaying.value"
       />

@@ -44,3 +44,7 @@ export function getTreeSnapshot(): TreeSnapshot {
 export function getTreeTargetValue(): string {
   return useAlgorithmInputsStore().treeTargetValue;
 }
+
+export function getHanoiDiskCount(): number {
+  return useAlgorithmInputsStore().hanoiDiskCount;
+}

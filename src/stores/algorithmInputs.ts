@@ -28,9 +28,13 @@ const GRAPH_MIN_NODES = 6;
 const GRAPH_MAX_NODES = 14;
 const TREE_DEFAULT_NODE_COUNT = 9;
 const TREE_DEFAULT_TARGET_VALUE = '7';
+const HANOI_MIN_DISKS = 2;
+const HANOI_MAX_DISKS = 8;
+const HANOI_DEFAULT_DISK_COUNT = 4;
 
 export { SORTING_MIN_SIZE, SORTING_MAX_SIZE };
 export { GRAPH_MIN_NODES, GRAPH_MAX_NODES };
+export { HANOI_MIN_DISKS, HANOI_MAX_DISKS };
 export { TREE_MIN_NODES, TREE_MAX_NODES, TREE_VALUE_MIN, TREE_VALUE_MAX };
 
 function clampSortingSize(size: number) {
@@ -149,6 +153,7 @@ export const useAlgorithmInputsStore = defineStore('algorithm-inputs', () => {
   const treeNodeCount = ref(TREE_DEFAULT_NODE_COUNT);
   const treeMinValue = ref(TREE_VALUE_MIN);
   const treeMaxValue = ref(TREE_VALUE_MAX);
+  const hanoiDiskCount = ref(HANOI_DEFAULT_DISK_COUNT);
   const dataVersion = ref(0);
 
   function getGraphNodeIds() {
@@ -324,6 +329,11 @@ export const useAlgorithmInputsStore = defineStore('algorithm-inputs', () => {
     dataVersion.value += 1;
   }
 
+  function setHanoiDiskCount(count: number) {
+    hanoiDiskCount.value = Math.min(HANOI_MAX_DISKS, Math.max(HANOI_MIN_DISKS, Math.trunc(count)));
+    dataVersion.value += 1;
+  }
+
   function exportGraphAsJsonText() {
     const nodeIds = graphNodes.value.map(n => n.id);
     const edgeTuples = graphEdges.value.map(e => [e.source, e.target] as [string, string]);
@@ -415,6 +425,8 @@ export const useAlgorithmInputsStore = defineStore('algorithm-inputs', () => {
     treeNodeCount,
     treeMinValue,
     treeMaxValue,
+    hanoiDiskCount,
+    setHanoiDiskCount,
     dataVersion,
     randomizeAlgorithmInput,
     randomizeGraphInput,

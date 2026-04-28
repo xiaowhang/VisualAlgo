@@ -28,6 +28,7 @@ const {
   isSortingAlgorithm,
   isGraphAlgorithm,
   isTreeAlgorithm,
+  isHanoiAlgorithm,
   panelTitle,
   panelDescription,
   stepDescription,
@@ -47,12 +48,16 @@ const {
   sortingData,
   graphData,
   treeData,
+  hanoiDiskCountInput,
+  hanoiMessage,
+  hanoiMessageError,
   applySizeFromInput,
   applyGraphNodeCountFromInput,
   applyGraphStartNode,
   applyTreeNodeCountFromInput,
   applyTreeValueRangeFromInput,
   applyTreeTargetValue,
+  applyHanoiDiskCount,
   applyCustomData,
   randomizeData,
   exportJsonFile,
@@ -117,13 +122,17 @@ void panelScrollRef;
           v-model:tree-min-value-input="treeMinValueInput"
           v-model:tree-max-value-input="treeMaxValueInput"
           v-model:tree-target-value-input="treeTargetValueInput"
+          v-model:hanoi-disk-count-input="hanoiDiskCountInput"
           v-model:custom-data="customData"
           :is-sorting-algorithm="isSortingAlgorithm"
           :is-graph-algorithm="isGraphAlgorithm"
           :is-tree-algorithm="isTreeAlgorithm"
+          :is-hanoi-algorithm="isHanoiAlgorithm"
           :sorting-data="sortingData"
           :graph-data="graphData"
           :tree-data="treeData"
+          :hanoi-message="hanoiMessage"
+          :hanoi-message-error="hanoiMessageError"
           @randomize-data="randomizeData"
           @apply-size="applySizeFromInput"
           @apply-graph-node-count="applyGraphNodeCountFromInput"
@@ -131,6 +140,7 @@ void panelScrollRef;
           @apply-tree-node-count="applyTreeNodeCountFromInput"
           @apply-tree-value-range="applyTreeValueRangeFromInput"
           @apply-tree-target-value="applyTreeTargetValue"
+          @apply-hanoi-disk-count="applyHanoiDiskCount"
           @apply-custom-data="applyCustomData"
         />
       </TabsContent>
@@ -140,6 +150,7 @@ void panelScrollRef;
           :is-sorting-algorithm="isSortingAlgorithm"
           :is-graph-algorithm="isGraphAlgorithm"
           :is-tree-algorithm="isTreeAlgorithm"
+          :is-hanoi-algorithm="isHanoiAlgorithm"
           :custom-data-message="customDataMessage"
           :custom-data-error="customDataError"
           @export-json="exportJsonFile"

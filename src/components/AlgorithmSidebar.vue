@@ -25,6 +25,12 @@ const sections = computed(() => [
     defaultOpen: false,
     items: algorithmMenuByCategory.trees,
   },
+  {
+    label: '分治算法',
+    category: 'divide-conquer' as const,
+    defaultOpen: false,
+    items: algorithmMenuByCategory['divide-conquer'],
+  },
 ]);
 
 const filteredSections = computed(() => {
