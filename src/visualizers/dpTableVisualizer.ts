@@ -249,32 +249,64 @@ export function renderDpTable(context: RenderDpTableContext): void {
   // ================================================================
   const textGroup = root.append('g').attr('class', 'dp-values');
 
-  // Column headers
-  for (let col = 1; col < colCount; col++) {
-    textGroup
+  const multilineText = (
+    parent: d3.Selection<SVGGElement, unknown, null, undefined>,
+    cx: number,
+    cy: number,
+    lines: string[],
+    fontSize: number,
+    fontWeight: string
+  ) => {
+    const lineHeight = fontSize * 1.3;
+    const startDy = -((lines.length - 1) * lineHeight) / 2;
+    const text = parent
       .append('text')
-      .attr('x', cellX(col) + cellWidth / 2)
-      .attr('y', cellY(0) + cellHeight / 2)
+      .attr('x', cx)
+      .attr('y', cy)
       .attr('text-anchor', 'middle')
       .attr('dominant-baseline', 'central')
-      .attr('font-size', 12)
-      .attr('font-weight', '600')
-      .attr('fill', textColor)
-      .text(step.colLabels[col] ?? '');
+      .attr('font-size', fontSize)
+      .attr('font-weight', fontWeight)
+      .attr('fill', textColor);
+    for (let li = 0; li < lines.length; li++) {
+      const tspan = text.append('tspan').attr('x', cx);
+      tspan.attr('dy', li === 0 ? startDy : lineHeight);
+      tspan.text(lines[li]);
+    }
+  };
+
+  // Corner label (colLabels[0] at top-left)
+  multilineText(
+    textGroup,
+    cellX(0) + cellWidth / 2,
+    cellY(0) + cellHeight / 2,
+    step.colLabels[0]?.split('\n') ?? [''],
+    12,
+    '600'
+  );
+
+  // Column headers
+  for (let col = 1; col < colCount; col++) {
+    multilineText(
+      textGroup,
+      cellX(col) + cellWidth / 2,
+      cellY(0) + cellHeight / 2,
+      step.colLabels[col]?.split('\n') ?? [''],
+      12,
+      '600'
+    );
   }
 
   // Row headers
   for (let row = 1; row < rowCount; row++) {
-    textGroup
-      .append('text')
-      .attr('x', cellX(0) + cellWidth / 2)
-      .attr('y', cellY(row) + cellHeight / 2)
-      .attr('text-anchor', 'middle')
-      .attr('dominant-baseline', 'central')
-      .attr('font-size', 12)
-      .attr('font-weight', '600')
-      .attr('fill', textColor)
-      .text(step.rowLabels[row] ?? '');
+    multilineText(
+      textGroup,
+      cellX(0) + cellWidth / 2,
+      cellY(row) + cellHeight / 2,
+      step.rowLabels[row]?.split('\n') ?? [''],
+      12,
+      '600'
+    );
   }
 
   // Data cell values

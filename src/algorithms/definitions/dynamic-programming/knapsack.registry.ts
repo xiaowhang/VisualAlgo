@@ -15,7 +15,7 @@ function buildKnapsackSteps(capacity: number, items: KnapsackItem[]): AlgorithmS
     Array.from<number | null>({ length: capacity + 1 }).fill(null)
   );
 
-  const rowLabels = ['', ...items.map((_, i) => `物品${i + 1}`)];
+  const rowLabels = ['', ...items.map((it, i) => `物品${i + 1}\n(w=${it.weight}, v=${it.value})`)];
   const colLabels = Array.from({ length: capacity + 1 }, (_, j) => String(j));
 
   for (let j = 0; j <= capacity; j++) dp[0][j] = 0;
@@ -37,11 +37,11 @@ function buildKnapsackSteps(capacity: number, items: KnapsackItem[]): AlgorithmS
     const { weight: w, value: v } = items[i - 1];
     for (let j = 1; j <= capacity; j++) {
       const deps: Partial<Record<string, DpHighlightKind>> = {};
-      deps[`${i - 1},${j}`] = 'dependency';
+      if (i > 1) deps[`${i - 1},${j}`] = 'dependency';
 
       const noPick = dp[i - 1]?.[j] ?? 0;
       if (w <= j) {
-        deps[`${i - 1},${j - w}`] = 'dependency';
+        if (i > 1 && j > w) deps[`${i - 1},${j - w}`] = 'dependency';
         const pick = (dp[i - 1]?.[j - w] ?? 0) + v;
         const best = Math.max(noPick, pick);
         dp[i][j] = best;

@@ -5,17 +5,15 @@ import { getDpInvestmentInput } from '@/algorithms/shared/inputs';
 function buildInvestmentSteps(n: number, M: number, returns: number[][]): AlgorithmStep[] {
   const steps: AlgorithmStep[] = [];
 
-  const dp: (number | null)[][] = Array.from({ length: n }, () =>
-    Array.from<number | null>({ length: M + 1 }).fill(null)
+  const dp: (number | null)[][] = Array.from({ length: n + 1 }, () =>
+    Array.from<number | null>({ length: M + 2 }).fill(null)
   );
 
-  const rowLabels = Array.from({ length: n }, (_, i) => `投资${i + 1}`);
-  const colLabels = Array.from({ length: M + 1 }, (_, j) => String(j));
+  const rowLabels = ['', ...returns.map((r, i) => `投资${i + 1}\n(r:${r.join(',')})`)];
+  const colLabels = ['', ...Array.from({ length: M + 1 }, (_, j) => String(j))];
 
-  // Init first row
-  for (let j = 0; j <= M; j++) {
-    dp[0][j] = returns[0]?.[j] ?? 0;
-  }
+  for (let j = 0; j <= M + 1; j++) dp[0][j] = 0;
+  for (let i = 0; i <= n; i++) dp[i][0] = 0;
 
   steps.push(
     createDpTableStep({
@@ -23,27 +21,27 @@ function buildInvestmentSteps(n: number, M: number, returns: number[][]): Algori
       rowLabels,
       colLabels,
       phase: 'init',
-      description: `投资问题：${n} 项投资，总资源 = ${M}。第一行：投资 1 在各资源量下的直接收益。`,
+      description: `投资问题：${n} 项投资，总资源 = ${M}。初始化边界为 0。`,
     })
   );
 
-  // Fill remaining rows
-  for (let i = 1; i < n; i++) {
-    for (let j = 0; j <= M; j++) {
+  for (let i = 1; i <= n; i++) {
+    const ret = returns[i - 1];
+    for (let j = 1; j <= M + 1; j++) {
       let bestK = 0;
       let bestValue = -Infinity;
       const deps: Partial<Record<string, DpHighlightKind>> = {};
 
-      for (let k = 0; k <= j; k++) {
-        const candidate = (returns[i]?.[k] ?? 0) + (dp[i - 1]?.[j - k] ?? 0);
+      for (let k = 0; k <= j - 1; k++) {
+        const candidate = (ret[k] ?? 0) + (dp[i - 1]?.[j - k] ?? 0);
         if (candidate > bestValue) {
           bestValue = candidate;
           bestK = k;
         }
       }
 
-      deps[`${i - 1},${j - bestK}`] = 'dependency';
-      if (bestK > 0 && j - bestK !== j) {
+      if (i > 1 && j > bestK) deps[`${i - 1},${j - bestK}`] = 'dependency';
+      if (i > 1 && bestK > 0 && j > 0) {
         deps[`${i - 1},${j}`] = 'dependency';
       }
 
@@ -55,7 +53,7 @@ function buildInvestmentSteps(n: number, M: number, returns: number[][]): Algori
           currentCell: [i, j],
           highlights: deps,
           phase: 'compute',
-          description: `投资${i + 1}、资源 ${j}：最优分配 ${bestK} 给投资${i + 1}(收益=${returns[i]?.[bestK]})，剩余 ${j - bestK} 给前 ${i} 项(收益=${dp[i - 1]?.[j - bestK]}) → 总收益 = ${bestValue}`,
+          description: `投资${i}、资源 ${j - 1}：最优分配 ${bestK} 给投资${i}(收益=${ret[bestK]})，剩余 ${j - 1 - bestK} 给前 ${i - 1} 项(收益=${dp[i - 1]?.[j - bestK]}) → 总收益 = ${bestValue}`,
         })
       );
 
@@ -65,12 +63,13 @@ function buildInvestmentSteps(n: number, M: number, returns: number[][]): Algori
 
   // Backtrack
   const backtrackPath: [number, number][] = [];
-  let bi = n - 1;
-  let bj = M;
-  while (bi >= 0) {
+  let bi = n;
+  let bj = M + 1;
+  while (bi > 0 && bj > 0) {
+    const ret = returns[bi - 1];
     let foundK = 0;
-    for (let k = 0; k <= bj; k++) {
-      const candidate = (returns[bi]?.[k] ?? 0) + ((bi > 0 ? dp[bi - 1]?.[bj - k] : 0) ?? 0);
+    for (let k = 0; k <= bj - 1; k++) {
+      const candidate = (ret[k] ?? 0) + (dp[bi - 1]?.[bj - k] ?? 0);
       if (candidate === dp[bi]?.[bj]) {
         foundK = k;
         break;
@@ -91,7 +90,7 @@ function buildInvestmentSteps(n: number, M: number, returns: number[][]): Algori
         highlights,
         backtrackPath: [...backtrackPath],
         phase: 'backtrack',
-        description: `回溯：投资${bi + 1} 分配 ${foundK} 资源(收益=${returns[bi]?.[foundK]})，剩余 ${bj - foundK} 资源供前 ${bi} 项投资`,
+        description: `回溯：投资${bi} 分配 ${foundK} 资源(收益=${ret[foundK]})，剩余 ${bj - 1 - foundK} 资源供前 ${bi - 1} 项投资`,
       })
     );
 
@@ -110,7 +109,7 @@ function buildInvestmentSteps(n: number, M: number, returns: number[][]): Algori
       highlights: finalHighlights,
       backtrackPath: [...backtrackPath],
       phase: 'done',
-      description: `投资问题求解完成！最大总收益 = ${dp[n - 1]?.[M]}`,
+      description: `投资问题求解完成！最大总收益 = ${dp[n]?.[M + 1]}`,
     })
   );
 
