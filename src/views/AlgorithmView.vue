@@ -5,6 +5,8 @@ import { useRoute } from 'vue-router';
 import GraphTraversalView from '@/components/visualization/GraphTraversalView.vue';
 import DpTableVisualizer from '@/components/visualization/DpTableVisualizer.vue';
 import HanoiVisualizer from '@/components/visualization/HanoiVisualizer.vue';
+import HuffmanTreeVisualizer from '@/components/visualization/HuffmanTreeVisualizer.vue';
+import TimelineVisualizer from '@/components/visualization/TimelineVisualizer.vue';
 import SortingChart from '@/components/visualization/SortingChart.vue';
 import TreeVisualizer from '@/components/visualization/TreeVisualizer.vue';
 import { findAlgorithm } from '@/algorithms/registry';
@@ -41,10 +43,11 @@ const activeAlgorithm = computed(() => {
 
 const steps = computed(() => activeAlgorithm.value?.createSteps() ?? []);
 
-const { sortingStep, graphStep, treeStep, hanoiStep, dpTableStep } = useAlgorithmStepSelection({
-  steps,
-  currentStep: playback.currentStep,
-});
+const { sortingStep, graphStep, treeStep, hanoiStep, dpTableStep, huffmanStep, timelineStep } =
+  useAlgorithmStepSelection({
+    steps,
+    currentStep: playback.currentStep,
+  });
 
 const graphAlgorithmKey = computed(() => {
   if (!activeAlgorithm.value || activeAlgorithm.value.visualization !== 'graph') {
@@ -165,6 +168,16 @@ watch(
           v-else-if="activeAlgorithm.visualization === 'dp-table'"
           class="h-full w-full"
           :step="dpTableStep"
+        />
+        <HuffmanTreeVisualizer
+          v-else-if="activeAlgorithm.visualization === 'huffman'"
+          class="h-full w-full"
+          :step="huffmanStep"
+        />
+        <TimelineVisualizer
+          v-else-if="activeAlgorithm.visualization === 'timeline'"
+          class="h-full w-full"
+          :step="timelineStep"
         />
       </div>
     </Card>

@@ -7,7 +7,12 @@ const graphSnapshotSchema = z
   .object({
     formatVersion: z.number().int().optional(),
     nodes: z.array(z.string().min(1)).min(2, '至少需要 2 个节点。').max(26, '最多支持 26 个节点。'),
-    edges: z.array(z.tuple([z.string().min(1), z.string().min(1)])),
+    edges: z.array(
+      z.union([
+        z.tuple([z.string().min(1), z.string().min(1)]),
+        z.tuple([z.string().min(1), z.string().min(1), z.number()]),
+      ])
+    ),
     startNode: z.string().min(1).optional(),
   })
   .strict();
@@ -44,7 +49,10 @@ export function parseGraphImportJson(
   }
 
   const { nodes: nodeIds, edges: edgeTuples, startNode } = parseResult.data;
-  const edges: GraphEdge[] = edgeTuples.map(([source, target]) => ({ source, target }));
+  const edges: GraphEdge[] = edgeTuples.map(tuple => {
+    const [source, target, weight] = tuple;
+    return weight != null ? { source, target, weight } : { source, target };
+  });
 
   return {
     ok: true,

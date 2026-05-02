@@ -8,6 +8,7 @@ import type {
 } from '@/features/settings/types';
 import { HANOI_MAX_DISKS, HANOI_MIN_DISKS } from '@/stores/algorithmInputs';
 import GraphDataSection from './GraphDataSection.vue';
+import GreedyDataSection from './GreedyDataSection.vue';
 import SortingDataSection from './SortingDataSection.vue';
 import TreeDataSection from './TreeDataSection.vue';
 
@@ -20,17 +21,21 @@ const treeMaxValueInput = defineModel<string>('treeMaxValueInput', { required: t
 const treeTargetValueInput = defineModel<string>('treeTargetValueInput', { required: true });
 const hanoiDiskCountInput = defineModel<string>('hanoiDiskCountInput', { required: true });
 const customData = defineModel<string>('customData', { required: true });
+const huffmanInput = defineModel<string>('huffmanInput', { required: true });
 
 interface Props {
   isSortingAlgorithm: boolean;
   isGraphAlgorithm: boolean;
   isTreeAlgorithm: boolean;
   isHanoiAlgorithm: boolean;
+  isGreedyAlgorithm: boolean;
+  greedyAlgorithmSlug: string;
   sortingData: SortingSectionData;
   graphData: GraphSectionData;
   treeData: TreeSectionData;
   hanoiMessage: string;
   hanoiMessageError: boolean;
+  huffmanValidation: { message: string; error: boolean };
 }
 
 const props = defineProps<Props>();
@@ -45,6 +50,9 @@ interface Emits {
   (event: 'apply-tree-target-value'): void;
   (event: 'apply-hanoi-disk-count'): void;
   (event: 'apply-custom-data'): void;
+  (event: 'apply-huffman-input'): void;
+  (event: 'randomize-huffman'): void;
+  (event: 'randomize-activity'): void;
 }
 
 const emit = defineEmits<Emits>();
@@ -101,6 +109,17 @@ const hanoiState = computed<ValidationState>(() => ({
       @apply-node-count="emit('apply-tree-node-count')"
       @apply-value-range="emit('apply-tree-value-range')"
       @apply-target-value="emit('apply-tree-target-value')"
+    />
+
+    <GreedyDataSection
+      v-if="props.isGreedyAlgorithm"
+      :algorithm-slug="props.greedyAlgorithmSlug"
+      :huffman-input="huffmanInput"
+      :activity-interval-count="0"
+      :huffman-validation="props.huffmanValidation"
+      @apply-huffman-input="emit('apply-huffman-input')"
+      @randomize-huffman="emit('randomize-huffman')"
+      @randomize-activity="emit('randomize-activity')"
     />
 
     <FieldSet v-if="props.isHanoiAlgorithm">

@@ -77,3 +77,25 @@ export function getDpInvestmentInput(): {
     returns: store.dpInvestmentReturns.map(row => [...row]),
   };
 }
+
+export function getDijkstraInput(): {
+  graph: GraphSnapshot;
+  startNode: string;
+} {
+  return {
+    graph: getGraphSnapshot(),
+    startNode: getGraphStartNode(),
+  };
+}
+
+export function getHuffmanInput(): { text: string } {
+  return { text: useAlgorithmInputsStore().huffmanInput };
+}
+
+export function getActivityInput(): {
+  intervals: { start: number; end: number; label: string }[];
+} {
+  return {
+    intervals: useAlgorithmInputsStore().activityIntervals.map(interval => ({ ...interval })),
+  };
+}

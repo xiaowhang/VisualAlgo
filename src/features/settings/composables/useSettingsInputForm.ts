@@ -23,6 +23,8 @@ interface UseSettingsInputFormOptions {
   isGraphAlgorithm: Readonly<Ref<boolean>>;
   isTreeAlgorithm: Readonly<Ref<boolean>>;
   isHanoiAlgorithm: Readonly<Ref<boolean>>;
+  isGreedyAlgorithm: Readonly<Ref<boolean>>;
+  greedyAlgorithmSlug: Readonly<Ref<string>>;
 }
 
 export function useSettingsInputForm(options: UseSettingsInputFormOptions) {
@@ -167,6 +169,43 @@ export function useSettingsInputForm(options: UseSettingsInputFormOptions) {
     hanoiMessage.value = adjusted
       ? `圆盘数量范围为 ${HANOI_MIN_DISKS}-${HANOI_MAX_DISKS}，已自动调整。`
       : `已设置 ${algorithmInputs.hanoiDiskCount.value} 个圆盘。`;
+  }
+
+  const huffmanInput = ref(algorithmInputsStore.huffmanInput);
+  const huffmanMessage = ref('');
+  const huffmanMessageError = ref(false);
+
+  watch(
+    () => algorithmInputsStore.huffmanInput,
+    value => {
+      huffmanInput.value = value;
+    }
+  );
+
+  function applyHuffmanInput() {
+    const trimmed = huffmanInput.value.trim();
+    if (trimmed.length === 0) {
+      huffmanMessage.value = '输入字符串不能为空。';
+      huffmanMessageError.value = true;
+      return;
+    }
+    algorithmInputsStore.setHuffmanInput(trimmed);
+    huffmanInput.value = algorithmInputsStore.huffmanInput;
+    huffmanMessage.value = `已设置输入字符串（${trimmed.length} 个字符）。`;
+    huffmanMessageError.value = false;
+  }
+
+  function randomizeHuffman() {
+    algorithmInputsStore.randomizeHuffmanInput();
+    huffmanInput.value = algorithmInputsStore.huffmanInput;
+    huffmanMessage.value = '已随机生成新字符串。';
+    huffmanMessageError.value = false;
+  }
+
+  function randomizeActivity() {
+    algorithmInputsStore.randomizeActivityIntervals();
+    huffmanMessage.value = '已随机生成活动区间。';
+    huffmanMessageError.value = false;
   }
 
   function normalizeSizeInput(rawValue: string) {
@@ -337,6 +376,30 @@ export function useSettingsInputForm(options: UseSettingsInputFormOptions) {
       hanoiDiskCountInput.value = String(algorithmInputs.hanoiDiskCount.value);
       hanoiMessage.value = `已随机生成 ${algorithmInputs.hanoiDiskCount.value} 个圆盘。`;
       hanoiMessageError.value = false;
+      return;
+    }
+
+    if (options.isGreedyAlgorithm.value) {
+      const slug = options.greedyAlgorithmSlug.value;
+      if (slug === 'huffman') {
+        algorithmInputsStore.randomizeHuffmanInput();
+        huffmanInput.value = algorithmInputsStore.huffmanInput;
+        huffmanMessage.value = '已随机生成新字符串。';
+        huffmanMessageError.value = false;
+      } else if (slug === 'activity-selection') {
+        algorithmInputsStore.randomizeActivityIntervals();
+        huffmanMessage.value = '已随机生成活动区间。';
+        huffmanMessageError.value = false;
+      } else if (slug === 'dijkstra') {
+        const count = normalizeGraphNodeCountInput(graphNodeCountInput.value).normalized;
+        graphNodeCountInput.value = String(count);
+        algorithmInputs.randomizeGraphInput(count);
+        graphStartNodeInput.value = algorithmInputs.graphStartNode.value;
+        graphSizeMessage.value = '';
+        graphSizeError.value = false;
+        graphMessage.value = `已随机生成 ${count} 个节点，起始节点为 ${algorithmInputs.graphStartNode.value}。`;
+        graphMessageError.value = false;
+      }
       return;
     }
 
@@ -539,6 +602,12 @@ export function useSettingsInputForm(options: UseSettingsInputFormOptions) {
     hanoiMessage,
     hanoiMessageError,
     applyHanoiDiskCount,
+    huffmanInput,
+    huffmanMessage,
+    huffmanMessageError,
+    applyHuffmanInput,
+    randomizeHuffman,
+    randomizeActivity,
     applySizeFromInput,
     applyGraphNodeCountFromInput,
     applyGraphStartNode,

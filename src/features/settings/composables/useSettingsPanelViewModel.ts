@@ -156,10 +156,20 @@ export function useSettingsPanelViewModel() {
       activeAlgorithm.value?.visualization === 'hanoi'
   );
 
+  const isGreedyAlgorithm = computed(
+    () =>
+      (isCompareView.value && visibleCompareCategory.value === 'greedy') ||
+      activeAlgorithm.value?.category === 'greedy'
+  );
+
+  const greedyAlgorithmSlug = computed(() => activeAlgorithm.value?.slug ?? '');
+
   const inputForm = useSettingsInputForm({
     isGraphAlgorithm,
     isTreeAlgorithm,
     isHanoiAlgorithm,
+    isGreedyAlgorithm,
+    greedyAlgorithmSlug,
   });
 
   const panelTitle = computed(() => {
@@ -168,6 +178,7 @@ export function useSettingsPanelViewModel() {
       if (visibleCompareCategory.value === 'trees') return '树算法对比';
       if (visibleCompareCategory.value === 'divide-conquer') return '分治算法对比';
       if (visibleCompareCategory.value === 'dynamic-programming') return '动态规划对比';
+      if (visibleCompareCategory.value === 'greedy') return '贪心算法对比';
       return '排序算法对比';
     }
     return activeAlgorithm.value?.title ?? '算法未找到';
@@ -185,6 +196,9 @@ export function useSettingsPanelViewModel() {
         return '对比模式共享同一份输入。修改后会同时影响左右算法。';
       }
       if (visibleCompareCategory.value === 'dynamic-programming') {
+        return '对比模式共享同一份输入。修改后会同时影响左右算法。';
+      }
+      if (visibleCompareCategory.value === 'greedy') {
         return '对比模式共享同一份输入。修改后会同时影响左右算法。';
       }
       return '对比模式共享同一份排序输入。修改后会同时影响左右算法。';
@@ -210,12 +224,14 @@ export function useSettingsPanelViewModel() {
       if (visibleCompareCategory.value === 'trees') return '树算法对比模式';
       if (visibleCompareCategory.value === 'divide-conquer') return '分治算法对比模式';
       if (visibleCompareCategory.value === 'dynamic-programming') return '动态规划对比模式';
+      if (visibleCompareCategory.value === 'greedy') return '贪心算法对比模式';
       return '排序算法对比模式';
     }
     if (isTreeAlgorithm.value) return '树算法';
     if (isGraphAlgorithm.value) return '图算法';
     if (isDivideConquerAlgorithm.value) return '分治算法';
     if (isDpAlgorithm.value) return '动态规划';
+    if (isGreedyAlgorithm.value) return '贪心算法';
     return '排序算法';
   });
 
@@ -259,6 +275,8 @@ export function useSettingsPanelViewModel() {
     isTreeAlgorithm,
     isDivideConquerAlgorithm,
     isHanoiAlgorithm,
+    isGreedyAlgorithm,
+    greedyAlgorithmSlug,
     panelTitle,
     panelDescription,
     stepDescription,

@@ -29,6 +29,8 @@ const {
   isGraphAlgorithm,
   isTreeAlgorithm,
   isHanoiAlgorithm,
+  isGreedyAlgorithm,
+  greedyAlgorithmSlug,
   panelTitle,
   panelDescription,
   stepDescription,
@@ -51,6 +53,12 @@ const {
   hanoiDiskCountInput,
   hanoiMessage,
   hanoiMessageError,
+  huffmanInput,
+  huffmanMessage,
+  huffmanMessageError,
+  applyHuffmanInput,
+  randomizeHuffman,
+  randomizeActivity,
   applySizeFromInput,
   applyGraphNodeCountFromInput,
   applyGraphStartNode,
@@ -124,15 +132,19 @@ void panelScrollRef;
           v-model:tree-target-value-input="treeTargetValueInput"
           v-model:hanoi-disk-count-input="hanoiDiskCountInput"
           v-model:custom-data="customData"
+          v-model:huffman-input="huffmanInput"
           :is-sorting-algorithm="isSortingAlgorithm"
           :is-graph-algorithm="isGraphAlgorithm"
           :is-tree-algorithm="isTreeAlgorithm"
           :is-hanoi-algorithm="isHanoiAlgorithm"
+          :is-greedy-algorithm="isGreedyAlgorithm"
+          :greedy-algorithm-slug="greedyAlgorithmSlug"
           :sorting-data="sortingData"
           :graph-data="graphData"
           :tree-data="treeData"
           :hanoi-message="hanoiMessage"
           :hanoi-message-error="hanoiMessageError"
+          :huffman-validation="{ message: huffmanMessage, error: huffmanMessageError }"
           @randomize-data="randomizeData"
           @apply-size="applySizeFromInput"
           @apply-graph-node-count="applyGraphNodeCountFromInput"
@@ -142,6 +154,9 @@ void panelScrollRef;
           @apply-tree-target-value="applyTreeTargetValue"
           @apply-hanoi-disk-count="applyHanoiDiskCount"
           @apply-custom-data="applyCustomData"
+          @apply-huffman-input="applyHuffmanInput"
+          @randomize-huffman="randomizeHuffman"
+          @randomize-activity="randomizeActivity"
         />
       </TabsContent>
 

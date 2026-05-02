@@ -2,8 +2,12 @@ import type {
   DpHighlightKind,
   DpTableStep,
   GraphStep,
+  HuffmanHighlightKind,
+  HuffmanStep,
   SortingHighlightKind,
   SortingStep,
+  TimelineIntervalState,
+  TimelineStep,
   TreeHighlightKind,
   TreeStep,
 } from '@/types/algorithm';
@@ -85,6 +89,31 @@ export function resolveDpCellColor(step: DpTableStep, row: number, col: number):
   const value = step.table[row]?.[col];
   if (value !== null && value !== undefined) return DP_COLOR_BY_KIND.computed;
   return DP_COLOR_BY_KIND.default;
+}
+
+const HUFFMAN_COLOR_BY_KIND: Record<HuffmanHighlightKind, string> = {
+  default: COLOR_TOKENS.default,
+  queue: COLOR_TOKENS.idle,
+  merging: COLOR_TOKENS.compare,
+  merged: COLOR_TOKENS.done,
+  done: COLOR_TOKENS.done,
+};
+
+export function resolveHuffmanNodeColor(step: HuffmanStep, nodeId: string): string {
+  const highlightKind = step.highlights[nodeId] ?? 'default';
+  return HUFFMAN_COLOR_BY_KIND[highlightKind];
+}
+
+const TIMELINE_COLOR_BY_STATE: Record<TimelineIntervalState, string> = {
+  idle: COLOR_TOKENS.idle,
+  considering: COLOR_TOKENS.current,
+  selected: COLOR_TOKENS.done,
+  rejected: COLOR_TOKENS.swap,
+};
+
+export function resolveTimelineIntervalColor(step: TimelineStep, intervalId: string): string {
+  const state = step.highlights[intervalId] ?? 'idle';
+  return TIMELINE_COLOR_BY_STATE[state];
 }
 
 export const VISUALIZATION_COLOR_TOKENS = COLOR_TOKENS;

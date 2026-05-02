@@ -37,6 +37,12 @@ const sections = computed(() => [
     defaultOpen: false,
     items: algorithmMenuByCategory['dynamic-programming'],
   },
+  {
+    label: '贪心算法',
+    category: 'greedy' as const,
+    defaultOpen: false,
+    items: algorithmMenuByCategory.greedy,
+  },
 ]);
 
 const filteredSections = computed(() => {

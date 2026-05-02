@@ -48,6 +48,30 @@ const DP_LCS_STRING_LEN_MAX = 8;
 const DP_LCS_DEFAULT_X = 'ABCBDAB';
 const DP_LCS_DEFAULT_Y = 'BDCABA';
 
+const HUFFMAN_DEFAULT_INPUT = 'abracadabra';
+const HUFFAN_PRESET_STRINGS = [
+  'abracadabra',
+  'hello world',
+  'greedy algorithm',
+  'data compression',
+  'binary tree',
+];
+
+const ACTIVITY_DEFAULT_INTERVALS = [
+  { start: 1, end: 4, label: 'A' },
+  { start: 3, end: 5, label: 'B' },
+  { start: 0, end: 6, label: 'C' },
+  { start: 5, end: 7, label: 'D' },
+  { start: 3, end: 9, label: 'E' },
+  { start: 5, end: 9, label: 'F' },
+  { start: 6, end: 10, label: 'G' },
+  { start: 8, end: 11, label: 'H' },
+  { start: 8, end: 12, label: 'I' },
+  { start: 2, end: 14, label: 'J' },
+];
+const ACTIVITY_MIN_INTERVALS = 4;
+const ACTIVITY_MAX_INTERVALS = 12;
+
 export { SORTING_MIN_SIZE, SORTING_MAX_SIZE };
 export { GRAPH_MIN_NODES, GRAPH_MAX_NODES };
 export { HANOI_MIN_DISKS, HANOI_MAX_DISKS };
@@ -60,6 +84,7 @@ export {
   DP_KNAPSACK_ITEMS_MAX,
 };
 export { DP_LCS_STRING_LEN_MIN, DP_LCS_STRING_LEN_MAX };
+export { ACTIVITY_MIN_INTERVALS, ACTIVITY_MAX_INTERVALS };
 
 function clampSortingSize(size: number) {
   return Math.min(SORTING_MAX_SIZE, Math.max(SORTING_MIN_SIZE, size));
@@ -128,7 +153,7 @@ function createRandomGraphData(nodeIds: readonly string[]) {
 
   const edges: GraphEdge[] = [...edgeSet].map(key => {
     const [source, target] = key.split('|');
-    return { source, target };
+    return { source, target, weight: Math.floor(Math.random() * 20) + 1 };
   });
 
   const nodes = computeStableForceLayout(nodeIds, edges, {
@@ -194,6 +219,8 @@ export const useAlgorithmInputsStore = defineStore('algorithm-inputs', () => {
   ]);
   const dpLcsStringX = ref(DP_LCS_DEFAULT_X);
   const dpLcsStringY = ref(DP_LCS_DEFAULT_Y);
+  const huffmanInput = ref(HUFFMAN_DEFAULT_INPUT);
+  const activityIntervals = ref([...ACTIVITY_DEFAULT_INTERVALS]);
   const dataVersion = ref(0);
 
   function getGraphNodeIds() {
@@ -477,9 +504,48 @@ export const useAlgorithmInputsStore = defineStore('algorithm-inputs', () => {
     randomizeDpLcsStrings();
   }
 
+  function setHuffmanInput(s: string) {
+    if (s !== huffmanInput.value) {
+      huffmanInput.value = s;
+      dataVersion.value += 1;
+    }
+  }
+
+  function randomizeHuffmanInput() {
+    const current = huffmanInput.value;
+    let next = current;
+    while (next === current && HUFFAN_PRESET_STRINGS.length > 1) {
+      next = HUFFAN_PRESET_STRINGS[Math.floor(Math.random() * HUFFAN_PRESET_STRINGS.length)];
+    }
+    huffmanInput.value = next;
+    dataVersion.value += 1;
+  }
+
+  function randomizeActivityIntervals(count?: number) {
+    const n = Math.min(
+      ACTIVITY_MAX_INTERVALS,
+      Math.max(ACTIVITY_MIN_INTERVALS, Math.trunc(count ?? activityIntervals.value.length))
+    );
+    const intervals: { start: number; end: number; label: string }[] = [];
+    for (let i = 0; i < n; i++) {
+      const start = Math.floor(Math.random() * 12);
+      const end = start + 1 + Math.floor(Math.random() * 8);
+      intervals.push({ start, end, label: String.fromCharCode(65 + i) });
+    }
+    intervals.sort((a, b) => a.start - b.start);
+    activityIntervals.value = intervals;
+    dataVersion.value += 1;
+  }
+
+  function setActivityIntervalCount(count: number) {
+    randomizeActivityIntervals(count);
+  }
+
   function exportGraphAsJsonText() {
     const nodeIds = graphNodes.value.map(n => n.id);
-    const edgeTuples = graphEdges.value.map(e => [e.source, e.target] as [string, string]);
+    const edgeTuples = graphEdges.value.map(e =>
+      e.weight != null ? [e.source, e.target, e.weight] : [e.source, e.target]
+    );
     return JSON.stringify(
       {
         formatVersion: GRAPH_SNAPSHOT_FORMAT_VERSION,
@@ -587,6 +653,12 @@ export const useAlgorithmInputsStore = defineStore('algorithm-inputs', () => {
     setDpLcsStringY,
     randomizeDpLcsStrings,
     randomizeDpAlgorithmInput,
+    huffmanInput,
+    activityIntervals,
+    setHuffmanInput,
+    randomizeHuffmanInput,
+    randomizeActivityIntervals,
+    setActivityIntervalCount,
     dataVersion,
     randomizeAlgorithmInput,
     randomizeGraphInput,

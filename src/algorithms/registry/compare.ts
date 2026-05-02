@@ -11,7 +11,8 @@ export function isAlgorithmCategory(value: string): value is AlgorithmCategory {
     value === 'graphs' ||
     value === 'trees' ||
     value === 'divide-conquer' ||
-    value === 'dynamic-programming'
+    value === 'dynamic-programming' ||
+    value === 'greedy'
   );
 }
 
@@ -41,6 +42,9 @@ export function resolveAlgorithmBySlug(slug: string) {
 
   const dpAlgorithm = findAlgorithm('dynamic-programming', slug);
   if (dpAlgorithm) return dpAlgorithm;
+
+  const greedyAlgorithm = findAlgorithm('greedy', slug);
+  if (greedyAlgorithm) return greedyAlgorithm;
 
   return findAlgorithm('divide-conquer', slug) ?? null;
 }

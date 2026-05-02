@@ -240,13 +240,57 @@ function renderGraph(step: GraphStep | null) {
       return t => interpolator(t);
     });
 
+  // Edge weight labels
+  const hasAnyWeight = edges.some(e => e.weight != null);
+  const edgeWeightSelection = edgeLayer
+    .selectAll<SVGTextElement, GraphEdge>('text.edge-weight')
+    .data(hasAnyWeight ? edges : [], (edge: GraphEdge) => `w-${getEdgeKey(edge)}`)
+    .join(
+      enter =>
+        enter
+          .append('text')
+          .attr('class', 'edge-weight')
+          .attr('text-anchor', 'middle')
+          .attr('font-size', 10)
+          .attr('font-weight', 600)
+          .attr('fill', resolveCssColorToken(svgElement, VISUALIZATION_COLOR_TOKENS.frontier))
+          .attr('dy', -6),
+      update => update,
+      exit => exit.remove()
+    );
+
   function updateEdgePositions() {
     edgeSelection
       .attr('x1', (edge: GraphEdge) => resolveNodePosition(nodeMap, edge.source).x)
       .attr('y1', (edge: GraphEdge) => resolveNodePosition(nodeMap, edge.source).y)
       .attr('x2', (edge: GraphEdge) => resolveNodePosition(nodeMap, edge.target).x)
       .attr('y2', (edge: GraphEdge) => resolveNodePosition(nodeMap, edge.target).y);
+
+    edgeWeightSelection
+      .attr('x', (edge: GraphEdge) => {
+        const s = resolveNodePosition(nodeMap, edge.source);
+        const t = resolveNodePosition(nodeMap, edge.target);
+        return (s.x + t.x) / 2;
+      })
+      .attr('y', (edge: GraphEdge) => {
+        const s = resolveNodePosition(nodeMap, edge.source);
+        const t = resolveNodePosition(nodeMap, edge.target);
+        return (s.y + t.y) / 2;
+      });
   }
+
+  edgeWeightSelection
+    .text((edge: GraphEdge) => (edge.weight != null ? String(edge.weight) : ''))
+    .attr('x', (edge: GraphEdge) => {
+      const s = resolveNodePosition(nodeMap, edge.source);
+      const t = resolveNodePosition(nodeMap, edge.target);
+      return (s.x + t.x) / 2;
+    })
+    .attr('y', (edge: GraphEdge) => {
+      const s = resolveNodePosition(nodeMap, edge.source);
+      const t = resolveNodePosition(nodeMap, edge.target);
+      return (s.y + t.y) / 2;
+    });
 
   const nodeLayer = root
     .selectAll<SVGGElement, null>('g.graph-nodes')
@@ -281,6 +325,16 @@ function renderGraph(step: GraphStep | null) {
           .attr('font-weight', 600)
           .attr('fill', textColor)
           .text((node: GraphNode) => node.id);
+
+        group
+          .append('text')
+          .attr('class', 'node-label')
+          .attr('x', 0)
+          .attr('y', GRAPH_NODE_RADIUS + 14)
+          .attr('text-anchor', 'middle')
+          .attr('font-size', 11)
+          .attr('font-weight', 500)
+          .attr('fill', textColor);
 
         return group;
       },
@@ -384,6 +438,14 @@ function renderGraph(step: GraphStep | null) {
     .attr('font-weight', 600)
     .attr('fill', textColor)
     .text((node: GraphNode) => node.id);
+
+  const nodeLabels = step?.nodeLabels;
+  nodeGroup
+    .select<SVGTextElement>('text.node-label')
+    .interrupt()
+    .transition(transition)
+    .attr('fill', textColor)
+    .text((node: GraphNode) => nodeLabels?.[node.id] ?? '');
 
   if (!isPlaying.value) {
     const dragBehavior = d3

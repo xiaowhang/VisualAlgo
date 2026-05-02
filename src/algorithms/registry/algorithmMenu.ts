@@ -19,5 +19,6 @@ export const algorithmMenuByCategory = algorithmRegistry.reduce<
     trees: [],
     'divide-conquer': [],
     'dynamic-programming': [],
+    greedy: [],
   }
 );

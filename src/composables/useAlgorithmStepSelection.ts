@@ -4,7 +4,9 @@ import type {
   DpTableStep,
   GraphStep,
   HanoiStep,
+  HuffmanStep,
   SortingStep,
+  TimelineStep,
   TreeStep,
 } from '@/types/algorithm';
 
@@ -73,6 +75,22 @@ export function useAlgorithmStepSelection(options: UseAlgorithmStepSelectionOpti
     return step.value;
   });
 
+  const huffmanStep = computed<HuffmanStep | null>(() => {
+    if (!step.value || step.value.kind !== 'huffman') {
+      return null;
+    }
+
+    return step.value;
+  });
+
+  const timelineStep = computed<TimelineStep | null>(() => {
+    if (!step.value || step.value.kind !== 'timeline') {
+      return null;
+    }
+
+    return step.value;
+  });
+
   return {
     stepIndex,
     step,
@@ -81,5 +99,7 @@ export function useAlgorithmStepSelection(options: UseAlgorithmStepSelectionOpti
     treeStep,
     hanoiStep,
     dpTableStep,
+    huffmanStep,
+    timelineStep,
   };
 }

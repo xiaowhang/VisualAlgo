@@ -3,9 +3,17 @@ export type AlgorithmCategory =
   | 'graphs'
   | 'trees'
   | 'divide-conquer'
-  | 'dynamic-programming';
+  | 'dynamic-programming'
+  | 'greedy';
 
-export type VisualizationKind = 'sorting' | 'graph' | 'tree' | 'hanoi' | 'dp-table';
+export type VisualizationKind =
+  | 'sorting'
+  | 'graph'
+  | 'tree'
+  | 'hanoi'
+  | 'dp-table'
+  | 'huffman'
+  | 'timeline';
 
 export type SortingHighlightKind = 'default' | 'compare' | 'swap' | 'pivot' | 'done';
 
@@ -25,6 +33,7 @@ export interface GraphNode {
 export interface GraphEdge {
   source: string;
   target: string;
+  weight?: number;
 }
 
 export interface GraphStep {
@@ -36,6 +45,7 @@ export interface GraphStep {
   frontier: string[];
   order: string[];
   description: string;
+  nodeLabels?: Partial<Record<string, string>>;
 }
 
 export type TreeHighlightKind = 'default' | 'current' | 'compare' | 'swap' | 'visited' | 'done';
@@ -81,7 +91,55 @@ export interface DpTableStep {
   description: string;
 }
 
-export type AlgorithmStep = SortingStep | GraphStep | TreeStep | HanoiStep | DpTableStep;
+export type HuffmanHighlightKind = 'default' | 'queue' | 'merging' | 'merged' | 'done';
+
+export interface HuffmanNode {
+  id: string;
+  char: string | null;
+  weight: number;
+  x: number;
+  y: number;
+  left: string | null;
+  right: string | null;
+}
+
+export interface HuffmanStep {
+  kind: 'huffman';
+  nodes: HuffmanNode[];
+  edges: { source: string; target: string }[];
+  queue: string[];
+  merged: [string, string] | null;
+  newParent: string | null;
+  highlights: Partial<Record<string, HuffmanHighlightKind>>;
+  description: string;
+}
+
+export interface TimelineInterval {
+  id: string;
+  start: number;
+  end: number;
+  label: string;
+}
+
+export type TimelineIntervalState = 'idle' | 'considering' | 'selected' | 'rejected';
+
+export interface TimelineStep {
+  kind: 'timeline';
+  intervals: TimelineInterval[];
+  highlights: Partial<Record<string, TimelineIntervalState>>;
+  currentInterval: string | null;
+  lastSelected: string | null;
+  description: string;
+}
+
+export type AlgorithmStep =
+  | SortingStep
+  | GraphStep
+  | TreeStep
+  | HanoiStep
+  | DpTableStep
+  | HuffmanStep
+  | TimelineStep;
 
 export interface AlgorithmDefinition {
   id: string;
