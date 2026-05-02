@@ -27,6 +27,8 @@ interface UseSettingsInputFormOptions {
   greedyAlgorithmSlug: Readonly<Ref<string>>;
   isDpAlgorithm: Readonly<Ref<boolean>>;
   dpAlgorithmSlug: Readonly<Ref<string>>;
+  isBacktrackingAlgorithm: Readonly<Ref<boolean>>;
+  backtrackingAlgorithmSlug: Readonly<Ref<string>>;
 }
 
 export function useSettingsInputForm(options: UseSettingsInputFormOptions) {
@@ -330,6 +332,69 @@ export function useSettingsInputForm(options: UseSettingsInputFormOptions) {
     dpMessageError.value = false;
   }
 
+  const nQueensSizeInput = ref(String(algorithmInputsStore.nQueensSize));
+  const subsetSumArrayInput = ref(algorithmInputsStore.subsetSumArray.join(', '));
+  const subsetSumTargetInput = ref(String(algorithmInputsStore.subsetSumTarget));
+  const backtrackingMessage = ref('');
+  const backtrackingMessageError = ref(false);
+
+  watch(
+    () => algorithmInputsStore.nQueensSize,
+    value => {
+      nQueensSizeInput.value = String(value);
+    }
+  );
+
+  watch(
+    () => algorithmInputsStore.subsetSumArray,
+    value => {
+      subsetSumArrayInput.value = value.join(', ');
+    }
+  );
+
+  watch(
+    () => algorithmInputsStore.subsetSumTarget,
+    value => {
+      subsetSumTargetInput.value = String(value);
+    }
+  );
+
+  function applyNQueensSize() {
+    const parsed = Math.trunc(Number(nQueensSizeInput.value));
+    algorithmInputsStore.setNQueensSize(parsed);
+    nQueensSizeInput.value = String(algorithmInputsStore.nQueensSize);
+    backtrackingMessage.value = `已设置棋盘大小为 ${algorithmInputsStore.nQueensSize}×${algorithmInputsStore.nQueensSize}。`;
+    backtrackingMessageError.value = false;
+  }
+
+  function applySubsetSum() {
+    const nums = subsetSumArrayInput.value
+      .split(/[,，\s]+/)
+      .map(s => Number(s.trim()))
+      .filter(v => Number.isFinite(v));
+    const target = Math.trunc(Number(subsetSumTargetInput.value));
+    algorithmInputsStore.setSubsetSumArray(nums);
+    algorithmInputsStore.setSubsetSumTarget(target);
+    subsetSumArrayInput.value = algorithmInputsStore.subsetSumArray.join(', ');
+    subsetSumTargetInput.value = String(algorithmInputsStore.subsetSumTarget);
+    backtrackingMessage.value = `已设置子集和数据：[${algorithmInputsStore.subsetSumArray.join(', ')}]，目标=${algorithmInputsStore.subsetSumTarget}。`;
+    backtrackingMessageError.value = false;
+  }
+
+  function randomizeBacktracking() {
+    const slug = options.backtrackingAlgorithmSlug.value;
+    if (slug === 'n-queens') {
+      algorithmInputsStore.randomizeNQueensInput();
+      nQueensSizeInput.value = String(algorithmInputsStore.nQueensSize);
+    } else if (slug === 'subset-sum') {
+      algorithmInputsStore.randomizeSubsetSumInput();
+      subsetSumArrayInput.value = algorithmInputsStore.subsetSumArray.join(', ');
+      subsetSumTargetInput.value = String(algorithmInputsStore.subsetSumTarget);
+    }
+    backtrackingMessage.value = '已随机生成新数据。';
+    backtrackingMessageError.value = false;
+  }
+
   function normalizeSizeInput(rawValue: string) {
     const parsed = Number(rawValue);
 
@@ -527,6 +592,11 @@ export function useSettingsInputForm(options: UseSettingsInputFormOptions) {
 
     if (options.isDpAlgorithm.value) {
       randomizeDp();
+      return;
+    }
+
+    if (options.isBacktrackingAlgorithm.value) {
+      randomizeBacktracking();
       return;
     }
 
@@ -777,5 +847,13 @@ export function useSettingsInputForm(options: UseSettingsInputFormOptions) {
     applyDpKnapsack,
     applyDpInvestment,
     randomizeDp,
+    nQueensSizeInput,
+    subsetSumArrayInput,
+    subsetSumTargetInput,
+    backtrackingMessage,
+    backtrackingMessageError,
+    applyNQueensSize,
+    applySubsetSum,
+    randomizeBacktracking,
   };
 }

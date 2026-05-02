@@ -43,6 +43,12 @@ const sections = computed(() => [
     defaultOpen: false,
     items: algorithmMenuByCategory.greedy,
   },
+  {
+    label: '回溯算法',
+    category: 'backtracking' as const,
+    defaultOpen: false,
+    items: algorithmMenuByCategory.backtracking,
+  },
 ]);
 
 const filteredSections = computed(() => {

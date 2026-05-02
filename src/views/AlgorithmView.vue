@@ -9,6 +9,8 @@ import HuffmanTreeVisualizer from '@/components/visualization/HuffmanTreeVisuali
 import TimelineVisualizer from '@/components/visualization/TimelineVisualizer.vue';
 import SortingChart from '@/components/visualization/SortingChart.vue';
 import TreeVisualizer from '@/components/visualization/TreeVisualizer.vue';
+import ChessboardView from '@/components/visualization/ChessboardView.vue';
+import DecisionTreeView from '@/components/visualization/DecisionTreeView.vue';
 import { findAlgorithm } from '@/algorithms/registry';
 import { useAlgorithmStepSelection } from '@/composables/useAlgorithmStepSelection';
 import { useAlgorithmInputsStore } from '@/stores/algorithmInputs';
@@ -43,11 +45,20 @@ const activeAlgorithm = computed(() => {
 
 const steps = computed(() => activeAlgorithm.value?.createSteps() ?? []);
 
-const { sortingStep, graphStep, treeStep, hanoiStep, dpTableStep, huffmanStep, timelineStep } =
-  useAlgorithmStepSelection({
-    steps,
-    currentStep: playback.currentStep,
-  });
+const {
+  sortingStep,
+  graphStep,
+  treeStep,
+  hanoiStep,
+  dpTableStep,
+  huffmanStep,
+  timelineStep,
+  chessboardStep,
+  decisionTreeStep,
+} = useAlgorithmStepSelection({
+  steps,
+  currentStep: playback.currentStep,
+});
 
 const graphAlgorithmKey = computed(() => {
   if (!activeAlgorithm.value || activeAlgorithm.value.visualization !== 'graph') {
@@ -178,6 +189,16 @@ watch(
           v-else-if="activeAlgorithm.visualization === 'timeline'"
           class="h-full w-full"
           :step="timelineStep"
+        />
+        <ChessboardView
+          v-else-if="activeAlgorithm.visualization === 'chessboard'"
+          class="h-full w-full"
+          :step="chessboardStep"
+        />
+        <DecisionTreeView
+          v-else-if="activeAlgorithm.visualization === 'decision-tree'"
+          class="h-full w-full"
+          :step="decisionTreeStep"
         />
       </div>
     </Card>

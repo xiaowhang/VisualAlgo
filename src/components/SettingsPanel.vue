@@ -33,6 +33,15 @@ const {
   greedyAlgorithmSlug,
   isDpAlgorithm,
   dpAlgorithmSlug,
+  isBacktrackingAlgorithm,
+  backtrackingAlgorithmSlug,
+  nQueensSizeInput,
+  subsetSumArrayInput,
+  subsetSumTargetInput,
+  backtrackingMessage,
+  backtrackingMessageError,
+  applyNQueensSize,
+  applySubsetSum,
   panelTitle,
   panelDescription,
   stepDescription,
@@ -150,6 +159,9 @@ void panelScrollRef;
           v-model:dp-knapsack-item-count="dpKnapsackItemCountInput"
           v-model:dp-investment-count="dpInvestmentCountInput"
           v-model:dp-investment-resources="dpInvestmentResourcesInput"
+          v-model:n-queens-size="nQueensSizeInput"
+          v-model:subset-sum-array="subsetSumArrayInput"
+          v-model:subset-sum-target="subsetSumTargetInput"
           :is-sorting-algorithm="isSortingAlgorithm"
           :is-graph-algorithm="isGraphAlgorithm"
           :is-tree-algorithm="isTreeAlgorithm"
@@ -158,6 +170,8 @@ void panelScrollRef;
           :greedy-algorithm-slug="greedyAlgorithmSlug"
           :is-dp-algorithm="isDpAlgorithm"
           :dp-algorithm-slug="dpAlgorithmSlug"
+          :is-backtracking-algorithm="isBacktrackingAlgorithm"
+          :backtracking-algorithm-slug="backtrackingAlgorithmSlug"
           :sorting-data="sortingData"
           :graph-data="graphData"
           :tree-data="treeData"
@@ -165,6 +179,10 @@ void panelScrollRef;
           :hanoi-message-error="hanoiMessageError"
           :huffman-validation="{ message: huffmanMessage, error: huffmanMessageError }"
           :dp-validation="{ message: dpMessage, error: dpMessageError }"
+          :backtracking-validation="{
+            message: backtrackingMessage,
+            error: backtrackingMessageError,
+          }"
           @randomize-data="randomizeData"
           @apply-size="applySizeFromInput"
           @apply-graph-node-count="applyGraphNodeCountFromInput"
@@ -178,6 +196,8 @@ void panelScrollRef;
           @apply-dp-lcs="applyDpLcs"
           @apply-dp-knapsack="applyDpKnapsack"
           @apply-dp-investment="applyDpInvestment"
+          @apply-n-queens-size="applyNQueensSize"
+          @apply-subset-sum="applySubsetSum"
         />
       </TabsContent>
 
@@ -188,6 +208,7 @@ void panelScrollRef;
           :is-tree-algorithm="isTreeAlgorithm"
           :is-hanoi-algorithm="isHanoiAlgorithm"
           :is-dp-algorithm="isDpAlgorithm"
+          :is-backtracking-algorithm="isBacktrackingAlgorithm"
           :custom-data-message="customDataMessage"
           :custom-data-error="customDataError"
           @export-json="exportJsonFile"

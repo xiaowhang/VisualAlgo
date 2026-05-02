@@ -7,6 +7,7 @@ import type {
   ValidationState,
 } from '@/features/settings/types';
 import { HANOI_MAX_DISKS, HANOI_MIN_DISKS } from '@/stores/algorithmInputs';
+import BacktrackingDataSection from './BacktrackingDataSection.vue';
 import DpDataSection from './DpDataSection.vue';
 import GraphDataSection from './GraphDataSection.vue';
 import GreedyDataSection from './GreedyDataSection.vue';
@@ -29,6 +30,9 @@ const dpKnapsackCapacity = defineModel<string>('dpKnapsackCapacity', { required:
 const dpKnapsackItemCount = defineModel<string>('dpKnapsackItemCount', { required: true });
 const dpInvestmentCount = defineModel<string>('dpInvestmentCount', { required: true });
 const dpInvestmentResources = defineModel<string>('dpInvestmentResources', { required: true });
+const nQueensSize = defineModel<string>('nQueensSize', { required: true });
+const subsetSumArray = defineModel<string>('subsetSumArray', { required: true });
+const subsetSumTarget = defineModel<string>('subsetSumTarget', { required: true });
 
 interface Props {
   isSortingAlgorithm: boolean;
@@ -39,6 +43,8 @@ interface Props {
   greedyAlgorithmSlug: string;
   isDpAlgorithm: boolean;
   dpAlgorithmSlug: string;
+  isBacktrackingAlgorithm: boolean;
+  backtrackingAlgorithmSlug: string;
   sortingData: SortingSectionData;
   graphData: GraphSectionData;
   treeData: TreeSectionData;
@@ -46,6 +52,7 @@ interface Props {
   hanoiMessageError: boolean;
   huffmanValidation: { message: string; error: boolean };
   dpValidation: { message: string; error: boolean };
+  backtrackingValidation: { message: string; error: boolean };
 }
 
 const props = defineProps<Props>();
@@ -65,6 +72,8 @@ interface Emits {
   (event: 'apply-dp-knapsack'): void;
   (event: 'apply-dp-investment'): void;
   (event: 'randomize-dp'): void;
+  (event: 'apply-n-queens-size'): void;
+  (event: 'apply-subset-sum'): void;
 }
 
 const emit = defineEmits<Emits>();
@@ -145,6 +154,17 @@ const hanoiState = computed<ValidationState>(() => ({
       @apply-dp-lcs="emit('apply-dp-lcs')"
       @apply-dp-knapsack="emit('apply-dp-knapsack')"
       @apply-dp-investment="emit('apply-dp-investment')"
+    />
+
+    <BacktrackingDataSection
+      v-if="props.isBacktrackingAlgorithm"
+      :algorithm-slug="props.backtrackingAlgorithmSlug"
+      :n-queens-size="nQueensSize"
+      :subset-sum-array="subsetSumArray"
+      :subset-sum-target="subsetSumTarget"
+      :backtracking-validation="props.backtrackingValidation"
+      @apply-n-queens-size="emit('apply-n-queens-size')"
+      @apply-subset-sum="emit('apply-subset-sum')"
     />
 
     <FieldSet v-if="props.isHanoiAlgorithm">

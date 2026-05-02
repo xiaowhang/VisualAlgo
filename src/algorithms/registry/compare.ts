@@ -12,7 +12,8 @@ export function isAlgorithmCategory(value: string): value is AlgorithmCategory {
     value === 'trees' ||
     value === 'divide-conquer' ||
     value === 'dynamic-programming' ||
-    value === 'greedy'
+    value === 'greedy' ||
+    value === 'backtracking'
   );
 }
 
@@ -45,6 +46,9 @@ export function resolveAlgorithmBySlug(slug: string) {
 
   const greedyAlgorithm = findAlgorithm('greedy', slug);
   if (greedyAlgorithm) return greedyAlgorithm;
+
+  const backtrackingAlgorithm = findAlgorithm('backtracking', slug);
+  if (backtrackingAlgorithm) return backtrackingAlgorithm;
 
   return findAlgorithm('divide-conquer', slug) ?? null;
 }

@@ -99,3 +99,15 @@ export function getActivityInput(): {
     intervals: useAlgorithmInputsStore().activityIntervals.map(interval => ({ ...interval })),
   };
 }
+
+export function getNQueensSize(): number {
+  return useAlgorithmInputsStore().nQueensSize;
+}
+
+export function getSubsetSumInput(): { nums: number[]; target: number } {
+  const store = useAlgorithmInputsStore();
+  return {
+    nums: [...store.subsetSumArray],
+    target: store.subsetSumTarget,
+  };
+}

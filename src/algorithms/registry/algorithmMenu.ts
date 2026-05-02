@@ -20,5 +20,6 @@ export const algorithmMenuByCategory = algorithmRegistry.reduce<
     'divide-conquer': [],
     'dynamic-programming': [],
     greedy: [],
+    backtracking: [],
   }
 );

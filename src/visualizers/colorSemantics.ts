@@ -1,4 +1,8 @@
 import type {
+  ChessboardHighlightKind,
+  ChessboardStep,
+  DecisionTreeHighlightKind,
+  DecisionTreeStep,
   DpHighlightKind,
   DpTableStep,
   GraphStep,
@@ -114,6 +118,35 @@ const TIMELINE_COLOR_BY_STATE: Record<TimelineIntervalState, string> = {
 export function resolveTimelineIntervalColor(step: TimelineStep, intervalId: string): string {
   const state = step.highlights[intervalId] ?? 'idle';
   return TIMELINE_COLOR_BY_STATE[state];
+}
+
+const CHESSBOARD_COLOR_BY_KIND: Record<ChessboardHighlightKind, string> = {
+  default: COLOR_TOKENS.idle,
+  queen: COLOR_TOKENS.done,
+  current: COLOR_TOKENS.current,
+  conflict: COLOR_TOKENS.swap,
+  safe: COLOR_TOKENS.visited,
+  backtrack: COLOR_TOKENS.compare,
+};
+
+export function resolveChessboardCellColor(step: ChessboardStep, key: string): string {
+  const highlightKind = step.highlights[key] ?? 'default';
+  return CHESSBOARD_COLOR_BY_KIND[highlightKind];
+}
+
+const DECISION_TREE_COLOR_BY_KIND: Record<DecisionTreeHighlightKind, string> = {
+  default: COLOR_TOKENS.idle,
+  current: COLOR_TOKENS.current,
+  considering: COLOR_TOKENS.frontier,
+  selected: COLOR_TOKENS.visited,
+  pruned: COLOR_TOKENS.swap,
+  solution: COLOR_TOKENS.done,
+  backtrack: COLOR_TOKENS.compare,
+};
+
+export function resolveDecisionTreeNodeColor(step: DecisionTreeStep, nodeId: string): string {
+  const highlightKind = step.highlights[nodeId] ?? 'default';
+  return DECISION_TREE_COLOR_BY_KIND[highlightKind];
 }
 
 export const VISUALIZATION_COLOR_TOKENS = COLOR_TOKENS;

@@ -162,8 +162,15 @@ export function useSettingsPanelViewModel() {
       activeAlgorithm.value?.category === 'greedy'
   );
 
+  const isBacktrackingAlgorithm = computed(
+    () =>
+      (isCompareView.value && visibleCompareCategory.value === 'backtracking') ||
+      activeAlgorithm.value?.category === 'backtracking'
+  );
+
   const greedyAlgorithmSlug = computed(() => activeAlgorithm.value?.slug ?? '');
   const dpAlgorithmSlug = computed(() => activeAlgorithm.value?.slug ?? '');
+  const backtrackingAlgorithmSlug = computed(() => activeAlgorithm.value?.slug ?? '');
 
   const inputForm = useSettingsInputForm({
     isGraphAlgorithm,
@@ -173,6 +180,8 @@ export function useSettingsPanelViewModel() {
     greedyAlgorithmSlug,
     isDpAlgorithm,
     dpAlgorithmSlug,
+    isBacktrackingAlgorithm,
+    backtrackingAlgorithmSlug,
   });
 
   const panelTitle = computed(() => {
@@ -182,6 +191,7 @@ export function useSettingsPanelViewModel() {
       if (visibleCompareCategory.value === 'divide-conquer') return '分治算法对比';
       if (visibleCompareCategory.value === 'dynamic-programming') return '动态规划对比';
       if (visibleCompareCategory.value === 'greedy') return '贪心算法对比';
+      if (visibleCompareCategory.value === 'backtracking') return '回溯算法对比';
       return '排序算法对比';
     }
     return activeAlgorithm.value?.title ?? '算法未找到';
@@ -202,6 +212,9 @@ export function useSettingsPanelViewModel() {
         return '对比模式共享同一份输入。修改后会同时影响左右算法。';
       }
       if (visibleCompareCategory.value === 'greedy') {
+        return '对比模式共享同一份输入。修改后会同时影响左右算法。';
+      }
+      if (visibleCompareCategory.value === 'backtracking') {
         return '对比模式共享同一份输入。修改后会同时影响左右算法。';
       }
       return '对比模式共享同一份排序输入。修改后会同时影响左右算法。';
@@ -228,6 +241,7 @@ export function useSettingsPanelViewModel() {
       if (visibleCompareCategory.value === 'divide-conquer') return '分治算法对比模式';
       if (visibleCompareCategory.value === 'dynamic-programming') return '动态规划对比模式';
       if (visibleCompareCategory.value === 'greedy') return '贪心算法对比模式';
+      if (visibleCompareCategory.value === 'backtracking') return '回溯算法对比模式';
       return '排序算法对比模式';
     }
     if (isTreeAlgorithm.value) return '树算法';
@@ -235,6 +249,7 @@ export function useSettingsPanelViewModel() {
     if (isDivideConquerAlgorithm.value) return '分治算法';
     if (isDpAlgorithm.value) return '动态规划';
     if (isGreedyAlgorithm.value) return '贪心算法';
+    if (isBacktrackingAlgorithm.value) return '回溯算法';
     return '排序算法';
   });
 
@@ -282,6 +297,8 @@ export function useSettingsPanelViewModel() {
     greedyAlgorithmSlug,
     isDpAlgorithm,
     dpAlgorithmSlug,
+    isBacktrackingAlgorithm,
+    backtrackingAlgorithmSlug,
     panelTitle,
     panelDescription,
     stepDescription,

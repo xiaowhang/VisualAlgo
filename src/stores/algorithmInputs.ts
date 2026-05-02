@@ -58,6 +58,17 @@ const HUFFAN_PRESET_STRINGS = [
   'binary tree',
 ];
 
+const NQUEENS_MIN_SIZE = 4;
+const NQUEENS_MAX_SIZE = 12;
+const NQUEENS_DEFAULT_SIZE = 8;
+
+const SUBSET_SUM_DEFAULT_ARRAY = [2, 4, 6, 8, 10];
+const SUBSET_SUM_DEFAULT_TARGET = 16;
+const SUBSET_SUM_MIN_LEN = 3;
+const SUBSET_SUM_MAX_LEN = 8;
+const SUBSET_SUM_MIN_VALUE = 1;
+const SUBSET_SUM_MAX_VALUE = 30;
+
 const ACTIVITY_DEFAULT_INTERVALS = [
   { start: 1, end: 4, label: 'A' },
   { start: 3, end: 5, label: 'B' },
@@ -86,6 +97,8 @@ export {
 };
 export { DP_LCS_STRING_LEN_MIN, DP_LCS_STRING_LEN_MAX };
 export { ACTIVITY_MIN_INTERVALS, ACTIVITY_MAX_INTERVALS };
+export { NQUEENS_MIN_SIZE, NQUEENS_MAX_SIZE };
+export { SUBSET_SUM_MIN_LEN, SUBSET_SUM_MAX_LEN, SUBSET_SUM_MIN_VALUE, SUBSET_SUM_MAX_VALUE };
 
 function clampSortingSize(size: number) {
   return Math.min(SORTING_MAX_SIZE, Math.max(SORTING_MIN_SIZE, size));
@@ -222,6 +235,9 @@ export const useAlgorithmInputsStore = defineStore('algorithm-inputs', () => {
   const dpLcsStringY = ref(DP_LCS_DEFAULT_Y);
   const huffmanInput = ref(HUFFMAN_DEFAULT_INPUT);
   const activityIntervals = ref([...ACTIVITY_DEFAULT_INTERVALS]);
+  const nQueensSize = ref(NQUEENS_DEFAULT_SIZE);
+  const subsetSumArray = ref([...SUBSET_SUM_DEFAULT_ARRAY]);
+  const subsetSumTarget = ref(SUBSET_SUM_DEFAULT_TARGET);
   const dataVersion = ref(0);
 
   function getGraphNodeIds() {
@@ -542,6 +558,53 @@ export const useAlgorithmInputsStore = defineStore('algorithm-inputs', () => {
     randomizeActivityIntervals(count);
   }
 
+  function setNQueensSize(size: number) {
+    nQueensSize.value = Math.min(NQUEENS_MAX_SIZE, Math.max(NQUEENS_MIN_SIZE, Math.trunc(size)));
+    dataVersion.value += 1;
+  }
+
+  function randomizeNQueensInput() {
+    const sizes = [4, 5, 6, 7, 8, 9, 10, 11, 12];
+    let next = sizes[Math.floor(Math.random() * sizes.length)] ?? NQUEENS_DEFAULT_SIZE;
+    while (next === nQueensSize.value && sizes.length > 1) {
+      next = sizes[Math.floor(Math.random() * sizes.length)] ?? NQUEENS_DEFAULT_SIZE;
+    }
+    nQueensSize.value = next;
+    dataVersion.value += 1;
+  }
+
+  function setSubsetSumArray(arr: number[]) {
+    const clamped = arr
+      .filter(v => Number.isFinite(v))
+      .map(v => Math.min(SUBSET_SUM_MAX_VALUE, Math.max(SUBSET_SUM_MIN_VALUE, Math.trunc(v))))
+      .slice(0, SUBSET_SUM_MAX_LEN);
+    if (clamped.length >= SUBSET_SUM_MIN_LEN) {
+      subsetSumArray.value = clamped;
+      dataVersion.value += 1;
+    }
+  }
+
+  function setSubsetSumTarget(target: number) {
+    subsetSumTarget.value = Math.max(1, Math.trunc(target));
+    dataVersion.value += 1;
+  }
+
+  function randomizeSubsetSumInput() {
+    const len =
+      Math.floor(Math.random() * (SUBSET_SUM_MAX_LEN - SUBSET_SUM_MIN_LEN + 1)) +
+      SUBSET_SUM_MIN_LEN;
+    const arr = Array.from(
+      { length: len },
+      () =>
+        Math.floor(Math.random() * (SUBSET_SUM_MAX_VALUE - SUBSET_SUM_MIN_VALUE + 1)) +
+        SUBSET_SUM_MIN_VALUE
+    );
+    subsetSumArray.value = arr;
+    const sum = arr.reduce((a, b) => a + b, 0);
+    subsetSumTarget.value = Math.floor(Math.random() * sum) + 1;
+    dataVersion.value += 1;
+  }
+
   function exportGraphAsJsonText() {
     const nodeIds = graphNodes.value.map(n => n.id);
     const edgeTuples = graphEdges.value.map(e =>
@@ -750,5 +813,13 @@ export const useAlgorithmInputsStore = defineStore('algorithm-inputs', () => {
     importTreeFromJsonText,
     exportDpAsJsonText,
     importDpFromJsonText,
+    nQueensSize,
+    setNQueensSize,
+    randomizeNQueensInput,
+    subsetSumArray,
+    subsetSumTarget,
+    setSubsetSumArray,
+    setSubsetSumTarget,
+    randomizeSubsetSumInput,
   };
 });

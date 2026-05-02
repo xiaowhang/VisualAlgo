@@ -4,6 +4,7 @@ import { treesRegistries } from '@/algorithms/definitions/trees';
 import { divideConquerRegistries } from '@/algorithms/definitions/divide-conquer';
 import { dynamicProgrammingRegistries } from '@/algorithms/definitions/dynamic-programming';
 import { greedyRegistries } from '@/algorithms/definitions/greedy';
+import { backtrackingRegistries } from '@/algorithms/definitions/backtracking';
 import type { AlgorithmDefinition } from '@/types/algorithm';
 
 export const allAlgorithmRegistries: AlgorithmDefinition[] = [
@@ -13,4 +14,5 @@ export const allAlgorithmRegistries: AlgorithmDefinition[] = [
   ...divideConquerRegistries,
   ...dynamicProgrammingRegistries,
   ...greedyRegistries,
+  ...backtrackingRegistries,
 ];

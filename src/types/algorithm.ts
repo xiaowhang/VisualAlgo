@@ -4,7 +4,8 @@ export type AlgorithmCategory =
   | 'trees'
   | 'divide-conquer'
   | 'dynamic-programming'
-  | 'greedy';
+  | 'greedy'
+  | 'backtracking';
 
 export type VisualizationKind =
   | 'sorting'
@@ -13,7 +14,9 @@ export type VisualizationKind =
   | 'hanoi'
   | 'dp-table'
   | 'huffman'
-  | 'timeline';
+  | 'timeline'
+  | 'chessboard'
+  | 'decision-tree';
 
 export type SortingHighlightKind = 'default' | 'compare' | 'swap' | 'pivot' | 'done';
 
@@ -132,6 +135,54 @@ export interface TimelineStep {
   description: string;
 }
 
+export type ChessboardHighlightKind =
+  | 'default'
+  | 'queen'
+  | 'current'
+  | 'conflict'
+  | 'safe'
+  | 'backtrack';
+
+export interface ChessboardStep {
+  kind: 'chessboard';
+  size: number;
+  queens: [number, number][];
+  current: [number, number] | null;
+  conflicts: [number, number][];
+  highlights: Partial<Record<string, ChessboardHighlightKind>>;
+  phase: 'placing' | 'backtracking' | 'done';
+  description: string;
+}
+
+export type DecisionTreeHighlightKind =
+  | 'default'
+  | 'current'
+  | 'considering'
+  | 'selected'
+  | 'pruned'
+  | 'solution'
+  | 'backtrack';
+
+export interface DecisionTreeNode {
+  id: string;
+  label: string;
+  depth: number;
+  remaining: number;
+  taken: number[];
+  x: number;
+  y: number;
+}
+
+export interface DecisionTreeStep {
+  kind: 'decision-tree';
+  nodes: DecisionTreeNode[];
+  edges: { source: string; target: string }[];
+  current: string | null;
+  solutionPaths: number[][];
+  highlights: Partial<Record<string, DecisionTreeHighlightKind>>;
+  description: string;
+}
+
 export type AlgorithmStep =
   | SortingStep
   | GraphStep
@@ -139,7 +190,9 @@ export type AlgorithmStep =
   | HanoiStep
   | DpTableStep
   | HuffmanStep
-  | TimelineStep;
+  | TimelineStep
+  | ChessboardStep
+  | DecisionTreeStep;
 
 export interface AlgorithmDefinition {
   id: string;

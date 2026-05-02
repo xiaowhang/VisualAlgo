@@ -1,6 +1,8 @@
 import { computed, toValue, type MaybeRefOrGetter } from 'vue';
 import type {
   AlgorithmStep,
+  ChessboardStep,
+  DecisionTreeStep,
   DpTableStep,
   GraphStep,
   HanoiStep,
@@ -91,6 +93,22 @@ export function useAlgorithmStepSelection(options: UseAlgorithmStepSelectionOpti
     return step.value;
   });
 
+  const chessboardStep = computed<ChessboardStep | null>(() => {
+    if (!step.value || step.value.kind !== 'chessboard') {
+      return null;
+    }
+
+    return step.value;
+  });
+
+  const decisionTreeStep = computed<DecisionTreeStep | null>(() => {
+    if (!step.value || step.value.kind !== 'decision-tree') {
+      return null;
+    }
+
+    return step.value;
+  });
+
   return {
     stepIndex,
     step,
@@ -101,5 +119,7 @@ export function useAlgorithmStepSelection(options: UseAlgorithmStepSelectionOpti
     dpTableStep,
     huffmanStep,
     timelineStep,
+    chessboardStep,
+    decisionTreeStep,
   };
 }
