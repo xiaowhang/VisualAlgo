@@ -8,6 +8,10 @@ import type {
   GraphStep,
   HuffmanHighlightKind,
   HuffmanStep,
+  LpTableauHighlightKind,
+  LpTableauStep,
+  NetworkFlowHighlightKind,
+  NetworkFlowStep,
   SortingHighlightKind,
   SortingStep,
   TimelineIntervalState,
@@ -147,6 +151,62 @@ const DECISION_TREE_COLOR_BY_KIND: Record<DecisionTreeHighlightKind, string> = {
 export function resolveDecisionTreeNodeColor(step: DecisionTreeStep, nodeId: string): string {
   const highlightKind = step.highlights[nodeId] ?? 'default';
   return DECISION_TREE_COLOR_BY_KIND[highlightKind];
+}
+
+// --- 网络流 ---
+const NETWORK_FLOW_NODE_COLOR_BY_KIND: Record<NetworkFlowHighlightKind, string> = {
+  default: COLOR_TOKENS.idle,
+  current: COLOR_TOKENS.current,
+  augmenting: COLOR_TOKENS.frontier,
+  saturated: COLOR_TOKENS.swap,
+  'min-cut-s': COLOR_TOKENS.visited,
+  'min-cut-t': COLOR_TOKENS.compare,
+  bottleneck: COLOR_TOKENS.swap,
+};
+
+export function resolveNetworkFlowNodeColor(step: NetworkFlowStep, nodeId: string): string {
+  const highlightKind = step.highlights[nodeId];
+  if (highlightKind) return NETWORK_FLOW_NODE_COLOR_BY_KIND[highlightKind];
+
+  if (nodeId === step.source) return COLOR_TOKENS.visited;
+  if (nodeId === step.sink) return COLOR_TOKENS.done;
+  return COLOR_TOKENS.idle;
+}
+
+export function resolveNetworkFlowEdgeColor(step: NetworkFlowStep, edgeKey: string): string {
+  if (step.augmentingPath) {
+    const [src, tgt] = edgeKey.split('->');
+    for (let i = 0; i < step.augmentingPath.length - 1; i++) {
+      if (
+        (step.augmentingPath[i] === src && step.augmentingPath[i + 1] === tgt) ||
+        (step.augmentingPath[i] === tgt && step.augmentingPath[i + 1] === src)
+      ) {
+        return COLOR_TOKENS.frontier;
+      }
+    }
+  }
+
+  const edge = step.edges.find(e => `${e.source}->${e.target}` === edgeKey);
+  if (edge && edge.flow >= edge.capacity) return COLOR_TOKENS.swap;
+  return COLOR_TOKENS.border;
+}
+
+// --- 线性规划表 ---
+const LP_TABLEAU_COLOR_BY_KIND: Record<LpTableauHighlightKind, string> = {
+  default: COLOR_TOKENS.idle,
+  'pivot-row': 'var(--chart-2)',
+  'pivot-col': 'var(--chart-2)',
+  'pivot-cell': COLOR_TOKENS.current,
+  entering: COLOR_TOKENS.visited,
+  leaving: COLOR_TOKENS.swap,
+  objective: COLOR_TOKENS.compare,
+  optimal: COLOR_TOKENS.done,
+};
+
+export function resolveLpTableauCellColor(step: LpTableauStep, key: string): string {
+  const highlightKind = step.highlights[key];
+  if (highlightKind) return LP_TABLEAU_COLOR_BY_KIND[highlightKind];
+  return LP_TABLEAU_COLOR_BY_KIND.default;
 }
 
 export const VISUALIZATION_COLOR_TOKENS = COLOR_TOKENS;

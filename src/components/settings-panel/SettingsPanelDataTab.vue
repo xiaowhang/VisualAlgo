@@ -11,6 +11,8 @@ import BacktrackingDataSection from './BacktrackingDataSection.vue';
 import DpDataSection from './DpDataSection.vue';
 import GraphDataSection from './GraphDataSection.vue';
 import GreedyDataSection from './GreedyDataSection.vue';
+import LpDataSection from './LpDataSection.vue';
+import NetworkFlowDataSection from './NetworkFlowDataSection.vue';
 import SortingDataSection from './SortingDataSection.vue';
 import TreeDataSection from './TreeDataSection.vue';
 
@@ -34,6 +36,12 @@ const dpInvestmentResources = defineModel<string>('dpInvestmentResources', { req
 const nQueensSize = defineModel<string>('nQueensSize', { required: true });
 const subsetSumArray = defineModel<string>('subsetSumArray', { required: true });
 const subsetSumTarget = defineModel<string>('subsetSumTarget', { required: true });
+const networkFlowNodeCount = defineModel<string>('networkFlowNodeCount', { required: true });
+const networkFlowSource = defineModel<string>('networkFlowSource', { required: true });
+const networkFlowSink = defineModel<string>('networkFlowSink', { required: true });
+const lpObjective = defineModel<string>('lpObjective', { required: true });
+const lpConstraints = defineModel<string>('lpConstraints', { required: true });
+const lpConstraintLabels = defineModel<string>('lpConstraintLabels', { required: true });
 
 interface Props {
   isSortingAlgorithm: boolean;
@@ -54,6 +62,14 @@ interface Props {
   huffmanValidation: { message: string; error: boolean };
   dpValidation: { message: string; error: boolean };
   backtrackingValidation: { message: string; error: boolean };
+  isNetworkFlowAlgorithm: boolean;
+  networkFlowAlgorithmSlug: string;
+  networkFlowNodeCountRange: { min: number; max: number };
+  networkFlowNodeIds: string;
+  networkFlowValidation: { message: string; error: boolean };
+  isLpAlgorithm: boolean;
+  lpAlgorithmSlug: string;
+  lpValidation: { message: string; error: boolean };
 }
 
 const props = defineProps<Props>();
@@ -76,6 +92,10 @@ interface Emits {
   (event: 'randomize-dp'): void;
   (event: 'apply-n-queens-size'): void;
   (event: 'apply-subset-sum'): void;
+  (event: 'apply-network-flow-node-count'): void;
+  (event: 'apply-network-flow-source'): void;
+  (event: 'apply-network-flow-sink'): void;
+  (event: 'apply-lp-problem'): void;
 }
 
 const emit = defineEmits<Emits>();
@@ -179,6 +199,35 @@ const hanoiState = computed<ValidationState>(() => ({
       @update:n-queens-size="(v: string) => (nQueensSize = v)"
       @update:subset-sum-array="(v: string) => (subsetSumArray = v)"
       @update:subset-sum-target="(v: string) => (subsetSumTarget = v)"
+    />
+
+    <NetworkFlowDataSection
+      v-if="props.isNetworkFlowAlgorithm"
+      :network-flow-node-count="networkFlowNodeCount"
+      :network-flow-node-count-range="props.networkFlowNodeCountRange"
+      :network-flow-node-ids="props.networkFlowNodeIds"
+      :network-flow-source="networkFlowSource"
+      :network-flow-sink="networkFlowSink"
+      :network-flow-validation="props.networkFlowValidation"
+      @apply-network-flow-node-count="emit('apply-network-flow-node-count')"
+      @apply-network-flow-source="emit('apply-network-flow-source')"
+      @apply-network-flow-sink="emit('apply-network-flow-sink')"
+      @update:network-flow-node-count="(v: string) => (networkFlowNodeCount = v)"
+      @update:network-flow-source="(v: string) => (networkFlowSource = v)"
+      @update:network-flow-sink="(v: string) => (networkFlowSink = v)"
+    />
+
+    <LpDataSection
+      v-if="props.isLpAlgorithm"
+      :algorithm-slug="props.lpAlgorithmSlug"
+      :lp-objective="lpObjective"
+      :lp-constraints="lpConstraints"
+      :lp-constraint-labels="lpConstraintLabels"
+      :lp-validation="props.lpValidation"
+      @apply-lp-problem="emit('apply-lp-problem')"
+      @update:lp-objective="(v: string) => (lpObjective = v)"
+      @update:lp-constraints="(v: string) => (lpConstraints = v)"
+      @update:lp-constraint-labels="(v: string) => (lpConstraintLabels = v)"
     />
 
     <FieldSet v-if="props.isHanoiAlgorithm">

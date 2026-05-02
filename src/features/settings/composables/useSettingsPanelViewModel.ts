@@ -168,9 +168,23 @@ export function useSettingsPanelViewModel() {
       activeAlgorithm.value?.category === 'backtracking'
   );
 
+  const isNetworkFlowAlgorithm = computed(
+    () =>
+      (isCompareView.value && visibleCompareCategory.value === 'network-flow') ||
+      activeAlgorithm.value?.category === 'network-flow'
+  );
+
+  const isLpAlgorithm = computed(
+    () =>
+      (isCompareView.value && visibleCompareCategory.value === 'linear-programming') ||
+      activeAlgorithm.value?.category === 'linear-programming'
+  );
+
   const greedyAlgorithmSlug = computed(() => activeAlgorithm.value?.slug ?? '');
   const dpAlgorithmSlug = computed(() => activeAlgorithm.value?.slug ?? '');
   const backtrackingAlgorithmSlug = computed(() => activeAlgorithm.value?.slug ?? '');
+  const networkFlowAlgorithmSlug = computed(() => activeAlgorithm.value?.slug ?? '');
+  const lpAlgorithmSlug = computed(() => activeAlgorithm.value?.slug ?? '');
 
   const inputForm = useSettingsInputForm({
     isGraphAlgorithm,
@@ -182,6 +196,10 @@ export function useSettingsPanelViewModel() {
     dpAlgorithmSlug,
     isBacktrackingAlgorithm,
     backtrackingAlgorithmSlug,
+    isNetworkFlowAlgorithm,
+    networkFlowAlgorithmSlug,
+    isLpAlgorithm,
+    lpAlgorithmSlug,
   });
 
   const panelTitle = computed(() => {
@@ -192,6 +210,8 @@ export function useSettingsPanelViewModel() {
       if (visibleCompareCategory.value === 'dynamic-programming') return '动态规划对比';
       if (visibleCompareCategory.value === 'greedy') return '贪心算法对比';
       if (visibleCompareCategory.value === 'backtracking') return '回溯算法对比';
+      if (visibleCompareCategory.value === 'network-flow') return '网络流对比';
+      if (visibleCompareCategory.value === 'linear-programming') return '线性规划对比';
       return '排序算法对比';
     }
     return activeAlgorithm.value?.title ?? '算法未找到';
@@ -216,6 +236,12 @@ export function useSettingsPanelViewModel() {
       }
       if (visibleCompareCategory.value === 'backtracking') {
         return '对比模式共享同一份输入。修改后会同时影响左右算法。';
+      }
+      if (visibleCompareCategory.value === 'network-flow') {
+        return '对比模式共享同一份网络输入。修改后会同时影响左右算法。';
+      }
+      if (visibleCompareCategory.value === 'linear-programming') {
+        return '对比模式共享同一份 LP 输入。修改后会同时影响左右算法。';
       }
       return '对比模式共享同一份排序输入。修改后会同时影响左右算法。';
     }
@@ -242,6 +268,8 @@ export function useSettingsPanelViewModel() {
       if (visibleCompareCategory.value === 'dynamic-programming') return '动态规划对比模式';
       if (visibleCompareCategory.value === 'greedy') return '贪心算法对比模式';
       if (visibleCompareCategory.value === 'backtracking') return '回溯算法对比模式';
+      if (visibleCompareCategory.value === 'network-flow') return '网络流对比模式';
+      if (visibleCompareCategory.value === 'linear-programming') return '线性规划对比模式';
       return '排序算法对比模式';
     }
     if (isTreeAlgorithm.value) return '树算法';
@@ -250,6 +278,8 @@ export function useSettingsPanelViewModel() {
     if (isDpAlgorithm.value) return '动态规划';
     if (isGreedyAlgorithm.value) return '贪心算法';
     if (isBacktrackingAlgorithm.value) return '回溯算法';
+    if (isNetworkFlowAlgorithm.value) return '网络流';
+    if (isLpAlgorithm.value) return '线性规划';
     return '排序算法';
   });
 
@@ -299,6 +329,10 @@ export function useSettingsPanelViewModel() {
     dpAlgorithmSlug,
     isBacktrackingAlgorithm,
     backtrackingAlgorithmSlug,
+    isNetworkFlowAlgorithm,
+    networkFlowAlgorithmSlug,
+    isLpAlgorithm,
+    lpAlgorithmSlug,
     panelTitle,
     panelDescription,
     stepDescription,

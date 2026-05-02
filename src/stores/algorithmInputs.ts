@@ -67,6 +67,35 @@ const SUBSET_SUM_DEFAULT_TARGET = 16;
 const SUBSET_SUM_MIN_LEN = 3;
 const SUBSET_SUM_MAX_LEN = 8;
 const SUBSET_SUM_MIN_VALUE = 1;
+
+const NETWORK_FLOW_DEFAULT_NODES = [
+  { id: 'S', x: 80, y: 170 },
+  { id: 'A', x: 280, y: 80 },
+  { id: 'B', x: 280, y: 260 },
+  { id: 'C', x: 480, y: 170 },
+  { id: 'T', x: 680, y: 170 },
+];
+const NETWORK_FLOW_DEFAULT_EDGES = [
+  { source: 'S', target: 'A', capacity: 10 },
+  { source: 'S', target: 'B', capacity: 8 },
+  { source: 'A', target: 'B', capacity: 5 },
+  { source: 'A', target: 'C', capacity: 7 },
+  { source: 'B', target: 'C', capacity: 10 },
+  { source: 'C', target: 'T', capacity: 10 },
+  { source: 'B', target: 'T', capacity: 6 },
+];
+const NETWORK_FLOW_DEFAULT_SOURCE = 'S';
+const NETWORK_FLOW_DEFAULT_SINK = 'T';
+const NETWORK_FLOW_MIN_NODES = 3;
+const NETWORK_FLOW_MAX_NODES = 8;
+
+const LP_DEFAULT_OBJECTIVE = [3, 5];
+const LP_DEFAULT_CONSTRAINTS = [
+  [1, 0, 4],
+  [0, 2, 12],
+  [3, 5, 30],
+];
+const LP_DEFAULT_CONSTRAINT_LABELS = ['x₁ ≤ 4', '2x₂ ≤ 12', '3x₁+5x₂ ≤ 30'];
 const SUBSET_SUM_MAX_VALUE = 30;
 
 const ACTIVITY_DEFAULT_INTERVALS = [
@@ -99,6 +128,12 @@ export { DP_LCS_STRING_LEN_MIN, DP_LCS_STRING_LEN_MAX };
 export { ACTIVITY_MIN_INTERVALS, ACTIVITY_MAX_INTERVALS };
 export { NQUEENS_MIN_SIZE, NQUEENS_MAX_SIZE };
 export { SUBSET_SUM_MIN_LEN, SUBSET_SUM_MAX_LEN, SUBSET_SUM_MIN_VALUE, SUBSET_SUM_MAX_VALUE };
+export {
+  NETWORK_FLOW_DEFAULT_SOURCE,
+  NETWORK_FLOW_DEFAULT_SINK,
+  NETWORK_FLOW_MIN_NODES,
+  NETWORK_FLOW_MAX_NODES,
+};
 
 function clampSortingSize(size: number) {
   return Math.min(SORTING_MAX_SIZE, Math.max(SORTING_MIN_SIZE, size));
@@ -605,6 +640,165 @@ export const useAlgorithmInputsStore = defineStore('algorithm-inputs', () => {
     dataVersion.value += 1;
   }
 
+  // --- 网络流 ---
+  const networkFlowNodes = ref([...NETWORK_FLOW_DEFAULT_NODES]);
+  const networkFlowEdges = ref([...NETWORK_FLOW_DEFAULT_EDGES]);
+  const networkFlowSource = ref(NETWORK_FLOW_DEFAULT_SOURCE);
+  const networkFlowSink = ref(NETWORK_FLOW_DEFAULT_SINK);
+
+  function setNetworkFlowSource(source: string) {
+    networkFlowSource.value = source;
+    dataVersion.value += 1;
+  }
+
+  function setNetworkFlowSink(sink: string) {
+    networkFlowSink.value = sink;
+    dataVersion.value += 1;
+  }
+
+  function randomizeNetworkFlowInput() {
+    const templates = [
+      {
+        ids: ['S', 'A', 'B', 'C', 'T'],
+        edges: [
+          { source: 'S', target: 'A' },
+          { source: 'S', target: 'B' },
+          { source: 'A', target: 'C' },
+          { source: 'B', target: 'C' },
+          { source: 'C', target: 'T' },
+        ],
+      },
+      {
+        ids: ['S', 'A', 'B', 'T'],
+        edges: [
+          { source: 'S', target: 'A' },
+          { source: 'S', target: 'B' },
+          { source: 'A', target: 'T' },
+          { source: 'B', target: 'T' },
+        ],
+      },
+    ];
+    const template = templates[Math.floor(Math.random() * templates.length)]!;
+    const graphEdges: GraphEdge[] = template.edges.map(e => ({ ...e, weight: 1 }));
+    const nodes = computeStableForceLayout(template.ids, graphEdges, {
+      width: 760,
+      height: 340,
+      margin: 56,
+      nodeRadius: 24,
+      collisionPadding: 8,
+      linkDistance: 160,
+    });
+    const edges = template.edges.map(e => ({
+      ...e,
+      capacity: Math.floor(Math.random() * 15) + 5,
+    }));
+    networkFlowNodes.value = nodes;
+    networkFlowEdges.value = edges;
+    networkFlowSource.value = 'S';
+    networkFlowSink.value = 'T';
+    dataVersion.value += 1;
+  }
+
+  function setNetworkFlowNodeCount(count: number) {
+    const nodeCount = Math.min(
+      NETWORK_FLOW_MAX_NODES,
+      Math.max(NETWORK_FLOW_MIN_NODES, Math.trunc(count))
+    );
+
+    // Build node ids: S, A, B, ..., T
+    const ids: string[] = ['S'];
+    for (let i = 0; i < nodeCount - 2; i++) {
+      ids.push(String.fromCharCode(65 + i));
+    }
+    ids.push('T');
+
+    // Generate edges: connect each node to 1-3 later nodes
+    const edgeDefs: { source: string; target: string }[] = [];
+    for (let i = 0; i < ids.length - 1; i++) {
+      const maxReach = Math.min(i + 3, ids.length - 1);
+      // Always connect to the next node to ensure connectivity
+      edgeDefs.push({ source: ids[i]!, target: ids[i + 1]! });
+      for (let j = i + 2; j <= maxReach; j++) {
+        if (Math.random() > 0.4) {
+          edgeDefs.push({ source: ids[i]!, target: ids[j]! });
+        }
+      }
+    }
+
+    // Layout using the same algorithm as graph algorithms
+    const graphEdges: GraphEdge[] = edgeDefs.map(e => ({ ...e, weight: 1 }));
+    const nodes = computeStableForceLayout(ids, graphEdges, {
+      width: 760,
+      height: 340,
+      margin: 56,
+      nodeRadius: 24,
+      collisionPadding: 8,
+      linkDistance: 160,
+    });
+
+    const edges = edgeDefs.map(e => ({
+      ...e,
+      capacity: Math.floor(Math.random() * 15) + 5,
+    }));
+
+    networkFlowNodes.value = nodes;
+    networkFlowEdges.value = edges;
+    networkFlowSource.value = 'S';
+    networkFlowSink.value = 'T';
+    dataVersion.value += 1;
+    return nodeCount;
+  }
+
+  // --- 线性规划 ---
+  const lpObjective = ref([...LP_DEFAULT_OBJECTIVE]);
+  const lpConstraints = ref(LP_DEFAULT_CONSTRAINTS.map(row => [...row]));
+  const lpConstraintLabels = ref([...LP_DEFAULT_CONSTRAINT_LABELS]);
+
+  function setLpProblem(objective: number[], constraints: number[][], labels: string[]) {
+    lpObjective.value = [...objective];
+    lpConstraints.value = constraints.map(row => [...row]);
+    lpConstraintLabels.value = [...labels];
+    dataVersion.value += 1;
+  }
+
+  function randomizeLpInput() {
+    const templates = [
+      {
+        objective: [3, 5],
+        constraints: [
+          [1, 0, 4],
+          [0, 2, 12],
+          [3, 5, 30],
+        ],
+        labels: ['x₁ ≤ 4', '2x₂ ≤ 12', '3x₁+5x₂ ≤ 30'],
+      },
+      {
+        objective: [2, 3],
+        constraints: [
+          [1, 1, 8],
+          [2, 1, 14],
+          [1, 0, 6],
+        ],
+        labels: ['x₁+x₂ ≤ 8', '2x₁+x₂ ≤ 14', 'x₁ ≤ 6'],
+      },
+      {
+        objective: [5, 4],
+        constraints: [
+          [6, 4, 24],
+          [1, 2, 6],
+          [1, 0, 3],
+          [0, 1, 4],
+        ],
+        labels: ['6x₁+4x₂ ≤ 24', 'x₁+2x₂ ≤ 6', 'x₁ ≤ 3', 'x₂ ≤ 4'],
+      },
+    ];
+    const template = templates[Math.floor(Math.random() * templates.length)]!;
+    lpObjective.value = [...template.objective];
+    lpConstraints.value = template.constraints.map(row => [...row]);
+    lpConstraintLabels.value = [...template.labels];
+    dataVersion.value += 1;
+  }
+
   function exportGraphAsJsonText() {
     const nodeIds = graphNodes.value.map(n => n.id);
     const edgeTuples = graphEdges.value.map(e =>
@@ -757,6 +951,88 @@ export const useAlgorithmInputsStore = defineStore('algorithm-inputs', () => {
     } as const;
   }
 
+  function exportNetworkFlowAsJsonText() {
+    return JSON.stringify(
+      {
+        nodes: networkFlowNodes.value,
+        edges: networkFlowEdges.value,
+        source: networkFlowSource.value,
+        sink: networkFlowSink.value,
+      },
+      null,
+      2
+    );
+  }
+
+  function importNetworkFlowFromJsonText(rawText: string) {
+    try {
+      const parsed = JSON.parse(rawText);
+      if (!Array.isArray(parsed.nodes) || !Array.isArray(parsed.edges)) {
+        return { ok: false, message: 'JSON 格式无效，缺少 nodes 或 edges 字段。' } as const;
+      }
+      const nodes = parsed.nodes as { id: string; x: number; y: number }[];
+      const edges = parsed.edges as { source: string; target: string; capacity: number }[];
+      if (nodes.length === 0) {
+        return { ok: false, message: '节点列表不能为空。' } as const;
+      }
+      networkFlowNodes.value = nodes;
+      networkFlowEdges.value = edges;
+      if (typeof parsed.source === 'string') networkFlowSource.value = parsed.source;
+      if (typeof parsed.sink === 'string') networkFlowSink.value = parsed.sink;
+      dataVersion.value += 1;
+      return {
+        ok: true,
+        message: `已导入网络流数据：${nodes.length} 个节点，${edges.length} 条边。`,
+      } as const;
+    } catch {
+      return { ok: false, message: 'JSON 解析失败，请检查文件内容。' } as const;
+    }
+  }
+
+  function exportLpAsJsonText() {
+    return JSON.stringify(
+      {
+        objective: lpObjective.value,
+        constraints: lpConstraints.value,
+        constraintLabels: lpConstraintLabels.value,
+      },
+      null,
+      2
+    );
+  }
+
+  function importLpFromJsonText(rawText: string) {
+    try {
+      const parsed = JSON.parse(rawText);
+      if (!Array.isArray(parsed.objective) || !Array.isArray(parsed.constraints)) {
+        return {
+          ok: false,
+          message: 'JSON 格式无效，缺少 objective 或 constraints 字段。',
+        } as const;
+      }
+      const objective = parsed.objective as number[];
+      const constraints = parsed.constraints as number[][];
+      if (objective.length < 2) {
+        return { ok: false, message: '目标函数至少需要 2 个系数。' } as const;
+      }
+      if (constraints.length === 0) {
+        return { ok: false, message: '至少需要 1 条约束。' } as const;
+      }
+      lpObjective.value = objective;
+      lpConstraints.value = constraints;
+      if (Array.isArray(parsed.constraintLabels)) {
+        lpConstraintLabels.value = parsed.constraintLabels;
+      }
+      dataVersion.value += 1;
+      return {
+        ok: true,
+        message: `已导入 LP 数据：${objective.length} 个变量，${constraints.length} 条约束。`,
+      } as const;
+    } catch {
+      return { ok: false, message: 'JSON 解析失败，请检查文件内容。' } as const;
+    }
+  }
+
   return {
     sortingInput,
     graphNodeCount,
@@ -821,5 +1097,22 @@ export const useAlgorithmInputsStore = defineStore('algorithm-inputs', () => {
     setSubsetSumArray,
     setSubsetSumTarget,
     randomizeSubsetSumInput,
+    networkFlowNodes,
+    networkFlowEdges,
+    networkFlowSource,
+    networkFlowSink,
+    setNetworkFlowSource,
+    setNetworkFlowSink,
+    randomizeNetworkFlowInput,
+    setNetworkFlowNodeCount,
+    lpObjective,
+    lpConstraints,
+    lpConstraintLabels,
+    setLpProblem,
+    randomizeLpInput,
+    exportNetworkFlowAsJsonText,
+    importNetworkFlowFromJsonText,
+    exportLpAsJsonText,
+    importLpFromJsonText,
   };
 });

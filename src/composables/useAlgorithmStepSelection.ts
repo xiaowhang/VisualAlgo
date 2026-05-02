@@ -7,6 +7,9 @@ import type {
   GraphStep,
   HanoiStep,
   HuffmanStep,
+  LpGraphicalStep,
+  LpTableauStep,
+  NetworkFlowStep,
   SortingStep,
   TimelineStep,
   TreeStep,
@@ -109,6 +112,30 @@ export function useAlgorithmStepSelection(options: UseAlgorithmStepSelectionOpti
     return step.value;
   });
 
+  const networkFlowStep = computed<NetworkFlowStep | null>(() => {
+    if (!step.value || step.value.kind !== 'network-flow') {
+      return null;
+    }
+
+    return step.value;
+  });
+
+  const lpTableauStep = computed<LpTableauStep | null>(() => {
+    if (!step.value || step.value.kind !== 'lp-tableau') {
+      return null;
+    }
+
+    return step.value;
+  });
+
+  const lpGraphicalStep = computed<LpGraphicalStep | null>(() => {
+    if (!step.value || step.value.kind !== 'lp-graphical') {
+      return null;
+    }
+
+    return step.value;
+  });
+
   return {
     stepIndex,
     step,
@@ -121,5 +148,8 @@ export function useAlgorithmStepSelection(options: UseAlgorithmStepSelectionOpti
     timelineStep,
     chessboardStep,
     decisionTreeStep,
+    networkFlowStep,
+    lpTableauStep,
+    lpGraphicalStep,
   };
 }

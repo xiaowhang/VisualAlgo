@@ -35,6 +35,10 @@ const {
   dpAlgorithmSlug,
   isBacktrackingAlgorithm,
   backtrackingAlgorithmSlug,
+  isNetworkFlowAlgorithm,
+  networkFlowAlgorithmSlug,
+  isLpAlgorithm,
+  lpAlgorithmSlug,
   nQueensSizeInput,
   subsetSumArrayInput,
   subsetSumTargetInput,
@@ -42,6 +46,21 @@ const {
   backtrackingMessageError,
   applyNQueensSize,
   applySubsetSum,
+  networkFlowNodeCountInput,
+  networkFlowSourceInput,
+  networkFlowSinkInput,
+  networkFlowNodeIds,
+  networkFlowMessage,
+  networkFlowMessageError,
+  applyNetworkFlowNodeCount,
+  applyNetworkFlowSource,
+  applyNetworkFlowSink,
+  lpObjectiveInput,
+  lpConstraintsInput,
+  lpConstraintLabelsInput,
+  lpMessage,
+  lpMessageError,
+  applyLpProblem,
   panelTitle,
   panelDescription,
   stepDescription,
@@ -165,6 +184,12 @@ void panelScrollRef;
           v-model:n-queens-size="nQueensSizeInput"
           v-model:subset-sum-array="subsetSumArrayInput"
           v-model:subset-sum-target="subsetSumTargetInput"
+          v-model:network-flow-node-count="networkFlowNodeCountInput"
+          v-model:network-flow-source="networkFlowSourceInput"
+          v-model:network-flow-sink="networkFlowSinkInput"
+          v-model:lp-objective="lpObjectiveInput"
+          v-model:lp-constraints="lpConstraintsInput"
+          v-model:lp-constraint-labels="lpConstraintLabelsInput"
           :is-sorting-algorithm="isSortingAlgorithm"
           :is-graph-algorithm="isGraphAlgorithm"
           :is-tree-algorithm="isTreeAlgorithm"
@@ -186,6 +211,14 @@ void panelScrollRef;
             message: backtrackingMessage,
             error: backtrackingMessageError,
           }"
+          :is-network-flow-algorithm="isNetworkFlowAlgorithm"
+          :network-flow-algorithm-slug="networkFlowAlgorithmSlug"
+          :network-flow-node-count-range="{ min: 3, max: 8 }"
+          :network-flow-node-ids="networkFlowNodeIds"
+          :network-flow-validation="{ message: networkFlowMessage, error: networkFlowMessageError }"
+          :is-lp-algorithm="isLpAlgorithm"
+          :lp-algorithm-slug="lpAlgorithmSlug"
+          :lp-validation="{ message: lpMessage, error: lpMessageError }"
           @randomize-data="randomizeData"
           @apply-size="applySizeFromInput"
           @apply-graph-node-count="applyGraphNodeCountFromInput"
@@ -202,6 +235,10 @@ void panelScrollRef;
           @apply-dp-investment="applyDpInvestment"
           @apply-n-queens-size="applyNQueensSize"
           @apply-subset-sum="applySubsetSum"
+          @apply-network-flow-node-count="applyNetworkFlowNodeCount"
+          @apply-network-flow-source="applyNetworkFlowSource"
+          @apply-network-flow-sink="applyNetworkFlowSink"
+          @apply-lp-problem="applyLpProblem"
         />
       </TabsContent>
 
@@ -213,6 +250,8 @@ void panelScrollRef;
           :is-hanoi-algorithm="isHanoiAlgorithm"
           :is-dp-algorithm="isDpAlgorithm"
           :is-backtracking-algorithm="isBacktrackingAlgorithm"
+          :is-network-flow-algorithm="isNetworkFlowAlgorithm"
+          :is-lp-algorithm="isLpAlgorithm"
           :custom-data-message="customDataMessage"
           :custom-data-error="customDataError"
           @export-json="exportJsonFile"

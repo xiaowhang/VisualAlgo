@@ -111,3 +111,31 @@ export function getSubsetSumInput(): { nums: number[]; target: number } {
     target: store.subsetSumTarget,
   };
 }
+
+export function getNetworkFlowInput(): {
+  nodes: { id: string; x: number; y: number }[];
+  edges: { source: string; target: string; capacity: number }[];
+  source: string;
+  sink: string;
+} {
+  const store = useAlgorithmInputsStore();
+  return {
+    nodes: store.networkFlowNodes.map(n => ({ ...n })),
+    edges: store.networkFlowEdges.map(e => ({ ...e })),
+    source: store.networkFlowSource,
+    sink: store.networkFlowSink,
+  };
+}
+
+export function getLpInput(): {
+  objective: number[];
+  constraints: number[][];
+  constraintLabels: string[];
+} {
+  const store = useAlgorithmInputsStore();
+  return {
+    objective: [...store.lpObjective],
+    constraints: store.lpConstraints.map(row => [...row]),
+    constraintLabels: [...store.lpConstraintLabels],
+  };
+}

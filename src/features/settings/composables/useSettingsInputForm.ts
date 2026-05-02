@@ -29,6 +29,10 @@ interface UseSettingsInputFormOptions {
   dpAlgorithmSlug: Readonly<Ref<string>>;
   isBacktrackingAlgorithm: Readonly<Ref<boolean>>;
   backtrackingAlgorithmSlug: Readonly<Ref<string>>;
+  isNetworkFlowAlgorithm: Readonly<Ref<boolean>>;
+  networkFlowAlgorithmSlug: Readonly<Ref<string>>;
+  isLpAlgorithm: Readonly<Ref<boolean>>;
+  lpAlgorithmSlug: Readonly<Ref<string>>;
 }
 
 export function useSettingsInputForm(options: UseSettingsInputFormOptions) {
@@ -65,6 +69,10 @@ export function useSettingsInputForm(options: UseSettingsInputFormOptions) {
     randomizeDpAlgorithmInput: algorithmInputsStore.randomizeDpAlgorithmInput,
     exportDpAsJsonText: algorithmInputsStore.exportDpAsJsonText,
     importDpFromJsonText: algorithmInputsStore.importDpFromJsonText,
+    exportNetworkFlowAsJsonText: algorithmInputsStore.exportNetworkFlowAsJsonText,
+    importNetworkFlowFromJsonText: algorithmInputsStore.importNetworkFlowFromJsonText,
+    exportLpAsJsonText: algorithmInputsStore.exportLpAsJsonText,
+    importLpFromJsonText: algorithmInputsStore.importLpFromJsonText,
   };
 
   const sortingSize = computed(() => algorithmInputs.sortingInput.value.length);
@@ -413,6 +421,172 @@ export function useSettingsInputForm(options: UseSettingsInputFormOptions) {
     backtrackingMessageError.value = false;
   }
 
+  // --- 网络流 ---
+  const networkFlowNodeCountInput = ref(String(algorithmInputsStore.networkFlowNodes.length));
+  const networkFlowSourceInput = ref(algorithmInputsStore.networkFlowSource);
+  const networkFlowSinkInput = ref(algorithmInputsStore.networkFlowSink);
+  const networkFlowMessage = ref('');
+  const networkFlowMessageError = ref(false);
+
+  const networkFlowNodeIds = computed(() =>
+    algorithmInputsStore.networkFlowNodes.map(n => n.id).join(', ')
+  );
+
+  watch(
+    () => algorithmInputsStore.networkFlowSource,
+    value => {
+      networkFlowSourceInput.value = value;
+    }
+  );
+
+  watch(
+    () => algorithmInputsStore.networkFlowSink,
+    value => {
+      networkFlowSinkInput.value = value;
+    }
+  );
+
+  watch(
+    () => algorithmInputsStore.networkFlowNodes.length,
+    value => {
+      networkFlowNodeCountInput.value = String(value);
+    }
+  );
+
+  function applyNetworkFlowSource() {
+    const nodeIds = algorithmInputsStore.networkFlowNodes.map(n => n.id);
+    const source = networkFlowSourceInput.value.trim();
+    if (!nodeIds.includes(source)) {
+      networkFlowMessage.value = `节点 "${source}" 不存在。可用节点：${nodeIds.join(', ')}。`;
+      networkFlowMessageError.value = true;
+      return;
+    }
+    algorithmInputsStore.setNetworkFlowSource(source);
+    networkFlowSourceInput.value = algorithmInputsStore.networkFlowSource;
+    networkFlowMessage.value = `已设置源点为 ${source}。`;
+    networkFlowMessageError.value = false;
+  }
+
+  function applyNetworkFlowSink() {
+    const nodeIds = algorithmInputsStore.networkFlowNodes.map(n => n.id);
+    const sink = networkFlowSinkInput.value.trim();
+    if (!nodeIds.includes(sink)) {
+      networkFlowMessage.value = `节点 "${sink}" 不存在。可用节点：${nodeIds.join(', ')}。`;
+      networkFlowMessageError.value = true;
+      return;
+    }
+    algorithmInputsStore.setNetworkFlowSink(sink);
+    networkFlowSinkInput.value = algorithmInputsStore.networkFlowSink;
+    networkFlowMessage.value = `已设置汇点为 ${sink}。`;
+    networkFlowMessageError.value = false;
+  }
+
+  function applyNetworkFlowNodeCount() {
+    const count = Math.trunc(Number(networkFlowNodeCountInput.value));
+    const applied = algorithmInputsStore.setNetworkFlowNodeCount(count);
+    networkFlowNodeCountInput.value = String(applied);
+    networkFlowSourceInput.value = algorithmInputsStore.networkFlowSource;
+    networkFlowSinkInput.value = algorithmInputsStore.networkFlowSink;
+    networkFlowMessage.value = `已生成 ${applied} 个节点的网络。`;
+    networkFlowMessageError.value = false;
+  }
+
+  function randomizeNetworkFlow() {
+    algorithmInputsStore.randomizeNetworkFlowInput();
+    networkFlowSourceInput.value = algorithmInputsStore.networkFlowSource;
+    networkFlowSinkInput.value = algorithmInputsStore.networkFlowSink;
+    networkFlowMessage.value = '已随机生成新网络。';
+    networkFlowMessageError.value = false;
+  }
+
+  // --- 线性规划 ---
+  const lpObjectiveInput = ref(algorithmInputsStore.lpObjective.join(', '));
+  const lpConstraintsInput = ref(
+    algorithmInputsStore.lpConstraints.map(row => row.join(', ')).join('; ')
+  );
+  const lpConstraintLabelsInput = ref(algorithmInputsStore.lpConstraintLabels.join(', '));
+  const lpMessage = ref('');
+  const lpMessageError = ref(false);
+
+  watch(
+    () => algorithmInputsStore.lpObjective,
+    value => {
+      lpObjectiveInput.value = value.join(', ');
+    }
+  );
+
+  watch(
+    () => algorithmInputsStore.lpConstraints,
+    value => {
+      lpConstraintsInput.value = value.map(row => row.join(', ')).join('; ');
+    }
+  );
+
+  watch(
+    () => algorithmInputsStore.lpConstraintLabels,
+    value => {
+      lpConstraintLabelsInput.value = value.join(', ');
+    }
+  );
+
+  function applyLpProblem() {
+    const objective = lpObjectiveInput.value
+      .split(/[,，\s]+/)
+      .map(s => Number(s.trim()))
+      .filter(v => Number.isFinite(v));
+
+    if (objective.length < 2) {
+      lpMessage.value = '目标函数至少需要 2 个系数。';
+      lpMessageError.value = true;
+      return;
+    }
+
+    const constraintRows = lpConstraintsInput.value
+      .split(/[;；]+/)
+      .map(row =>
+        row
+          .split(/[,，\s]+/)
+          .map(s => Number(s.trim()))
+          .filter(v => Number.isFinite(v))
+      )
+      .filter(row => row.length >= 3);
+
+    if (constraintRows.length === 0) {
+      lpMessage.value = '至少需要 1 条约束。格式：a1, a2, b（每行用分号分隔）。';
+      lpMessageError.value = true;
+      return;
+    }
+
+    const labels = lpConstraintLabelsInput.value
+      .split(/[,，]+/)
+      .map(s => s.trim())
+      .filter(s => s.length > 0);
+
+    while (labels.length < constraintRows.length) {
+      labels.push(`约束${labels.length + 1}`);
+    }
+
+    algorithmInputsStore.setLpProblem(objective, constraintRows, labels);
+    lpObjectiveInput.value = algorithmInputsStore.lpObjective.join(', ');
+    lpConstraintsInput.value = algorithmInputsStore.lpConstraints
+      .map(row => row.join(', '))
+      .join('; ');
+    lpConstraintLabelsInput.value = algorithmInputsStore.lpConstraintLabels.join(', ');
+    lpMessage.value = `已设置 LP 问题：${objective.length} 个变量，${constraintRows.length} 条约束。`;
+    lpMessageError.value = false;
+  }
+
+  function randomizeLp() {
+    algorithmInputsStore.randomizeLpInput();
+    lpObjectiveInput.value = algorithmInputsStore.lpObjective.join(', ');
+    lpConstraintsInput.value = algorithmInputsStore.lpConstraints
+      .map(row => row.join(', '))
+      .join('; ');
+    lpConstraintLabelsInput.value = algorithmInputsStore.lpConstraintLabels.join(', ');
+    lpMessage.value = '已随机生成新 LP 问题。';
+    lpMessageError.value = false;
+  }
+
   function normalizeSizeInput(rawValue: string) {
     const parsed = Number(rawValue);
 
@@ -618,6 +792,16 @@ export function useSettingsInputForm(options: UseSettingsInputFormOptions) {
       return;
     }
 
+    if (options.isNetworkFlowAlgorithm.value) {
+      randomizeNetworkFlow();
+      return;
+    }
+
+    if (options.isLpAlgorithm.value) {
+      randomizeLp();
+      return;
+    }
+
     if (options.isTreeAlgorithm.value) {
       const count = normalizeTreeNodeCountInput(treeNodeCountInput.value).normalized;
       algorithmInputs.randomizeTreeInput(
@@ -693,6 +877,12 @@ export function useSettingsInputForm(options: UseSettingsInputFormOptions) {
         slug === 'lcs' ? 'lcs' : slug === 'knapsack' ? 'knapsack' : 'investment'
       );
       fileName = `dp-${slug}-input-${timestamp}.json`;
+    } else if (options.isNetworkFlowAlgorithm.value) {
+      text = algorithmInputs.exportNetworkFlowAsJsonText();
+      fileName = `network-flow-input-${timestamp}.json`;
+    } else if (options.isLpAlgorithm.value) {
+      text = algorithmInputs.exportLpAsJsonText();
+      fileName = `lp-input-${timestamp}.json`;
     } else {
       text = algorithmInputs.exportSortingAsJsonText();
       fileName = `sorting-input-${timestamp}.json`;
@@ -727,6 +917,10 @@ export function useSettingsInputForm(options: UseSettingsInputFormOptions) {
         result = algorithmInputs.importGraphFromJsonText(text);
       } else if (options.isTreeAlgorithm.value) {
         result = algorithmInputs.importTreeFromJsonText(text);
+      } else if (options.isNetworkFlowAlgorithm.value) {
+        result = algorithmInputs.importNetworkFlowFromJsonText(text);
+      } else if (options.isLpAlgorithm.value) {
+        result = algorithmInputs.importLpFromJsonText(text);
       } else if (options.isHanoiAlgorithm.value) {
         try {
           const parsed = JSON.parse(text);
@@ -775,6 +969,18 @@ export function useSettingsInputForm(options: UseSettingsInputFormOptions) {
           dpKnapsackItemCountInput.value = String(algorithmInputsStore.dpKnapsackItems.length);
           dpInvestmentCountInput.value = String(algorithmInputsStore.dpInvestmentCount);
           dpInvestmentResourcesInput.value = String(algorithmInputsStore.dpInvestmentResources);
+        }
+        if (options.isNetworkFlowAlgorithm.value) {
+          networkFlowNodeCountInput.value = String(algorithmInputsStore.networkFlowNodes.length);
+          networkFlowSourceInput.value = algorithmInputsStore.networkFlowSource;
+          networkFlowSinkInput.value = algorithmInputsStore.networkFlowSink;
+        }
+        if (options.isLpAlgorithm.value) {
+          lpObjectiveInput.value = algorithmInputsStore.lpObjective.join(', ');
+          lpConstraintsInput.value = algorithmInputsStore.lpConstraints
+            .map(row => row.join(', '))
+            .join('; ');
+          lpConstraintLabelsInput.value = algorithmInputsStore.lpConstraintLabels.join(', ');
         }
       }
     } catch {
@@ -875,5 +1081,22 @@ export function useSettingsInputForm(options: UseSettingsInputFormOptions) {
     applyNQueensSize,
     applySubsetSum,
     randomizeBacktracking,
+    networkFlowNodeCountInput,
+    networkFlowSourceInput,
+    networkFlowSinkInput,
+    networkFlowNodeIds,
+    networkFlowMessage,
+    networkFlowMessageError,
+    applyNetworkFlowSource,
+    applyNetworkFlowSink,
+    applyNetworkFlowNodeCount,
+    randomizeNetworkFlow,
+    lpObjectiveInput,
+    lpConstraintsInput,
+    lpConstraintLabelsInput,
+    lpMessage,
+    lpMessageError,
+    applyLpProblem,
+    randomizeLp,
   };
 }

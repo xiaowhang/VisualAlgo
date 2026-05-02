@@ -21,5 +21,7 @@ export const algorithmMenuByCategory = algorithmRegistry.reduce<
     'dynamic-programming': [],
     greedy: [],
     backtracking: [],
+    'network-flow': [],
+    'linear-programming': [],
   }
 );

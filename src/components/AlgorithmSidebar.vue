@@ -49,6 +49,18 @@ const sections = computed(() => [
     defaultOpen: false,
     items: algorithmMenuByCategory.backtracking,
   },
+  {
+    label: '网络流',
+    category: 'network-flow' as const,
+    defaultOpen: false,
+    items: algorithmMenuByCategory['network-flow'],
+  },
+  {
+    label: '线性规划',
+    category: 'linear-programming' as const,
+    defaultOpen: false,
+    items: algorithmMenuByCategory['linear-programming'],
+  },
 ]);
 
 const filteredSections = computed(() => {

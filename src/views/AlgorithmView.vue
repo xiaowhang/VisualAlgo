@@ -11,6 +11,9 @@ import SortingChart from '@/components/visualization/SortingChart.vue';
 import TreeVisualizer from '@/components/visualization/TreeVisualizer.vue';
 import ChessboardView from '@/components/visualization/ChessboardView.vue';
 import DecisionTreeView from '@/components/visualization/DecisionTreeView.vue';
+import NetworkFlowView from '@/components/visualization/NetworkFlowView.vue';
+import LpTableauView from '@/components/visualization/LpTableauView.vue';
+import LpGraphicalView from '@/components/visualization/LpGraphicalView.vue';
 import { findAlgorithm } from '@/algorithms/registry';
 import { useAlgorithmStepSelection } from '@/composables/useAlgorithmStepSelection';
 import { useAlgorithmInputsStore } from '@/stores/algorithmInputs';
@@ -55,6 +58,9 @@ const {
   timelineStep,
   chessboardStep,
   decisionTreeStep,
+  networkFlowStep,
+  lpTableauStep,
+  lpGraphicalStep,
 } = useAlgorithmStepSelection({
   steps,
   currentStep: playback.currentStep,
@@ -199,6 +205,21 @@ watch(
           v-else-if="activeAlgorithm.visualization === 'decision-tree'"
           class="h-full w-full"
           :step="decisionTreeStep"
+        />
+        <NetworkFlowView
+          v-else-if="activeAlgorithm.visualization === 'network-flow'"
+          class="h-full w-full"
+          :step="networkFlowStep"
+        />
+        <LpTableauView
+          v-else-if="activeAlgorithm.visualization === 'lp-tableau'"
+          class="h-full w-full"
+          :step="lpTableauStep"
+        />
+        <LpGraphicalView
+          v-else-if="activeAlgorithm.visualization === 'lp-graphical'"
+          class="h-full w-full"
+          :step="lpGraphicalStep"
         />
       </div>
     </Card>

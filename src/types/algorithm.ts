@@ -5,7 +5,9 @@ export type AlgorithmCategory =
   | 'divide-conquer'
   | 'dynamic-programming'
   | 'greedy'
-  | 'backtracking';
+  | 'backtracking'
+  | 'network-flow'
+  | 'linear-programming';
 
 export type VisualizationKind =
   | 'sorting'
@@ -16,7 +18,10 @@ export type VisualizationKind =
   | 'huffman'
   | 'timeline'
   | 'chessboard'
-  | 'decision-tree';
+  | 'decision-tree'
+  | 'network-flow'
+  | 'lp-tableau'
+  | 'lp-graphical';
 
 export type SortingHighlightKind = 'default' | 'compare' | 'swap' | 'pivot' | 'done';
 
@@ -183,6 +188,92 @@ export interface DecisionTreeStep {
   description: string;
 }
 
+// --- 网络流 ---
+export type NetworkFlowHighlightKind =
+  | 'default'
+  | 'current'
+  | 'augmenting'
+  | 'saturated'
+  | 'min-cut-s'
+  | 'min-cut-t'
+  | 'bottleneck';
+
+export interface NetworkFlowEdge {
+  source: string;
+  target: string;
+  capacity: number;
+  flow: number;
+}
+
+export interface NetworkFlowStep {
+  kind: 'network-flow';
+  nodes: GraphNode[];
+  edges: NetworkFlowEdge[];
+  source: string;
+  sink: string;
+  currentFlow: number;
+  maxFlow: number | null;
+  augmentingPath: string[] | null;
+  cutEdges: { source: string; target: string }[] | null;
+  cutS: string[] | null;
+  highlights: Partial<Record<string, NetworkFlowHighlightKind>>;
+  description: string;
+}
+
+// --- 线性规划表 ---
+export type LpTableauHighlightKind =
+  | 'default'
+  | 'pivot-row'
+  | 'pivot-col'
+  | 'pivot-cell'
+  | 'entering'
+  | 'leaving'
+  | 'objective'
+  | 'optimal';
+
+export interface LpTableauStep {
+  kind: 'lp-tableau';
+  variableNames: string[];
+  rowLabels: string[];
+  tableau: number[][];
+  currentPivot: [number, number] | null;
+  phase: 'init' | 'pivoting' | 'optimal' | 'infeasible' | 'unbounded';
+  objectiveValue: number;
+  highlights: Partial<Record<string, LpTableauHighlightKind>>;
+  description: string;
+}
+
+// --- 线性规划图解 ---
+export type LpGraphicalHighlightKind =
+  | 'default'
+  | 'constraint'
+  | 'feasible'
+  | 'objective'
+  | 'optimal'
+  | 'vertex';
+
+export interface LpGraphicalConstraint {
+  a: number;
+  b: number;
+  c: number;
+  label: string;
+}
+
+export interface LpGraphicalStep {
+  kind: 'lp-graphical';
+  constraints: LpGraphicalConstraint[];
+  objectiveA: number;
+  objectiveB: number;
+  objectiveValue: number;
+  feasibleRegion: [number, number][];
+  optimalPoint: [number, number] | null;
+  currentVertex: [number, number] | null;
+  xRange: [number, number];
+  yRange: [number, number];
+  highlights: Partial<Record<string, LpGraphicalHighlightKind>>;
+  description: string;
+}
+
 export type AlgorithmStep =
   | SortingStep
   | GraphStep
@@ -192,7 +283,10 @@ export type AlgorithmStep =
   | HuffmanStep
   | TimelineStep
   | ChessboardStep
-  | DecisionTreeStep;
+  | DecisionTreeStep
+  | NetworkFlowStep
+  | LpTableauStep
+  | LpGraphicalStep;
 
 export interface AlgorithmDefinition {
   id: string;

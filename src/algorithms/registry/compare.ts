@@ -13,7 +13,9 @@ export function isAlgorithmCategory(value: string): value is AlgorithmCategory {
     value === 'divide-conquer' ||
     value === 'dynamic-programming' ||
     value === 'greedy' ||
-    value === 'backtracking'
+    value === 'backtracking' ||
+    value === 'network-flow' ||
+    value === 'linear-programming'
   );
 }
 
@@ -49,6 +51,12 @@ export function resolveAlgorithmBySlug(slug: string) {
 
   const backtrackingAlgorithm = findAlgorithm('backtracking', slug);
   if (backtrackingAlgorithm) return backtrackingAlgorithm;
+
+  const networkFlowAlgorithm = findAlgorithm('network-flow', slug);
+  if (networkFlowAlgorithm) return networkFlowAlgorithm;
+
+  const lpAlgorithm = findAlgorithm('linear-programming', slug);
+  if (lpAlgorithm) return lpAlgorithm;
 
   return findAlgorithm('divide-conquer', slug) ?? null;
 }
