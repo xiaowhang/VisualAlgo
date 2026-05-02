@@ -6,6 +6,7 @@ interface Props {
   isGraphAlgorithm: boolean;
   isTreeAlgorithm: boolean;
   isHanoiAlgorithm: boolean;
+  isDpAlgorithm: boolean;
   customDataMessage: string;
   customDataError: boolean;
 }
@@ -38,7 +39,8 @@ function openImportFileDialog() {
           props.isSortingAlgorithm ||
           props.isGraphAlgorithm ||
           props.isTreeAlgorithm ||
-          props.isHanoiAlgorithm
+          props.isHanoiAlgorithm ||
+          props.isDpAlgorithm
         "
       >
         <div class="flex flex-wrap items-center gap-2">

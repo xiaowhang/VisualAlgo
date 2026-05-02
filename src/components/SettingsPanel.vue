@@ -31,6 +31,8 @@ const {
   isHanoiAlgorithm,
   isGreedyAlgorithm,
   greedyAlgorithmSlug,
+  isDpAlgorithm,
+  dpAlgorithmSlug,
   panelTitle,
   panelDescription,
   stepDescription,
@@ -59,6 +61,18 @@ const {
   applyHuffmanInput,
   randomizeHuffman,
   randomizeActivity,
+  dpLcsStringXInput,
+  dpLcsStringYInput,
+  dpKnapsackCapacityInput,
+  dpKnapsackItemCountInput,
+  dpInvestmentCountInput,
+  dpInvestmentResourcesInput,
+  dpMessage,
+  dpMessageError,
+  applyDpLcs,
+  applyDpKnapsack,
+  applyDpInvestment,
+  randomizeDp,
   applySizeFromInput,
   applyGraphNodeCountFromInput,
   applyGraphStartNode,
@@ -133,18 +147,27 @@ void panelScrollRef;
           v-model:hanoi-disk-count-input="hanoiDiskCountInput"
           v-model:custom-data="customData"
           v-model:huffman-input="huffmanInput"
+          v-model:dp-lcs-string-x="dpLcsStringXInput"
+          v-model:dp-lcs-string-y="dpLcsStringYInput"
+          v-model:dp-knapsack-capacity="dpKnapsackCapacityInput"
+          v-model:dp-knapsack-item-count="dpKnapsackItemCountInput"
+          v-model:dp-investment-count="dpInvestmentCountInput"
+          v-model:dp-investment-resources="dpInvestmentResourcesInput"
           :is-sorting-algorithm="isSortingAlgorithm"
           :is-graph-algorithm="isGraphAlgorithm"
           :is-tree-algorithm="isTreeAlgorithm"
           :is-hanoi-algorithm="isHanoiAlgorithm"
           :is-greedy-algorithm="isGreedyAlgorithm"
           :greedy-algorithm-slug="greedyAlgorithmSlug"
+          :is-dp-algorithm="isDpAlgorithm"
+          :dp-algorithm-slug="dpAlgorithmSlug"
           :sorting-data="sortingData"
           :graph-data="graphData"
           :tree-data="treeData"
           :hanoi-message="hanoiMessage"
           :hanoi-message-error="hanoiMessageError"
           :huffman-validation="{ message: huffmanMessage, error: huffmanMessageError }"
+          :dp-validation="{ message: dpMessage, error: dpMessageError }"
           @randomize-data="randomizeData"
           @apply-size="applySizeFromInput"
           @apply-graph-node-count="applyGraphNodeCountFromInput"
@@ -157,6 +180,10 @@ void panelScrollRef;
           @apply-huffman-input="applyHuffmanInput"
           @randomize-huffman="randomizeHuffman"
           @randomize-activity="randomizeActivity"
+          @apply-dp-lcs="applyDpLcs"
+          @apply-dp-knapsack="applyDpKnapsack"
+          @apply-dp-investment="applyDpInvestment"
+          @randomize-dp="randomizeDp"
         />
       </TabsContent>
 
@@ -166,6 +193,7 @@ void panelScrollRef;
           :is-graph-algorithm="isGraphAlgorithm"
           :is-tree-algorithm="isTreeAlgorithm"
           :is-hanoi-algorithm="isHanoiAlgorithm"
+          :is-dp-algorithm="isDpAlgorithm"
           :custom-data-message="customDataMessage"
           :custom-data-error="customDataError"
           @export-json="exportJsonFile"

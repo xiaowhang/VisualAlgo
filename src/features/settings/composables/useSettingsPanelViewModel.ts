@@ -163,6 +163,7 @@ export function useSettingsPanelViewModel() {
   );
 
   const greedyAlgorithmSlug = computed(() => activeAlgorithm.value?.slug ?? '');
+  const dpAlgorithmSlug = computed(() => activeAlgorithm.value?.slug ?? '');
 
   const inputForm = useSettingsInputForm({
     isGraphAlgorithm,
@@ -170,6 +171,8 @@ export function useSettingsPanelViewModel() {
     isHanoiAlgorithm,
     isGreedyAlgorithm,
     greedyAlgorithmSlug,
+    isDpAlgorithm,
+    dpAlgorithmSlug,
   });
 
   const panelTitle = computed(() => {
@@ -277,6 +280,8 @@ export function useSettingsPanelViewModel() {
     isHanoiAlgorithm,
     isGreedyAlgorithm,
     greedyAlgorithmSlug,
+    isDpAlgorithm,
+    dpAlgorithmSlug,
     panelTitle,
     panelDescription,
     stepDescription,

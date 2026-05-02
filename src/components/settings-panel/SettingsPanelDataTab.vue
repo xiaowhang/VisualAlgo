@@ -7,6 +7,7 @@ import type {
   ValidationState,
 } from '@/features/settings/types';
 import { HANOI_MAX_DISKS, HANOI_MIN_DISKS } from '@/stores/algorithmInputs';
+import DpDataSection from './DpDataSection.vue';
 import GraphDataSection from './GraphDataSection.vue';
 import GreedyDataSection from './GreedyDataSection.vue';
 import SortingDataSection from './SortingDataSection.vue';
@@ -22,6 +23,12 @@ const treeTargetValueInput = defineModel<string>('treeTargetValueInput', { requi
 const hanoiDiskCountInput = defineModel<string>('hanoiDiskCountInput', { required: true });
 const customData = defineModel<string>('customData', { required: true });
 const huffmanInput = defineModel<string>('huffmanInput', { required: true });
+const dpLcsStringX = defineModel<string>('dpLcsStringX', { required: true });
+const dpLcsStringY = defineModel<string>('dpLcsStringY', { required: true });
+const dpKnapsackCapacity = defineModel<string>('dpKnapsackCapacity', { required: true });
+const dpKnapsackItemCount = defineModel<string>('dpKnapsackItemCount', { required: true });
+const dpInvestmentCount = defineModel<string>('dpInvestmentCount', { required: true });
+const dpInvestmentResources = defineModel<string>('dpInvestmentResources', { required: true });
 
 interface Props {
   isSortingAlgorithm: boolean;
@@ -30,12 +37,15 @@ interface Props {
   isHanoiAlgorithm: boolean;
   isGreedyAlgorithm: boolean;
   greedyAlgorithmSlug: string;
+  isDpAlgorithm: boolean;
+  dpAlgorithmSlug: string;
   sortingData: SortingSectionData;
   graphData: GraphSectionData;
   treeData: TreeSectionData;
   hanoiMessage: string;
   hanoiMessageError: boolean;
   huffmanValidation: { message: string; error: boolean };
+  dpValidation: { message: string; error: boolean };
 }
 
 const props = defineProps<Props>();
@@ -53,6 +63,10 @@ interface Emits {
   (event: 'apply-huffman-input'): void;
   (event: 'randomize-huffman'): void;
   (event: 'randomize-activity'): void;
+  (event: 'apply-dp-lcs'): void;
+  (event: 'apply-dp-knapsack'): void;
+  (event: 'apply-dp-investment'): void;
+  (event: 'randomize-dp'): void;
 }
 
 const emit = defineEmits<Emits>();
@@ -120,6 +134,22 @@ const hanoiState = computed<ValidationState>(() => ({
       @apply-huffman-input="emit('apply-huffman-input')"
       @randomize-huffman="emit('randomize-huffman')"
       @randomize-activity="emit('randomize-activity')"
+    />
+
+    <DpDataSection
+      v-if="props.isDpAlgorithm"
+      :algorithm-slug="props.dpAlgorithmSlug"
+      :dp-lcs-string-x="dpLcsStringX"
+      :dp-lcs-string-y="dpLcsStringY"
+      :dp-knapsack-capacity="dpKnapsackCapacity"
+      :dp-knapsack-item-count="dpKnapsackItemCount"
+      :dp-investment-count="dpInvestmentCount"
+      :dp-investment-resources="dpInvestmentResources"
+      :dp-validation="props.dpValidation"
+      @apply-dp-lcs="emit('apply-dp-lcs')"
+      @apply-dp-knapsack="emit('apply-dp-knapsack')"
+      @apply-dp-investment="emit('apply-dp-investment')"
+      @randomize-dp="emit('randomize-dp')"
     />
 
     <FieldSet v-if="props.isHanoiAlgorithm">

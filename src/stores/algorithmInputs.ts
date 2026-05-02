@@ -14,6 +14,7 @@ import {
   type SortingInputResult,
 } from '@/lib/validation/sortingInput';
 import { GRAPH_SNAPSHOT_FORMAT_VERSION, parseGraphImportJson } from '@/lib/validation/graphInput';
+import { DP_SNAPSHOT_FORMAT_VERSION, parseDpImportJson } from '@/lib/validation/dpInput';
 import {
   TREE_MAX_NODES,
   TREE_MIN_NODES,
@@ -621,6 +622,78 @@ export const useAlgorithmInputsStore = defineStore('algorithm-inputs', () => {
     return { ok: true, message: `已导入 ${nodes.length} 个树节点。` } as const;
   }
 
+  function exportDpAsJsonText(type: 'lcs' | 'knapsack' | 'investment') {
+    if (type === 'lcs') {
+      return JSON.stringify(
+        {
+          formatVersion: DP_SNAPSHOT_FORMAT_VERSION,
+          type: 'lcs',
+          x: dpLcsStringX.value,
+          y: dpLcsStringY.value,
+        },
+        null,
+        2
+      );
+    }
+    if (type === 'knapsack') {
+      return JSON.stringify(
+        {
+          formatVersion: DP_SNAPSHOT_FORMAT_VERSION,
+          type: 'knapsack',
+          capacity: dpKnapsackCapacity.value,
+          items: dpKnapsackItems.value,
+        },
+        null,
+        2
+      );
+    }
+    return JSON.stringify(
+      {
+        formatVersion: DP_SNAPSHOT_FORMAT_VERSION,
+        type: 'investment',
+        investmentCount: dpInvestmentCount.value,
+        resources: dpInvestmentResources.value,
+        returns: dpInvestmentReturns.value,
+      },
+      null,
+      2
+    );
+  }
+
+  function importDpFromJsonText(rawText: string) {
+    const result = parseDpImportJson(rawText);
+
+    if (!result.ok) {
+      return { ok: false, message: result.message } as const;
+    }
+
+    if (result.type === 'lcs') {
+      dpLcsStringX.value = result.x;
+      dpLcsStringY.value = result.y;
+      dataVersion.value += 1;
+      return { ok: true, message: `已导入 LCS 数据：X="${result.x}", Y="${result.y}"。` } as const;
+    }
+
+    if (result.type === 'knapsack') {
+      dpKnapsackCapacity.value = result.capacity;
+      dpKnapsackItems.value = result.items;
+      dataVersion.value += 1;
+      return {
+        ok: true,
+        message: `已导入背包数据：容量=${result.capacity}，${result.items.length} 个物品。`,
+      } as const;
+    }
+
+    dpInvestmentCount.value = result.investmentCount;
+    dpInvestmentResources.value = result.resources;
+    dpInvestmentReturns.value = result.returns;
+    dataVersion.value += 1;
+    return {
+      ok: true,
+      message: `已导入投资数据：${result.investmentCount} 项投资，资源=${result.resources}。`,
+    } as const;
+  }
+
   return {
     sortingInput,
     graphNodeCount,
@@ -675,5 +748,7 @@ export const useAlgorithmInputsStore = defineStore('algorithm-inputs', () => {
     importGraphFromJsonText,
     exportTreeAsJsonText,
     importTreeFromJsonText,
+    exportDpAsJsonText,
+    importDpFromJsonText,
   };
 });

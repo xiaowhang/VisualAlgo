@@ -25,6 +25,8 @@ interface UseSettingsInputFormOptions {
   isHanoiAlgorithm: Readonly<Ref<boolean>>;
   isGreedyAlgorithm: Readonly<Ref<boolean>>;
   greedyAlgorithmSlug: Readonly<Ref<string>>;
+  isDpAlgorithm: Readonly<Ref<boolean>>;
+  dpAlgorithmSlug: Readonly<Ref<string>>;
 }
 
 export function useSettingsInputForm(options: UseSettingsInputFormOptions) {
@@ -49,6 +51,18 @@ export function useSettingsInputForm(options: UseSettingsInputFormOptions) {
     exportTreeAsJsonText: algorithmInputsStore.exportTreeAsJsonText,
     importTreeFromJsonText: algorithmInputsStore.importTreeFromJsonText,
     setHanoiDiskCount: algorithmInputsStore.setHanoiDiskCount,
+    setDpLcsStringX: algorithmInputsStore.setDpLcsStringX,
+    setDpLcsStringY: algorithmInputsStore.setDpLcsStringY,
+    randomizeDpLcsStrings: algorithmInputsStore.randomizeDpLcsStrings,
+    setDpKnapsackCapacity: algorithmInputsStore.setDpKnapsackCapacity,
+    setDpKnapsackItemCount: algorithmInputsStore.setDpKnapsackItemCount,
+    randomizeDpKnapsackItems: algorithmInputsStore.randomizeDpKnapsackItems,
+    setDpInvestmentCount: algorithmInputsStore.setDpInvestmentCount,
+    setDpInvestmentResources: algorithmInputsStore.setDpInvestmentResources,
+    randomizeDpInvestmentReturns: algorithmInputsStore.randomizeDpInvestmentReturns,
+    randomizeDpAlgorithmInput: algorithmInputsStore.randomizeDpAlgorithmInput,
+    exportDpAsJsonText: algorithmInputsStore.exportDpAsJsonText,
+    importDpFromJsonText: algorithmInputsStore.importDpFromJsonText,
   };
 
   const sortingSize = computed(() => algorithmInputs.sortingInput.value.length);
@@ -206,6 +220,114 @@ export function useSettingsInputForm(options: UseSettingsInputFormOptions) {
     algorithmInputsStore.randomizeActivityIntervals();
     huffmanMessage.value = '已随机生成活动区间。';
     huffmanMessageError.value = false;
+  }
+
+  const dpLcsStringXInput = ref(algorithmInputsStore.dpLcsStringX);
+  const dpLcsStringYInput = ref(algorithmInputsStore.dpLcsStringY);
+  const dpKnapsackCapacityInput = ref(String(algorithmInputsStore.dpKnapsackCapacity));
+  const dpKnapsackItemCountInput = ref(String(algorithmInputsStore.dpKnapsackItems.length));
+  const dpInvestmentCountInput = ref(String(algorithmInputsStore.dpInvestmentCount));
+  const dpInvestmentResourcesInput = ref(String(algorithmInputsStore.dpInvestmentResources));
+  const dpMessage = ref('');
+  const dpMessageError = ref(false);
+
+  watch(
+    () => algorithmInputsStore.dpLcsStringX,
+    value => {
+      dpLcsStringXInput.value = value;
+    }
+  );
+
+  watch(
+    () => algorithmInputsStore.dpLcsStringY,
+    value => {
+      dpLcsStringYInput.value = value;
+    }
+  );
+
+  watch(
+    () => algorithmInputsStore.dpKnapsackCapacity,
+    value => {
+      dpKnapsackCapacityInput.value = String(value);
+    }
+  );
+
+  watch(
+    () => algorithmInputsStore.dpKnapsackItems.length,
+    value => {
+      dpKnapsackItemCountInput.value = String(value);
+    }
+  );
+
+  watch(
+    () => algorithmInputsStore.dpInvestmentCount,
+    value => {
+      dpInvestmentCountInput.value = String(value);
+    }
+  );
+
+  watch(
+    () => algorithmInputsStore.dpInvestmentResources,
+    value => {
+      dpInvestmentResourcesInput.value = String(value);
+    }
+  );
+
+  function applyDpLcs() {
+    const x = dpLcsStringXInput.value.trim();
+    const y = dpLcsStringYInput.value.trim();
+    if (x.length === 0 || y.length === 0) {
+      dpMessage.value = '两个字符串均不能为空。';
+      dpMessageError.value = true;
+      return;
+    }
+    algorithmInputsStore.setDpLcsStringX(x);
+    algorithmInputsStore.setDpLcsStringY(y);
+    dpLcsStringXInput.value = algorithmInputsStore.dpLcsStringX;
+    dpLcsStringYInput.value = algorithmInputsStore.dpLcsStringY;
+    dpMessage.value = `已设置 LCS 数据：X="${x}", Y="${y}"。`;
+    dpMessageError.value = false;
+  }
+
+  function applyDpKnapsack() {
+    const capacity = Math.trunc(Number(dpKnapsackCapacityInput.value));
+    const itemCount = Math.trunc(Number(dpKnapsackItemCountInput.value));
+    algorithmInputsStore.setDpKnapsackCapacity(capacity);
+    algorithmInputsStore.setDpKnapsackItemCount(itemCount);
+    dpKnapsackCapacityInput.value = String(algorithmInputsStore.dpKnapsackCapacity);
+    dpKnapsackItemCountInput.value = String(algorithmInputsStore.dpKnapsackItems.length);
+    dpMessage.value = `已设置背包数据：容量=${algorithmInputsStore.dpKnapsackCapacity}，${algorithmInputsStore.dpKnapsackItems.length} 个物品。`;
+    dpMessageError.value = false;
+  }
+
+  function applyDpInvestment() {
+    const count = Math.trunc(Number(dpInvestmentCountInput.value));
+    const resources = Math.trunc(Number(dpInvestmentResourcesInput.value));
+    algorithmInputsStore.setDpInvestmentCount(count);
+    algorithmInputsStore.setDpInvestmentResources(resources);
+    dpInvestmentCountInput.value = String(algorithmInputsStore.dpInvestmentCount);
+    dpInvestmentResourcesInput.value = String(algorithmInputsStore.dpInvestmentResources);
+    dpMessage.value = `已设置投资数据：${algorithmInputsStore.dpInvestmentCount} 项投资，资源=${algorithmInputsStore.dpInvestmentResources}。`;
+    dpMessageError.value = false;
+  }
+
+  function randomizeDp() {
+    const slug = options.dpAlgorithmSlug.value;
+    if (slug === 'lcs') {
+      algorithmInputsStore.randomizeDpLcsStrings();
+      dpLcsStringXInput.value = algorithmInputsStore.dpLcsStringX;
+      dpLcsStringYInput.value = algorithmInputsStore.dpLcsStringY;
+    } else if (slug === 'knapsack') {
+      algorithmInputsStore.randomizeDpKnapsackItems();
+      dpKnapsackCapacityInput.value = String(algorithmInputsStore.dpKnapsackCapacity);
+      dpKnapsackItemCountInput.value = String(algorithmInputsStore.dpKnapsackItems.length);
+    } else if (slug === 'investment') {
+      algorithmInputsStore.randomizeDpInvestmentReturns();
+      dpInvestmentCountInput.value = String(algorithmInputsStore.dpInvestmentCount);
+      dpInvestmentResourcesInput.value = String(algorithmInputsStore.dpInvestmentResources);
+    }
+    dpMessage.value = '已随机生成新数据。';
+    dpMessageError.value = false;
   }
 
   function normalizeSizeInput(rawValue: string) {
@@ -403,6 +525,11 @@ export function useSettingsInputForm(options: UseSettingsInputFormOptions) {
       return;
     }
 
+    if (options.isDpAlgorithm.value) {
+      randomizeDp();
+      return;
+    }
+
     if (options.isTreeAlgorithm.value) {
       const count = normalizeTreeNodeCountInput(treeNodeCountInput.value).normalized;
       algorithmInputs.randomizeTreeInput(
@@ -472,6 +599,12 @@ export function useSettingsInputForm(options: UseSettingsInputFormOptions) {
     } else if (options.isHanoiAlgorithm.value) {
       text = JSON.stringify({ hanoiDiskCount: algorithmInputs.hanoiDiskCount.value }, null, 2);
       fileName = `hanoi-input-${timestamp}.json`;
+    } else if (options.isDpAlgorithm.value) {
+      const slug = options.dpAlgorithmSlug.value;
+      text = algorithmInputs.exportDpAsJsonText(
+        slug === 'lcs' ? 'lcs' : slug === 'knapsack' ? 'knapsack' : 'investment'
+      );
+      fileName = `dp-${slug}-input-${timestamp}.json`;
     } else {
       text = algorithmInputs.exportSortingAsJsonText();
       fileName = `sorting-input-${timestamp}.json`;
@@ -522,6 +655,8 @@ export function useSettingsInputForm(options: UseSettingsInputFormOptions) {
         } catch {
           result = { ok: false, message: 'JSON 解析失败，请检查文件内容。' };
         }
+      } else if (options.isDpAlgorithm.value) {
+        result = algorithmInputs.importDpFromJsonText(text);
       } else {
         result = algorithmInputs.importSortingFromJsonText(text);
       }
@@ -530,7 +665,11 @@ export function useSettingsInputForm(options: UseSettingsInputFormOptions) {
       customDataMessage.value = result.message;
 
       if (result.ok) {
-        if (!options.isGraphAlgorithm.value && !options.isTreeAlgorithm.value) {
+        if (
+          !options.isGraphAlgorithm.value &&
+          !options.isTreeAlgorithm.value &&
+          !options.isDpAlgorithm.value
+        ) {
           customData.value = algorithmInputs.sortingInput.value.join(', ');
         }
         if (options.isGraphAlgorithm.value) {
@@ -540,6 +679,14 @@ export function useSettingsInputForm(options: UseSettingsInputFormOptions) {
         if (options.isTreeAlgorithm.value) {
           treeNodeCountInput.value = String(algorithmInputs.treeNodeCount.value);
           treeTargetValueInput.value = algorithmInputs.treeTargetValue.value;
+        }
+        if (options.isDpAlgorithm.value) {
+          dpLcsStringXInput.value = algorithmInputsStore.dpLcsStringX;
+          dpLcsStringYInput.value = algorithmInputsStore.dpLcsStringY;
+          dpKnapsackCapacityInput.value = String(algorithmInputsStore.dpKnapsackCapacity);
+          dpKnapsackItemCountInput.value = String(algorithmInputsStore.dpKnapsackItems.length);
+          dpInvestmentCountInput.value = String(algorithmInputsStore.dpInvestmentCount);
+          dpInvestmentResourcesInput.value = String(algorithmInputsStore.dpInvestmentResources);
         }
       }
     } catch {
@@ -618,5 +765,17 @@ export function useSettingsInputForm(options: UseSettingsInputFormOptions) {
     randomizeData,
     exportJsonFile,
     handleImportFile,
+    dpLcsStringXInput,
+    dpLcsStringYInput,
+    dpKnapsackCapacityInput,
+    dpKnapsackItemCountInput,
+    dpInvestmentCountInput,
+    dpInvestmentResourcesInput,
+    dpMessage,
+    dpMessageError,
+    applyDpLcs,
+    applyDpKnapsack,
+    applyDpInvestment,
+    randomizeDp,
   };
 }

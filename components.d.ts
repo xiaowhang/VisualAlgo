@@ -24,6 +24,7 @@ declare module 'vue' {
     CollapsibleContent: typeof import('./src/components/ui/collapsible/CollapsibleContent.vue')['default']
     CollapsibleTrigger: typeof import('./src/components/ui/collapsible/CollapsibleTrigger.vue')['default']
     CompareSideCard: typeof import('./src/components/CompareSideCard.vue')['default']
+    DpDataSection: typeof import('./src/components/settings-panel/DpDataSection.vue')['default']
     DpTableVisualizer: typeof import('./src/components/visualization/DpTableVisualizer.vue')['default']
     Field: typeof import('./src/components/ui/field/Field.vue')['default']
     FieldContent: typeof import('./src/components/ui/field/FieldContent.vue')['default']
