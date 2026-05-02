@@ -159,6 +159,12 @@
   --sidebar-ring: rgba(147, 197, 253, 0.55);
 }
 
+/* Range inputs: remove horizontal padding so the thumb reaches the edges */
+input[type='range'] {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
