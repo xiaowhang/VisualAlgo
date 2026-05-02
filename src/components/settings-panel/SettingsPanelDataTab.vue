@@ -24,6 +24,7 @@ const treeTargetValueInput = defineModel<string>('treeTargetValueInput', { requi
 const hanoiDiskCountInput = defineModel<string>('hanoiDiskCountInput', { required: true });
 const customData = defineModel<string>('customData', { required: true });
 const huffmanInput = defineModel<string>('huffmanInput', { required: true });
+const activityIntervalCount = defineModel<string>('activityIntervalCount', { required: true });
 const dpLcsStringX = defineModel<string>('dpLcsStringX', { required: true });
 const dpLcsStringY = defineModel<string>('dpLcsStringY', { required: true });
 const dpKnapsackCapacity = defineModel<string>('dpKnapsackCapacity', { required: true });
@@ -68,6 +69,7 @@ interface Emits {
   (event: 'apply-hanoi-disk-count'): void;
   (event: 'apply-custom-data'): void;
   (event: 'apply-huffman-input'): void;
+  (event: 'apply-activity-interval-count'): void;
   (event: 'apply-dp-lcs'): void;
   (event: 'apply-dp-knapsack'): void;
   (event: 'apply-dp-investment'): void;
@@ -136,10 +138,12 @@ const hanoiState = computed<ValidationState>(() => ({
       v-if="props.isGreedyAlgorithm"
       :algorithm-slug="props.greedyAlgorithmSlug"
       :huffman-input="huffmanInput"
-      :activity-interval-count="0"
+      :activity-interval-count="activityIntervalCount"
       :huffman-validation="props.huffmanValidation"
       @apply-huffman-input="emit('apply-huffman-input')"
+      @apply-activity-interval-count="emit('apply-activity-interval-count')"
       @update:huffman-input="(v: string) => (huffmanInput = v)"
+      @update:activity-interval-count="(v: string) => (activityIntervalCount = v)"
     />
 
     <DpDataSection

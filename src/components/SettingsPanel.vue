@@ -68,6 +68,8 @@ const {
   huffmanMessage,
   huffmanMessageError,
   applyHuffmanInput,
+  activityIntervalCountInput,
+  applyActivityIntervalCount,
   dpLcsStringXInput,
   dpLcsStringYInput,
   dpKnapsackCapacityInput,
@@ -153,6 +155,7 @@ void panelScrollRef;
           v-model:hanoi-disk-count-input="hanoiDiskCountInput"
           v-model:custom-data="customData"
           v-model:huffman-input="huffmanInput"
+          v-model:activity-interval-count="activityIntervalCountInput"
           v-model:dp-lcs-string-x="dpLcsStringXInput"
           v-model:dp-lcs-string-y="dpLcsStringYInput"
           v-model:dp-knapsack-capacity="dpKnapsackCapacityInput"
@@ -193,6 +196,7 @@ void panelScrollRef;
           @apply-hanoi-disk-count="applyHanoiDiskCount"
           @apply-custom-data="applyCustomData"
           @apply-huffman-input="applyHuffmanInput"
+          @apply-activity-interval-count="applyActivityIntervalCount"
           @apply-dp-lcs="applyDpLcs"
           @apply-dp-knapsack="applyDpKnapsack"
           @apply-dp-investment="applyDpInvestment"

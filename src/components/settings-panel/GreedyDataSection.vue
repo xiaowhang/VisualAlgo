@@ -6,7 +6,7 @@ import ValidationMessage from './ValidationMessage.vue';
 interface Props {
   algorithmSlug: string;
   huffmanInput: string;
-  activityIntervalCount: number;
+  activityIntervalCount: string;
   huffmanValidation: ValidationState;
 }
 
@@ -14,7 +14,9 @@ const props = defineProps<Props>();
 
 interface Emits {
   (event: 'apply-huffman-input'): void;
+  (event: 'apply-activity-interval-count'): void;
   (event: 'update:huffmanInput', value: string): void;
+  (event: 'update:activityIntervalCount', value: string): void;
 }
 
 const emit = defineEmits<Emits>();
@@ -44,6 +46,21 @@ const emit = defineEmits<Emits>();
     <FieldContent>
       <FieldGroup class="flex flex-col gap-2">
         <FieldDescription>活动数量</FieldDescription>
+        <div class="flex items-center gap-2">
+          <Input
+            :model-value="props.activityIntervalCount"
+            type="number"
+            :min="ACTIVITY_MIN_INTERVALS"
+            :max="ACTIVITY_MAX_INTERVALS"
+            class="h-9 w-20"
+            @update:model-value="
+              (v: string | number) => emit('update:activityIntervalCount', String(v))
+            "
+          />
+          <Button variant="outline" size="sm" @click="emit('apply-activity-interval-count')">
+            应用
+          </Button>
+        </div>
         <FieldDescription class="text-xs text-muted-foreground">
           范围：{{ ACTIVITY_MIN_INTERVALS }} - {{ ACTIVITY_MAX_INTERVALS }}
         </FieldDescription>

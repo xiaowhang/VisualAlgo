@@ -218,8 +218,26 @@ export function useSettingsInputForm(options: UseSettingsInputFormOptions) {
     huffmanMessageError.value = false;
   }
 
+  const activityIntervalCountInput = ref(String(algorithmInputsStore.activityIntervals.length));
+
+  watch(
+    () => algorithmInputsStore.activityIntervals.length,
+    value => {
+      activityIntervalCountInput.value = String(value);
+    }
+  );
+
+  function applyActivityIntervalCount() {
+    const count = Math.trunc(Number(activityIntervalCountInput.value));
+    algorithmInputsStore.setActivityIntervalCount(count);
+    activityIntervalCountInput.value = String(algorithmInputsStore.activityIntervals.length);
+    huffmanMessage.value = `已设置 ${algorithmInputsStore.activityIntervals.length} 个活动。`;
+    huffmanMessageError.value = false;
+  }
+
   function randomizeActivity() {
     algorithmInputsStore.randomizeActivityIntervals();
+    activityIntervalCountInput.value = String(algorithmInputsStore.activityIntervals.length);
     huffmanMessage.value = '已随机生成活动区间。';
     huffmanMessageError.value = false;
   }
@@ -825,6 +843,8 @@ export function useSettingsInputForm(options: UseSettingsInputFormOptions) {
     applyHuffmanInput,
     randomizeHuffman,
     randomizeActivity,
+    activityIntervalCountInput,
+    applyActivityIntervalCount,
     applySizeFromInput,
     applyGraphNodeCountFromInput,
     applyGraphStartNode,
