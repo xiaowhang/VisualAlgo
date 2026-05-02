@@ -197,7 +197,7 @@ export const simplexRegistry: AlgorithmDefinition = {
   slug: 'simplex',
   title: '单纯形法',
   description: '标准单纯形法，通过选择进基和出基变量迭代求解线性规划问题。',
-  category: 'linear-programming',
+  categories: ['linear-programming'],
   visualization: 'lp-tableau',
   createSteps: () => buildSimplexSteps(),
 };

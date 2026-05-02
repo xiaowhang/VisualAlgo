@@ -162,7 +162,7 @@ export const lpGraphicalRegistry: AlgorithmDefinition = {
   slug: 'lp-graphical',
   title: '图解法',
   description: '在二维坐标系中展示约束线、可行域和目标函数等值线，直观找到最优解。',
-  category: 'linear-programming',
+  categories: ['linear-programming'],
   visualization: 'lp-graphical',
   createSteps: () => buildLpGraphicalSteps(),
 };

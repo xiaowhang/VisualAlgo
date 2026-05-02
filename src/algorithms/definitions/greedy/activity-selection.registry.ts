@@ -112,7 +112,7 @@ export const activitySelectionRegistry: AlgorithmDefinition = {
   slug: 'activity-selection',
   title: '活动选择问题',
   description: '贪心选择结束最早的兼容活动，求最大兼容子集。',
-  category: 'greedy',
+  categories: ['greedy'],
   visualization: 'timeline',
   createSteps: () => buildActivitySelectionSteps(getActivityInput().intervals),
 };

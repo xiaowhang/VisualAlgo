@@ -6,11 +6,13 @@ export const algorithmMenuByCategory = algorithmRegistry.reduce<
   Record<AlgorithmCategory, AlgorithmMenuItem[]>
 >(
   (accumulator, algorithm) => {
-    accumulator[algorithm.category].push({
-      title: algorithm.title,
-      slug: algorithm.slug,
-      category: algorithm.category,
-    });
+    for (const cat of algorithm.categories) {
+      accumulator[cat].push({
+        title: algorithm.title,
+        slug: algorithm.slug,
+        category: cat,
+      });
+    }
     return accumulator;
   },
   {
@@ -23,5 +25,6 @@ export const algorithmMenuByCategory = algorithmRegistry.reduce<
     backtracking: [],
     'network-flow': [],
     'linear-programming': [],
+    searching: [],
   }
 );

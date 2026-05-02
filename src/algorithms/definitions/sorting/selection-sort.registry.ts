@@ -48,7 +48,7 @@ export const selectionSortRegistry: AlgorithmDefinition = {
   slug: 'selection-sort',
   title: '选择排序',
   description: '每次从未排序区间选取最小值放到已排序区间末尾。',
-  category: 'sorting',
+  categories: ['sorting'],
   visualization: 'sorting',
   createSteps: () => buildSelectionSortSteps(getSortingInput()),
 };

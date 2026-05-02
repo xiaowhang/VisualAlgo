@@ -70,11 +70,13 @@ const graphAlgorithmKey = computed(() => {
   if (!activeAlgorithm.value || activeAlgorithm.value.visualization !== 'graph') {
     return null;
   }
-  return `${activeAlgorithm.value.category}:${activeAlgorithm.value.id}`;
+  return `${activeAlgorithm.value.categories[0]}:${activeAlgorithm.value.id}`;
 });
 
 const isHeapSort = computed(
-  () => activeAlgorithm.value?.slug === 'heap-sort' && activeAlgorithm.value?.category === 'sorting'
+  () =>
+    activeAlgorithm.value?.slug === 'heap-sort' &&
+    activeAlgorithm.value?.categories.includes('sorting')
 );
 
 const showTreeView = ref(false);

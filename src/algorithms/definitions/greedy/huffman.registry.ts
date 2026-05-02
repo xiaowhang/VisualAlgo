@@ -175,7 +175,7 @@ export const huffmanRegistry: AlgorithmDefinition = {
   slug: 'huffman',
   title: '哈夫曼编码',
   description: '贪心构建最优前缀编码树，频率高的字符编码更短。',
-  category: 'greedy',
+  categories: ['greedy'],
   visualization: 'huffman',
   createSteps: () => buildHuffmanTree(getHuffmanInput().text),
 };

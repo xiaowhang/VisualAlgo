@@ -193,7 +193,7 @@ export const subsetSumRegistry: AlgorithmDefinition = {
   slug: 'subset-sum',
   title: '子集和问题',
   description: '给定一组正整数和目标和，找出所有和为目标的子集。',
-  category: 'backtracking',
+  categories: ['backtracking'],
   visualization: 'decision-tree',
   createSteps: () => {
     const { nums, target } = getSubsetSumInput();

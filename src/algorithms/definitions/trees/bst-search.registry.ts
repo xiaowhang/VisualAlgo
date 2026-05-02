@@ -121,7 +121,7 @@ export const bstSearchRegistry: AlgorithmDefinition = {
   slug: 'bst-search',
   title: 'BST 查找',
   description: '在二叉搜索树中按照大小比较逐层查找目标值。',
-  category: 'trees',
+  categories: ['trees'],
   visualization: 'tree',
   createSteps: () => {
     const { nodes, edges } = getTreeSnapshot();

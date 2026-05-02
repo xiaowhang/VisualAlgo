@@ -70,7 +70,7 @@ export const quickSortRegistry: AlgorithmDefinition = {
   slug: 'quick-sort',
   title: '快速排序',
   description: '通过分区策略将数组递归拆分并完成排序。',
-  category: 'sorting',
+  categories: ['sorting', 'divide-conquer'],
   visualization: 'sorting',
   createSteps: () => buildQuickSortSteps(getSortingInput()),
 };

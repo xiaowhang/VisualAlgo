@@ -97,7 +97,7 @@ export const heapSortRegistry: AlgorithmDefinition = {
   slug: 'heap-sort',
   title: '堆排序',
   description: '利用大顶堆数据结构，反复提取堆顶最大值完成排序。',
-  category: 'sorting',
+  categories: ['sorting'],
   visualization: 'sorting',
   createSteps: () => buildHeapSortSteps(getSortingInput()),
 };

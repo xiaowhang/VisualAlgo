@@ -194,7 +194,7 @@ export const lcsRegistry: AlgorithmDefinition = {
   slug: 'lcs',
   title: '最长公共子序列 (LCS)',
   description: '使用动态规划求两个字符串的最长公共子序列。',
-  category: 'dynamic-programming',
+  categories: ['dynamic-programming'],
   visualization: 'dp-table',
   createSteps: () => buildLcsSteps(getDpLcsStrings().x, getDpLcsStrings().y),
 };

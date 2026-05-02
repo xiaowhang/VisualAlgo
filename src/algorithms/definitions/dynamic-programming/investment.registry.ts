@@ -121,7 +121,7 @@ export const investmentRegistry: AlgorithmDefinition = {
   slug: 'investment',
   title: '投资问题',
   description: '使用动态规划求解多阶段投资的最优资源分配方案。',
-  category: 'dynamic-programming',
+  categories: ['dynamic-programming'],
   visualization: 'dp-table',
   createSteps: () =>
     buildInvestmentSteps(

@@ -145,7 +145,7 @@ export const knapsackRegistry: AlgorithmDefinition = {
   slug: 'knapsack',
   title: '0/1 背包问题',
   description: '使用动态规划求解 0/1 背包问题的最优选择方案。',
-  category: 'dynamic-programming',
+  categories: ['dynamic-programming'],
   visualization: 'dp-table',
   createSteps: () => buildKnapsackSteps(getDpKnapsackInput().capacity, getDpKnapsackInput().items),
 };

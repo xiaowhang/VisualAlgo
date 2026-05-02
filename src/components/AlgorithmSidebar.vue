@@ -26,6 +26,12 @@ const sections = computed(() => [
     items: algorithmMenuByCategory.trees,
   },
   {
+    label: '搜索算法',
+    category: 'searching' as const,
+    defaultOpen: false,
+    items: algorithmMenuByCategory.searching,
+  },
+  {
     label: '分治算法',
     category: 'divide-conquer' as const,
     defaultOpen: false,

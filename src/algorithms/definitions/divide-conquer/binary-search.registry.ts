@@ -74,7 +74,7 @@ export const binarySearchRegistry: AlgorithmDefinition = {
   slug: 'binary-search',
   title: '二分检索',
   description: '在有序序列中通过折半比较快速定位目标值。',
-  category: 'divide-conquer',
+  categories: ['divide-conquer', 'searching'],
   visualization: 'sorting',
   createSteps: () => buildBinarySearchSteps(getSortingInput()),
 };

@@ -156,7 +156,7 @@ export const nQueensRegistry: AlgorithmDefinition = {
   slug: 'n-queens',
   title: 'N 皇后',
   description: '在 N×N 棋盘上放置 N 个皇后，使它们互不攻击。',
-  category: 'backtracking',
+  categories: ['backtracking'],
   visualization: 'chessboard',
   createSteps: () => buildNQueensSteps(getNQueensSize()),
 };

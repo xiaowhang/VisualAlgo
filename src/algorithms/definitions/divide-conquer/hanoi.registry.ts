@@ -53,7 +53,7 @@ export const hanoiRegistry: AlgorithmDefinition = {
   slug: 'hanoi',
   title: '汉诺塔',
   description: '将所有圆盘从 A 柱移至 C 柱，每次只移动一个且大盘不能压在小盘上。',
-  category: 'divide-conquer',
+  categories: ['divide-conquer'],
   visualization: 'hanoi',
   createSteps: () => buildHanoiSteps(getHanoiDiskCount()),
 };

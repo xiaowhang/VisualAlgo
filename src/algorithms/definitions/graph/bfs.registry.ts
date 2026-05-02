@@ -44,7 +44,7 @@ export const bfsRegistry: AlgorithmDefinition = {
   slug: 'bfs',
   title: '广度优先搜索（BFS）',
   description: '以队列为核心按层访问图节点。',
-  category: 'graphs',
+  categories: ['graphs'],
   visualization: 'graph',
   createSteps: () => buildBfsSteps(getGraphStartNode()),
 };

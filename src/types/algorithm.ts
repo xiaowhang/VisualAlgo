@@ -7,7 +7,8 @@ export type AlgorithmCategory =
   | 'greedy'
   | 'backtracking'
   | 'network-flow'
-  | 'linear-programming';
+  | 'linear-programming'
+  | 'searching';
 
 export type VisualizationKind =
   | 'sorting'
@@ -293,7 +294,7 @@ export interface AlgorithmDefinition {
   slug: string;
   title: string;
   description: string;
-  category: AlgorithmCategory;
+  categories: AlgorithmCategory[];
   visualization: VisualizationKind;
   createSteps: () => AlgorithmStep[];
 }

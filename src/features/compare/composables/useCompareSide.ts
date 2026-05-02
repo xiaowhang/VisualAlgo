@@ -13,7 +13,7 @@ interface UseCompareSideOptions {
 export function useCompareSide(options: UseCompareSideOptions) {
   const algorithm = computed(() => {
     const candidate = resolveAlgorithmBySlug(options.slug.value);
-    if (!candidate || candidate.category !== options.category.value) {
+    if (!candidate || !candidate.categories.includes(options.category.value)) {
       return null;
     }
     return candidate;
@@ -30,7 +30,7 @@ export function useCompareSide(options: UseCompareSideOptions) {
     if (!algorithm.value || algorithm.value.visualization !== 'graph') {
       return null;
     }
-    return `${algorithm.value.category}:${algorithm.value.id}:${options.side}`;
+    return `${algorithm.value.categories[0]}:${algorithm.value.id}:${options.side}`;
   });
 
   const completed = computed(

@@ -242,7 +242,7 @@ export const minCutRegistry: AlgorithmDefinition = {
   slug: 'min-cut',
   title: '最小割',
   description: '通过最大流-最小割定理，先计算最大流再在残余图中找最小割。',
-  category: 'network-flow',
+  categories: ['network-flow'],
   visualization: 'network-flow',
   createSteps: () => buildMinCutSteps(),
 };

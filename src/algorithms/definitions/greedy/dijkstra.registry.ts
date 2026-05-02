@@ -145,7 +145,7 @@ export const dijkstraRegistry: AlgorithmDefinition = {
   slug: 'dijkstra',
   title: 'Dijkstra 最短路径',
   description: '贪心策略求解单源最短路径，每次选择距离最小的未访问节点。',
-  category: 'greedy',
+  categories: ['greedy', 'graphs'],
   visualization: 'graph',
   createSteps: () => {
     const input = getDijkstraInput();

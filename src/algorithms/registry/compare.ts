@@ -15,7 +15,8 @@ export function isAlgorithmCategory(value: string): value is AlgorithmCategory {
     value === 'greedy' ||
     value === 'backtracking' ||
     value === 'network-flow' ||
-    value === 'linear-programming'
+    value === 'linear-programming' ||
+    value === 'searching'
   );
 }
 
@@ -58,6 +59,9 @@ export function resolveAlgorithmBySlug(slug: string) {
   const lpAlgorithm = findAlgorithm('linear-programming', slug);
   if (lpAlgorithm) return lpAlgorithm;
 
+  const searchingAlgorithm = findAlgorithm('searching', slug);
+  if (searchingAlgorithm) return searchingAlgorithm;
+
   return findAlgorithm('divide-conquer', slug) ?? null;
 }
 
@@ -97,19 +101,23 @@ export function normalizeComparePair(input: {
 
   let category = resolveFallbackCategory(input.preferredCategory);
   if (leftAlgorithm) {
-    category = leftAlgorithm.category;
+    category = leftAlgorithm.categories[0];
   } else if (rightAlgorithm) {
-    category = rightAlgorithm.category;
+    category = rightAlgorithm.categories[0];
   }
 
   const fallback = resolveFallbackPair(category);
   const options = getCompareOptionsByCategory(category);
 
   const normalizedLeft =
-    leftAlgorithm && leftAlgorithm.category === category ? leftAlgorithm.slug : fallback.left;
+    leftAlgorithm && leftAlgorithm.categories.includes(category)
+      ? leftAlgorithm.slug
+      : fallback.left;
 
   let normalizedRight =
-    rightAlgorithm && rightAlgorithm.category === category ? rightAlgorithm.slug : fallback.right;
+    rightAlgorithm && rightAlgorithm.categories.includes(category)
+      ? rightAlgorithm.slug
+      : fallback.right;
 
   if (normalizedRight === normalizedLeft && options.length > 1) {
     normalizedRight = options.find(item => item.slug !== normalizedLeft)?.slug ?? normalizedLeft;

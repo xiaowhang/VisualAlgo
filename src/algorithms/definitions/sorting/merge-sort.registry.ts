@@ -86,7 +86,7 @@ export const mergeSortRegistry: AlgorithmDefinition = {
   slug: 'merge-sort',
   title: '归并排序',
   description: '通过分治与归并过程构造有序序列。',
-  category: 'sorting',
+  categories: ['sorting', 'divide-conquer'],
   visualization: 'sorting',
   createSteps: () => buildMergeSortSteps(getSortingInput()),
 };

@@ -201,7 +201,7 @@ export const dualSimplexRegistry: AlgorithmDefinition = {
   slug: 'dual-simplex',
   title: '对偶单纯形法',
   description: '从对偶可行解出发，通过选择出基和进基变量逐步恢复原始可行性。',
-  category: 'linear-programming',
+  categories: ['linear-programming'],
   visualization: 'lp-tableau',
   createSteps: () => buildDualSimplexSteps(),
 };

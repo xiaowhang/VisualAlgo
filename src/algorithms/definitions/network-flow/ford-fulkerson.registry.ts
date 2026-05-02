@@ -238,7 +238,7 @@ export const fordFulkersonRegistry: AlgorithmDefinition = {
   slug: 'ford-fulkerson',
   title: 'Ford-Fulkerson 最大流',
   description: '基于 DFS 的增广路径方法，逐步寻找从源到汇的增广路径并更新流量。',
-  category: 'network-flow',
+  categories: ['network-flow'],
   visualization: 'network-flow',
   createSteps: () => buildFordFulkersonSteps(),
 };

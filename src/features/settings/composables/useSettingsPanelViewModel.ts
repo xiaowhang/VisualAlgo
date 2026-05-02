@@ -141,13 +141,13 @@ export function useSettingsPanelViewModel() {
   const isDivideConquerAlgorithm = computed(
     () =>
       (isCompareView.value && visibleCompareCategory.value === 'divide-conquer') ||
-      activeAlgorithm.value?.category === 'divide-conquer'
+      (activeAlgorithm.value?.categories.includes('divide-conquer') ?? false)
   );
 
   const isDpAlgorithm = computed(
     () =>
       (isCompareView.value && visibleCompareCategory.value === 'dynamic-programming') ||
-      activeAlgorithm.value?.category === 'dynamic-programming'
+      (activeAlgorithm.value?.categories.includes('dynamic-programming') ?? false)
   );
 
   const isHanoiAlgorithm = computed(
@@ -159,25 +159,25 @@ export function useSettingsPanelViewModel() {
   const isGreedyAlgorithm = computed(
     () =>
       (isCompareView.value && visibleCompareCategory.value === 'greedy') ||
-      activeAlgorithm.value?.category === 'greedy'
+      (activeAlgorithm.value?.categories.includes('greedy') ?? false)
   );
 
   const isBacktrackingAlgorithm = computed(
     () =>
       (isCompareView.value && visibleCompareCategory.value === 'backtracking') ||
-      activeAlgorithm.value?.category === 'backtracking'
+      (activeAlgorithm.value?.categories.includes('backtracking') ?? false)
   );
 
   const isNetworkFlowAlgorithm = computed(
     () =>
       (isCompareView.value && visibleCompareCategory.value === 'network-flow') ||
-      activeAlgorithm.value?.category === 'network-flow'
+      (activeAlgorithm.value?.categories.includes('network-flow') ?? false)
   );
 
   const isLpAlgorithm = computed(
     () =>
       (isCompareView.value && visibleCompareCategory.value === 'linear-programming') ||
-      activeAlgorithm.value?.category === 'linear-programming'
+      (activeAlgorithm.value?.categories.includes('linear-programming') ?? false)
   );
 
   const greedyAlgorithmSlug = computed(() => activeAlgorithm.value?.slug ?? '');
