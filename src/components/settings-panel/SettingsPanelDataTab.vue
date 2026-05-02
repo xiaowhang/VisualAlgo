@@ -139,6 +139,7 @@ const hanoiState = computed<ValidationState>(() => ({
       :activity-interval-count="0"
       :huffman-validation="props.huffmanValidation"
       @apply-huffman-input="emit('apply-huffman-input')"
+      @update:huffman-input="(v: string) => (huffmanInput = v)"
     />
 
     <DpDataSection
@@ -154,6 +155,12 @@ const hanoiState = computed<ValidationState>(() => ({
       @apply-dp-lcs="emit('apply-dp-lcs')"
       @apply-dp-knapsack="emit('apply-dp-knapsack')"
       @apply-dp-investment="emit('apply-dp-investment')"
+      @update:dp-lcs-string-x="(v: string) => (dpLcsStringX = v)"
+      @update:dp-lcs-string-y="(v: string) => (dpLcsStringY = v)"
+      @update:dp-knapsack-capacity="(v: string) => (dpKnapsackCapacity = v)"
+      @update:dp-knapsack-item-count="(v: string) => (dpKnapsackItemCount = v)"
+      @update:dp-investment-count="(v: string) => (dpInvestmentCount = v)"
+      @update:dp-investment-resources="(v: string) => (dpInvestmentResources = v)"
     />
 
     <BacktrackingDataSection
@@ -165,6 +172,9 @@ const hanoiState = computed<ValidationState>(() => ({
       :backtracking-validation="props.backtrackingValidation"
       @apply-n-queens-size="emit('apply-n-queens-size')"
       @apply-subset-sum="emit('apply-subset-sum')"
+      @update:n-queens-size="(v: string) => (nQueensSize = v)"
+      @update:subset-sum-array="(v: string) => (subsetSumArray = v)"
+      @update:subset-sum-target="(v: string) => (subsetSumTarget = v)"
     />
 
     <FieldSet v-if="props.isHanoiAlgorithm">

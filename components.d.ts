@@ -12,6 +12,7 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     AlgorithmSidebar: typeof import('./src/components/AlgorithmSidebar.vue')['default']
+    BacktrackingDataSection: typeof import('./src/components/settings-panel/BacktrackingDataSection.vue')['default']
     Button: typeof import('./src/components/ui/button/Button.vue')['default']
     Card: typeof import('./src/components/ui/card/Card.vue')['default']
     CardAction: typeof import('./src/components/ui/card/CardAction.vue')['default']
@@ -20,10 +21,12 @@ declare module 'vue' {
     CardFooter: typeof import('./src/components/ui/card/CardFooter.vue')['default']
     CardHeader: typeof import('./src/components/ui/card/CardHeader.vue')['default']
     CardTitle: typeof import('./src/components/ui/card/CardTitle.vue')['default']
+    ChessboardView: typeof import('./src/components/visualization/ChessboardView.vue')['default']
     Collapsible: typeof import('./src/components/ui/collapsible/Collapsible.vue')['default']
     CollapsibleContent: typeof import('./src/components/ui/collapsible/CollapsibleContent.vue')['default']
     CollapsibleTrigger: typeof import('./src/components/ui/collapsible/CollapsibleTrigger.vue')['default']
     CompareSideCard: typeof import('./src/components/CompareSideCard.vue')['default']
+    DecisionTreeView: typeof import('./src/components/visualization/DecisionTreeView.vue')['default']
     DpDataSection: typeof import('./src/components/settings-panel/DpDataSection.vue')['default']
     DpTableVisualizer: typeof import('./src/components/visualization/DpTableVisualizer.vue')['default']
     Field: typeof import('./src/components/ui/field/Field.vue')['default']
