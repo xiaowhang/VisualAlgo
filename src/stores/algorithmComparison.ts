@@ -1,8 +1,8 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import {
-  COMPARE_DEFAULT_CATEGORY,
-  isAlgorithmCategory,
+  COMPARE_DEFAULT_GROUP,
+  isComparisonGroup,
   normalizeComparePair,
 } from '@/algorithms/registry';
 import {
@@ -11,45 +11,43 @@ import {
   type CompareSelectionChangeInput,
   type CompareSyncResult,
 } from '@/features/compare/types';
-import type { AlgorithmCategory } from '@/types/algorithm';
+import type { ComparisonGroup } from '@/types/algorithm';
 
-const COMPARE_LAST_CATEGORY_KEY = 'algo-compare:last-category';
+const COMPARE_LAST_GROUP_KEY = 'algo-compare:last-group';
 
-function readStoredCompareCategory(): AlgorithmCategory | undefined {
+function readStoredCompareGroup(): ComparisonGroup | undefined {
   if (typeof window === 'undefined') {
     return undefined;
   }
 
-  const rawValue = window.localStorage.getItem(COMPARE_LAST_CATEGORY_KEY);
-  if (!rawValue || !isAlgorithmCategory(rawValue)) {
+  const rawValue = window.localStorage.getItem(COMPARE_LAST_GROUP_KEY);
+  if (!rawValue || !isComparisonGroup(rawValue)) {
     return undefined;
   }
 
   return rawValue;
 }
 
-function storeCompareCategory(category: AlgorithmCategory) {
+function storeCompareGroup(group: ComparisonGroup) {
   if (typeof window === 'undefined') {
     return;
   }
 
-  window.localStorage.setItem(COMPARE_LAST_CATEGORY_KEY, category);
+  window.localStorage.setItem(COMPARE_LAST_GROUP_KEY, group);
 }
 
-function normalizePair(rawLeft: string, rawRight: string, preferredCategory?: AlgorithmCategory) {
+function normalizePair(rawLeft: string, rawRight: string, preferredGroup?: ComparisonGroup) {
   return normalizeComparePair({
     leftSlug: rawLeft,
     rightSlug: rawRight,
-    preferredCategory,
+    preferredGroup,
   });
 }
 
 export const useAlgorithmComparisonStore = defineStore('algorithm-comparison', () => {
   const leftSlug = ref('');
   const rightSlug = ref('');
-  const compareCategory = ref<AlgorithmCategory>(
-    readStoredCompareCategory() ?? COMPARE_DEFAULT_CATEGORY
-  );
+  const compareGroup = ref<ComparisonGroup>(readStoredCompareGroup() ?? COMPARE_DEFAULT_GROUP);
 
   function applyRouteQuery(
     queryLeft: CompareRouteQueryValue,
@@ -57,17 +55,17 @@ export const useAlgorithmComparisonStore = defineStore('algorithm-comparison', (
   ): CompareSyncResult {
     const rawLeft = resolveCompareQuerySlug(queryLeft);
     const rawRight = resolveCompareQuerySlug(queryRight);
-    const normalized = normalizePair(rawLeft, rawRight, readStoredCompareCategory());
+    const normalized = normalizePair(rawLeft, rawRight, readStoredCompareGroup());
 
-    compareCategory.value = normalized.category;
+    compareGroup.value = normalized.group;
     leftSlug.value = normalized.left;
     rightSlug.value = normalized.right;
-    storeCompareCategory(normalized.category);
+    storeCompareGroup(normalized.group);
 
     return {
       left: normalized.left,
       right: normalized.right,
-      category: normalized.category,
+      category: normalized.group,
       needsRouteFix: rawLeft !== normalized.left || rawRight !== normalized.right,
     };
   }
@@ -89,12 +87,12 @@ export const useAlgorithmComparisonStore = defineStore('algorithm-comparison', (
       }
     }
 
-    const normalized = normalizePair(candidateLeft, candidateRight, compareCategory.value);
+    const normalized = normalizePair(candidateLeft, candidateRight, compareGroup.value);
 
-    compareCategory.value = normalized.category;
+    compareGroup.value = normalized.group;
     leftSlug.value = normalized.left;
     rightSlug.value = normalized.right;
-    storeCompareCategory(normalized.category);
+    storeCompareGroup(normalized.group);
 
     const routeLeft = resolveCompareQuerySlug(input.queryLeft);
     const routeRight = resolveCompareQuerySlug(input.queryRight);
@@ -102,22 +100,22 @@ export const useAlgorithmComparisonStore = defineStore('algorithm-comparison', (
     return {
       left: normalized.left,
       right: normalized.right,
-      category: normalized.category,
+      category: normalized.group,
       needsRouteFix: routeLeft !== normalized.left || routeRight !== normalized.right,
     };
   }
 
-  function setPreferredCategory(category: AlgorithmCategory) {
-    compareCategory.value = category;
-    storeCompareCategory(category);
+  function setPreferredGroup(group: ComparisonGroup) {
+    compareGroup.value = group;
+    storeCompareGroup(group);
   }
 
   return {
     leftSlug,
     rightSlug,
-    compareCategory,
+    compareGroup,
     applyRouteQuery,
     applySelectionChange,
-    setPreferredCategory,
+    setPreferredGroup,
   };
 });

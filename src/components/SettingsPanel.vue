@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { COMPARE_DEFAULT_CATEGORY } from '@/algorithms/registry';
+import { COMPARE_DEFAULT_GROUP } from '@/algorithms/registry';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import SettingsOverviewTab from '@/components/settings-panel/SettingsOverviewTab.vue';
 import SettingsPanelCompareTab from '@/components/settings-panel/SettingsPanelCompareTab.vue';
@@ -11,13 +11,13 @@ import { useSettingsPanelViewModel } from '@/features/settings/composables/useSe
 const {
   compareLeftSlug,
   compareRightSlug,
-  handleCompareCategorySwitch,
+  handleCompareGroupSwitch,
   handleCompareLeftChange,
   handleCompareRightChange,
   handleCompareSwap,
   playback,
   isCompareView,
-  visibleCompareCategory,
+  visibleCompareGroup,
   compareOptions,
   compareLeftCurrentStep,
   compareRightCurrentStep,
@@ -141,8 +141,8 @@ void panelScrollRef;
 
       <TabsContent v-if="isCompareView" value="compare" class="pt-1">
         <SettingsPanelCompareTab
-          :compare-category="visibleCompareCategory"
-          :compare-default-category="COMPARE_DEFAULT_CATEGORY"
+          :compare-group="visibleCompareGroup"
+          :compare-default-group="COMPARE_DEFAULT_GROUP"
           :compare-options="compareOptions"
           :compare-left-slug="compareLeftSlug"
           :compare-right-slug="compareRightSlug"
@@ -154,7 +154,7 @@ void panelScrollRef;
           :compare-right-steps-count="compareRightStepsCount"
           :compare-left-status-text="compareLeftStatusText"
           :compare-right-status-text="compareRightStatusText"
-          @update-category="handleCompareCategorySwitch"
+          @update-group="handleCompareGroupSwitch"
           @update-left="handleCompareLeftChange"
           @update-right="handleCompareRightChange"
           @swap="handleCompareSwap"

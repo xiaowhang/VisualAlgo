@@ -49,6 +49,7 @@ export const insertionSortRegistry: AlgorithmDefinition = {
   title: '插入排序',
   description: '将每个元素插入到已排序区间的正确位置。',
   categories: ['sorting'],
+  comparisonGroup: 'sorting',
   visualization: 'sorting',
   createSteps: () => buildInsertionSortSteps(getSortingInput()),
 };

@@ -12,7 +12,7 @@ export function useCompareViewModel() {
   const playbackStore = useAlgorithmPlaybackStore();
   const playbackRefs = storeToRefs(playbackStore);
 
-  const { compareCategory, compareLeftSlug, compareRightSlug, syncRouteQuery } =
+  const { compareGroup, compareLeftSlug, compareRightSlug, syncRouteQuery } =
     useCompareRouteActions();
 
   const playback = {
@@ -41,14 +41,14 @@ export function useCompareViewModel() {
   const leftSide = useCompareSide({
     side: 'left',
     slug: compareLeftSlug,
-    category: compareCategory,
+    group: compareGroup,
     currentStep: playback.currentStep,
   });
 
   const rightSide = useCompareSide({
     side: 'right',
     slug: compareRightSlug,
-    category: compareCategory,
+    group: compareGroup,
     currentStep: playback.currentStep,
   });
 
@@ -82,21 +82,17 @@ export function useCompareViewModel() {
   const rightVisualization = computed(() => rightSide.algorithm.value?.visualization ?? 'sorting');
 
   const compareTitle = computed(() => {
-    if (compareCategory.value === 'graphs') return '图算法对比';
-    if (compareCategory.value === 'trees') return '树算法对比';
-    if (compareCategory.value === 'divide-conquer') return '分治算法对比';
+    if (compareGroup.value === 'graph-traversal') return '图遍历算法对比';
+    if (compareGroup.value === 'max-flow') return '最大流算法对比';
     return '排序算法对比';
   });
 
   const compareDescription = computed(() => {
-    if (compareCategory.value === 'graphs') {
-      return '同一图输入下并行执行两个图算法，对比遍历路径与总步数差异。';
+    if (compareGroup.value === 'graph-traversal') {
+      return '同一图输入下并行执行两个图遍历算法，对比遍历路径与总步数差异。';
     }
-    if (compareCategory.value === 'trees') {
-      return '同一树输入下并行执行两个树算法，对比搜索路径与总步数差异。';
-    }
-    if (compareCategory.value === 'divide-conquer') {
-      return '同一输入下并行执行两个分治算法，对比执行过程与总步数差异。';
+    if (compareGroup.value === 'max-flow') {
+      return '同一网络流输入下并行执行两个最大流算法，对比增广路径与总步数差异。';
     }
     return '同一输入下并行执行两个排序算法，对比执行过程与总步数差异。';
   });

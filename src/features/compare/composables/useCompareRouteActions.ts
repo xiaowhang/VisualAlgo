@@ -1,9 +1,9 @@
 import { storeToRefs } from 'pinia';
 import { useRoute, useRouter } from 'vue-router';
-import { isAlgorithmCategory } from '@/algorithms/registry';
+import { isComparisonGroup } from '@/algorithms/registry';
 import type { CompareRouteQueryValue } from '@/features/compare/types';
 import { useAlgorithmComparisonStore } from '@/stores/algorithmComparison';
-import type { AlgorithmCategory } from '@/types/algorithm';
+import type { ComparisonGroup } from '@/types/algorithm';
 
 export function useCompareRouteActions() {
   const route = useRoute();
@@ -15,7 +15,7 @@ export function useCompareRouteActions() {
     ...comparisonRefs,
     applyRouteQuery: comparisonStore.applyRouteQuery,
     applySelectionChange: comparisonStore.applySelectionChange,
-    setPreferredCategory: comparisonStore.setPreferredCategory,
+    setPreferredGroup: comparisonStore.setPreferredGroup,
   };
 
   function replaceCompareQuery(left: string, right: string) {
@@ -38,12 +38,12 @@ export function useCompareRouteActions() {
     replaceCompareQuery(result.left, result.right);
   }
 
-  function handleCompareCategorySwitch(nextCategory: AlgorithmCategory) {
-    if (!isAlgorithmCategory(nextCategory) || nextCategory === comparison.compareCategory.value) {
+  function handleCompareGroupSwitch(nextGroup: ComparisonGroup) {
+    if (!isComparisonGroup(nextGroup) || nextGroup === comparison.compareGroup.value) {
       return;
     }
 
-    comparison.setPreferredCategory(nextCategory);
+    comparison.setPreferredGroup(nextGroup);
     replaceCompareQuery('', '');
   }
 
@@ -85,11 +85,11 @@ export function useCompareRouteActions() {
   }
 
   return {
-    compareCategory: comparison.compareCategory,
+    compareGroup: comparison.compareGroup,
     compareLeftSlug: comparison.leftSlug,
     compareRightSlug: comparison.rightSlug,
     syncRouteQuery,
-    handleCompareCategorySwitch,
+    handleCompareGroupSwitch,
     handleCompareLeftChange,
     handleCompareRightChange,
     handleCompareSwap,

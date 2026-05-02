@@ -10,6 +10,9 @@ export type AlgorithmCategory =
   | 'linear-programming'
   | 'searching';
 
+/** 对比分组：只有同组算法才能对比（按解决的问题分组） */
+export type ComparisonGroup = 'sorting' | 'graph-traversal' | 'max-flow';
+
 export type VisualizationKind =
   | 'sorting'
   | 'graph'
@@ -295,6 +298,8 @@ export interface AlgorithmDefinition {
   title: string;
   description: string;
   categories: AlgorithmCategory[];
+  /** 对比分组，只有同组算法才能对比；不设置则不参与对比 */
+  comparisonGroup?: ComparisonGroup;
   visualization: VisualizationKind;
   createSteps: () => AlgorithmStep[];
 }

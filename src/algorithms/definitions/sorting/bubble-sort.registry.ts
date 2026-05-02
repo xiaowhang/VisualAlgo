@@ -41,6 +41,7 @@ export const bubbleSortRegistry: AlgorithmDefinition = {
   title: '冒泡排序',
   description: '通过相邻交换将较大元素逐步移动到末尾。',
   categories: ['sorting'],
+  comparisonGroup: 'sorting',
   visualization: 'sorting',
   createSteps: () => buildBubbleSortSteps(getSortingInput()),
 };

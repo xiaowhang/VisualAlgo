@@ -1,15 +1,8 @@
 <script setup lang="ts">
 import GraphTraversalView from '@/components/visualization/GraphTraversalView.vue';
-import HanoiVisualizer from '@/components/visualization/HanoiVisualizer.vue';
+import NetworkFlowView from '@/components/visualization/NetworkFlowView.vue';
 import SortingChart from '@/components/visualization/SortingChart.vue';
-import TreeVisualizer from '@/components/visualization/TreeVisualizer.vue';
-import type {
-  GraphStep,
-  HanoiStep,
-  SortingStep,
-  TreeStep,
-  VisualizationKind,
-} from '@/types/algorithm';
+import type { GraphStep, NetworkFlowStep, SortingStep, VisualizationKind } from '@/types/algorithm';
 
 interface Props {
   title: string;
@@ -18,8 +11,7 @@ interface Props {
   visualization: VisualizationKind;
   sortingStep: SortingStep | null;
   graphStep: GraphStep | null;
-  treeStep: TreeStep | null;
-  hanoiStep: HanoiStep | null;
+  networkFlowStep: NetworkFlowStep | null;
   graphAlgorithmKey: string | null;
   isPlaying: boolean;
 }
@@ -51,14 +43,9 @@ defineProps<Props>();
         :step="graphStep"
         :algorithm-key="graphAlgorithmKey"
       />
-      <TreeVisualizer
-        v-else-if="visualization === 'tree'"
-        :step="treeStep"
-        :is-playing-override="isPlaying"
-      />
-      <HanoiVisualizer
-        v-else-if="visualization === 'hanoi'"
-        :step="hanoiStep"
+      <NetworkFlowView
+        v-else-if="visualization === 'network-flow'"
+        :step="networkFlowStep"
         :is-playing-override="isPlaying"
       />
     </CardContent>

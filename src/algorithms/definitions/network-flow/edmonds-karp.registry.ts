@@ -246,6 +246,7 @@ export const edmondsKarpRegistry: AlgorithmDefinition = {
   title: 'Edmonds-Karp 最大流',
   description: 'Ford-Fulkerson 的 BFS 变体，每次用 BFS 寻找最短增广路径。',
   categories: ['network-flow'],
+  comparisonGroup: 'max-flow',
   visualization: 'network-flow',
   createSteps: () => buildEdmondsKarpSteps(),
 };

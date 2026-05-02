@@ -1,30 +1,29 @@
 import { computed, type Ref } from 'vue';
 import { resolveAlgorithmBySlug } from '@/algorithms/registry';
 import { useAlgorithmStepSelection } from '@/composables/useAlgorithmStepSelection';
-import type { AlgorithmCategory } from '@/types/algorithm';
+import type { ComparisonGroup } from '@/types/algorithm';
 
 interface UseCompareSideOptions {
   side: 'left' | 'right';
   slug: Ref<string>;
-  category: Ref<AlgorithmCategory>;
+  group: Ref<ComparisonGroup>;
   currentStep: Ref<number>;
 }
 
 export function useCompareSide(options: UseCompareSideOptions) {
   const algorithm = computed(() => {
     const candidate = resolveAlgorithmBySlug(options.slug.value);
-    if (!candidate || !candidate.categories.includes(options.category.value)) {
+    if (!candidate || candidate.comparisonGroup !== options.group.value) {
       return null;
     }
     return candidate;
   });
 
   const steps = computed(() => algorithm.value?.createSteps() ?? []);
-  const { stepIndex, step, sortingStep, graphStep, treeStep, hanoiStep } =
-    useAlgorithmStepSelection({
-      steps,
-      currentStep: options.currentStep,
-    });
+  const { stepIndex, step, sortingStep, graphStep, networkFlowStep } = useAlgorithmStepSelection({
+    steps,
+    currentStep: options.currentStep,
+  });
 
   const graphAlgorithmKey = computed(() => {
     if (!algorithm.value || algorithm.value.visualization !== 'graph') {
@@ -44,8 +43,7 @@ export function useCompareSide(options: UseCompareSideOptions) {
     step,
     sortingStep,
     graphStep,
-    treeStep,
-    hanoiStep,
+    networkFlowStep,
     graphAlgorithmKey,
     completed,
   };

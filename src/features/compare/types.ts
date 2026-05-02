@@ -1,4 +1,4 @@
-import type { AlgorithmCategory } from '@/types/algorithm';
+import type { ComparisonGroup } from '@/types/algorithm';
 import type { LocationQueryValue } from 'vue-router';
 
 export type CompareRouteQueryValue = LocationQueryValue | LocationQueryValue[] | undefined;
@@ -18,7 +18,7 @@ export interface CompareSelectionChangeInput {
 }
 
 export interface CompareSyncResult extends CompareRouteQuery {
-  category: AlgorithmCategory;
+  category: ComparisonGroup;
   needsRouteFix: boolean;
 }
 

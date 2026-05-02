@@ -45,6 +45,7 @@ export const dfsRegistry: AlgorithmDefinition = {
   title: '深度优先搜索（DFS）',
   description: '以栈/递归为核心沿路径深入访问图节点。',
   categories: ['graphs'],
+  comparisonGroup: 'graph-traversal',
   visualization: 'graph',
   createSteps: () => buildDfsSteps(getGraphStartNode()),
 };

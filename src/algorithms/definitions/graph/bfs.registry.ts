@@ -45,6 +45,7 @@ export const bfsRegistry: AlgorithmDefinition = {
   title: '广度优先搜索（BFS）',
   description: '以队列为核心按层访问图节点。',
   categories: ['graphs'],
+  comparisonGroup: 'graph-traversal',
   visualization: 'graph',
   createSteps: () => buildBfsSteps(getGraphStartNode()),
 };

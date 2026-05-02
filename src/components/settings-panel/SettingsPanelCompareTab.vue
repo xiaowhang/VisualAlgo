@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { isAlgorithmCategory } from '@/algorithms/registry';
-import type { AlgorithmCategory } from '@/types/algorithm';
+import { isComparisonGroup } from '@/algorithms/registry';
+import type { ComparisonGroup } from '@/types/algorithm';
 import type { AlgorithmMenuItem } from '@/algorithms/registry/types';
 
 interface Props {
-  compareCategory: AlgorithmCategory | null;
-  compareDefaultCategory: AlgorithmCategory;
+  compareGroup: ComparisonGroup | null;
+  compareDefaultGroup: ComparisonGroup;
   compareOptions: AlgorithmMenuItem[];
   compareLeftSlug: string;
   compareRightSlug: string;
@@ -20,7 +20,7 @@ interface Props {
 }
 
 interface Emits {
-  (event: 'update-category', value: AlgorithmCategory): void;
+  (event: 'update-group', value: ComparisonGroup): void;
   (event: 'update-left', value: string): void;
   (event: 'update-right', value: string): void;
   (event: 'swap'): void;
@@ -30,32 +30,31 @@ interface Emits {
 const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
 
-function emitCategoryUpdate(value: unknown) {
-  if (typeof value !== 'string' || !isAlgorithmCategory(value)) {
+function emitGroupUpdate(value: unknown) {
+  if (typeof value !== 'string' || !isComparisonGroup(value)) {
     return;
   }
 
-  emit('update-category', value);
+  emit('update-group', value);
 }
 </script>
 
 <template>
   <div class="space-y-4">
     <FieldSet>
-      <FieldLegend>算法组</FieldLegend>
+      <FieldLegend>对比组</FieldLegend>
       <FieldContent>
         <Select
-          :model-value="props.compareCategory ?? props.compareDefaultCategory"
-          @update:model-value="emitCategoryUpdate"
+          :model-value="props.compareGroup ?? props.compareDefaultGroup"
+          @update:model-value="emitGroupUpdate"
         >
           <SelectTrigger class="w-full">
-            <SelectValue placeholder="选择算法组" />
+            <SelectValue placeholder="选择对比组" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="sorting">排序算法</SelectItem>
-            <SelectItem value="graphs">图算法</SelectItem>
-            <SelectItem value="trees">树算法</SelectItem>
-            <SelectItem value="divide-conquer">分治算法</SelectItem>
+            <SelectItem value="graph-traversal">图遍历</SelectItem>
+            <SelectItem value="max-flow">最大流</SelectItem>
           </SelectContent>
         </Select>
       </FieldContent>

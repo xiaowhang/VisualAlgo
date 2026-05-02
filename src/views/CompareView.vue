@@ -36,8 +36,7 @@ const {
         :visualization="leftVisualization"
         :sorting-step="leftSide.sortingStep.value"
         :graph-step="leftSide.graphStep.value"
-        :tree-step="leftSide.treeStep.value"
-        :hanoi-step="leftSide.hanoiStep.value"
+        :network-flow-step="leftSide.networkFlowStep.value"
         :graph-algorithm-key="leftSide.graphAlgorithmKey.value"
         :is-playing="playback.isPlaying.value"
       />
@@ -49,8 +48,7 @@ const {
         :visualization="rightVisualization"
         :sorting-step="rightSide.sortingStep.value"
         :graph-step="rightSide.graphStep.value"
-        :tree-step="rightSide.treeStep.value"
-        :hanoi-step="rightSide.hanoiStep.value"
+        :network-flow-step="rightSide.networkFlowStep.value"
         :graph-algorithm-key="rightSide.graphAlgorithmKey.value"
         :is-playing="playback.isPlaying.value"
       />

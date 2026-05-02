@@ -2,7 +2,7 @@ import { computed, nextTick, ref, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useRoute } from 'vue-router';
 import {
-  getCompareOptionsByCategory,
+  getCompareOptionsByGroup,
   findAlgorithm,
   resolveAlgorithmBySlug,
 } from '@/algorithms/registry';
@@ -16,10 +16,10 @@ export function useSettingsPanelViewModel() {
   const playbackRefs = storeToRefs(playbackStore);
 
   const {
-    compareCategory,
+    compareGroup,
     compareLeftSlug,
     compareRightSlug,
-    handleCompareCategorySwitch,
+    handleCompareGroupSwitch,
     handleCompareLeftChange,
     handleCompareRightChange,
     handleCompareSwap,
@@ -38,19 +38,19 @@ export function useSettingsPanelViewModel() {
 
   const isCompareView = computed(() => route.name === 'CompareView');
 
-  const visibleCompareCategory = computed(() => {
+  const visibleCompareGroup = computed(() => {
     if (!isCompareView.value) {
       return null;
     }
 
-    return compareCategory.value;
+    return compareGroup.value;
   });
 
   const compareOptions = computed(() => {
-    if (!visibleCompareCategory.value) {
+    if (!visibleCompareGroup.value) {
       return [];
     }
-    return getCompareOptionsByCategory(visibleCompareCategory.value);
+    return getCompareOptionsByGroup(visibleCompareGroup.value);
   });
 
   const compareLeftAlgorithm = computed(() => resolveAlgorithmBySlug(compareLeftSlug.value));
@@ -122,62 +122,44 @@ export function useSettingsPanelViewModel() {
 
   const isSortingAlgorithm = computed(
     () =>
-      (isCompareView.value && visibleCompareCategory.value === 'sorting') ||
+      (isCompareView.value && visibleCompareGroup.value === 'sorting') ||
       activeAlgorithm.value?.visualization === 'sorting'
   );
 
   const isGraphAlgorithm = computed(
     () =>
-      (isCompareView.value && visibleCompareCategory.value === 'graphs') ||
+      (isCompareView.value && visibleCompareGroup.value === 'graph-traversal') ||
       activeAlgorithm.value?.visualization === 'graph'
   );
 
-  const isTreeAlgorithm = computed(
-    () =>
-      (isCompareView.value && visibleCompareCategory.value === 'trees') ||
-      activeAlgorithm.value?.visualization === 'tree'
-  );
+  const isTreeAlgorithm = computed(() => activeAlgorithm.value?.visualization === 'tree');
 
   const isDivideConquerAlgorithm = computed(
-    () =>
-      (isCompareView.value && visibleCompareCategory.value === 'divide-conquer') ||
-      (activeAlgorithm.value?.categories.includes('divide-conquer') ?? false)
+    () => activeAlgorithm.value?.categories.includes('divide-conquer') ?? false
   );
 
   const isDpAlgorithm = computed(
-    () =>
-      (isCompareView.value && visibleCompareCategory.value === 'dynamic-programming') ||
-      (activeAlgorithm.value?.categories.includes('dynamic-programming') ?? false)
+    () => activeAlgorithm.value?.categories.includes('dynamic-programming') ?? false
   );
 
-  const isHanoiAlgorithm = computed(
-    () =>
-      (isCompareView.value && visibleCompareCategory.value === 'divide-conquer') ||
-      activeAlgorithm.value?.visualization === 'hanoi'
-  );
+  const isHanoiAlgorithm = computed(() => activeAlgorithm.value?.visualization === 'hanoi');
 
   const isGreedyAlgorithm = computed(
-    () =>
-      (isCompareView.value && visibleCompareCategory.value === 'greedy') ||
-      (activeAlgorithm.value?.categories.includes('greedy') ?? false)
+    () => activeAlgorithm.value?.categories.includes('greedy') ?? false
   );
 
   const isBacktrackingAlgorithm = computed(
-    () =>
-      (isCompareView.value && visibleCompareCategory.value === 'backtracking') ||
-      (activeAlgorithm.value?.categories.includes('backtracking') ?? false)
+    () => activeAlgorithm.value?.categories.includes('backtracking') ?? false
   );
 
   const isNetworkFlowAlgorithm = computed(
     () =>
-      (isCompareView.value && visibleCompareCategory.value === 'network-flow') ||
+      (isCompareView.value && visibleCompareGroup.value === 'max-flow') ||
       (activeAlgorithm.value?.categories.includes('network-flow') ?? false)
   );
 
   const isLpAlgorithm = computed(
-    () =>
-      (isCompareView.value && visibleCompareCategory.value === 'linear-programming') ||
-      (activeAlgorithm.value?.categories.includes('linear-programming') ?? false)
+    () => activeAlgorithm.value?.categories.includes('linear-programming') ?? false
   );
 
   const greedyAlgorithmSlug = computed(() => activeAlgorithm.value?.slug ?? '');
@@ -204,14 +186,8 @@ export function useSettingsPanelViewModel() {
 
   const panelTitle = computed(() => {
     if (isCompareView.value) {
-      if (visibleCompareCategory.value === 'graphs') return '图算法对比';
-      if (visibleCompareCategory.value === 'trees') return '树算法对比';
-      if (visibleCompareCategory.value === 'divide-conquer') return '分治算法对比';
-      if (visibleCompareCategory.value === 'dynamic-programming') return '动态规划对比';
-      if (visibleCompareCategory.value === 'greedy') return '贪心算法对比';
-      if (visibleCompareCategory.value === 'backtracking') return '回溯算法对比';
-      if (visibleCompareCategory.value === 'network-flow') return '网络流对比';
-      if (visibleCompareCategory.value === 'linear-programming') return '线性规划对比';
+      if (visibleCompareGroup.value === 'graph-traversal') return '图遍历算法对比';
+      if (visibleCompareGroup.value === 'max-flow') return '最大流算法对比';
       return '排序算法对比';
     }
     return activeAlgorithm.value?.title ?? '算法未找到';
@@ -219,29 +195,11 @@ export function useSettingsPanelViewModel() {
 
   const panelDescription = computed(() => {
     if (isCompareView.value) {
-      if (visibleCompareCategory.value === 'graphs') {
+      if (visibleCompareGroup.value === 'graph-traversal') {
         return '对比模式共享同一份图输入。修改后会同时影响左右算法。';
       }
-      if (visibleCompareCategory.value === 'trees') {
-        return '对比模式共享同一份树输入。修改后会同时影响左右算法。';
-      }
-      if (visibleCompareCategory.value === 'divide-conquer') {
-        return '对比模式共享同一份输入。修改后会同时影响左右算法。';
-      }
-      if (visibleCompareCategory.value === 'dynamic-programming') {
-        return '对比模式共享同一份输入。修改后会同时影响左右算法。';
-      }
-      if (visibleCompareCategory.value === 'greedy') {
-        return '对比模式共享同一份输入。修改后会同时影响左右算法。';
-      }
-      if (visibleCompareCategory.value === 'backtracking') {
-        return '对比模式共享同一份输入。修改后会同时影响左右算法。';
-      }
-      if (visibleCompareCategory.value === 'network-flow') {
+      if (visibleCompareGroup.value === 'max-flow') {
         return '对比模式共享同一份网络输入。修改后会同时影响左右算法。';
-      }
-      if (visibleCompareCategory.value === 'linear-programming') {
-        return '对比模式共享同一份 LP 输入。修改后会同时影响左右算法。';
       }
       return '对比模式共享同一份排序输入。修改后会同时影响左右算法。';
     }
@@ -262,14 +220,8 @@ export function useSettingsPanelViewModel() {
 
   const modeLabel = computed(() => {
     if (isCompareView.value) {
-      if (visibleCompareCategory.value === 'graphs') return '图算法对比模式';
-      if (visibleCompareCategory.value === 'trees') return '树算法对比模式';
-      if (visibleCompareCategory.value === 'divide-conquer') return '分治算法对比模式';
-      if (visibleCompareCategory.value === 'dynamic-programming') return '动态规划对比模式';
-      if (visibleCompareCategory.value === 'greedy') return '贪心算法对比模式';
-      if (visibleCompareCategory.value === 'backtracking') return '回溯算法对比模式';
-      if (visibleCompareCategory.value === 'network-flow') return '网络流对比模式';
-      if (visibleCompareCategory.value === 'linear-programming') return '线性规划对比模式';
+      if (visibleCompareGroup.value === 'graph-traversal') return '图遍历对比模式';
+      if (visibleCompareGroup.value === 'max-flow') return '最大流对比模式';
       return '排序算法对比模式';
     }
     if (isTreeAlgorithm.value) return '树算法';
@@ -304,13 +256,13 @@ export function useSettingsPanelViewModel() {
   return {
     compareLeftSlug,
     compareRightSlug,
-    handleCompareCategorySwitch,
+    handleCompareGroupSwitch,
     handleCompareLeftChange,
     handleCompareRightChange,
     handleCompareSwap,
     playback,
     isCompareView,
-    visibleCompareCategory,
+    visibleCompareGroup,
     compareOptions,
     compareLeftCurrentStep,
     compareRightCurrentStep,

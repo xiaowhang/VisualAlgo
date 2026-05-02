@@ -71,6 +71,7 @@ export const quickSortRegistry: AlgorithmDefinition = {
   title: '快速排序',
   description: '通过分区策略将数组递归拆分并完成排序。',
   categories: ['sorting', 'divide-conquer'],
+  comparisonGroup: 'sorting',
   visualization: 'sorting',
   createSteps: () => buildQuickSortSteps(getSortingInput()),
 };
