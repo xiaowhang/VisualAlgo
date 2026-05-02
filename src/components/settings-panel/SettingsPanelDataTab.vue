@@ -61,8 +61,6 @@ interface Emits {
   (event: 'apply-hanoi-disk-count'): void;
   (event: 'apply-custom-data'): void;
   (event: 'apply-huffman-input'): void;
-  (event: 'randomize-huffman'): void;
-  (event: 'randomize-activity'): void;
   (event: 'apply-dp-lcs'): void;
   (event: 'apply-dp-knapsack'): void;
   (event: 'apply-dp-investment'): void;
@@ -132,8 +130,6 @@ const hanoiState = computed<ValidationState>(() => ({
       :activity-interval-count="0"
       :huffman-validation="props.huffmanValidation"
       @apply-huffman-input="emit('apply-huffman-input')"
-      @randomize-huffman="emit('randomize-huffman')"
-      @randomize-activity="emit('randomize-activity')"
     />
 
     <DpDataSection
@@ -149,7 +145,6 @@ const hanoiState = computed<ValidationState>(() => ({
       @apply-dp-lcs="emit('apply-dp-lcs')"
       @apply-dp-knapsack="emit('apply-dp-knapsack')"
       @apply-dp-investment="emit('apply-dp-investment')"
-      @randomize-dp="emit('randomize-dp')"
     />
 
     <FieldSet v-if="props.isHanoiAlgorithm">

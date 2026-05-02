@@ -14,8 +14,6 @@ const props = defineProps<Props>();
 
 interface Emits {
   (event: 'apply-huffman-input'): void;
-  (event: 'randomize-huffman'): void;
-  (event: 'randomize-activity'): void;
   (event: 'update:huffmanInput', value: string): void;
 }
 
@@ -37,7 +35,6 @@ const emit = defineEmits<Emits>();
           <Button variant="outline" size="sm" @click="emit('apply-huffman-input')"> 应用 </Button>
         </div>
         <ValidationMessage :state="props.huffmanValidation" />
-        <Button variant="outline" size="sm" @click="emit('randomize-huffman')"> 随机字符串 </Button>
       </FieldGroup>
     </FieldContent>
   </FieldSet>
@@ -50,7 +47,6 @@ const emit = defineEmits<Emits>();
         <FieldDescription class="text-xs text-muted-foreground">
           范围：{{ ACTIVITY_MIN_INTERVALS }} - {{ ACTIVITY_MAX_INTERVALS }}
         </FieldDescription>
-        <Button variant="outline" size="sm" @click="emit('randomize-activity')"> 随机生成 </Button>
       </FieldGroup>
     </FieldContent>
   </FieldSet>

@@ -59,8 +59,6 @@ const {
   huffmanMessage,
   huffmanMessageError,
   applyHuffmanInput,
-  randomizeHuffman,
-  randomizeActivity,
   dpLcsStringXInput,
   dpLcsStringYInput,
   dpKnapsackCapacityInput,
@@ -72,7 +70,6 @@ const {
   applyDpLcs,
   applyDpKnapsack,
   applyDpInvestment,
-  randomizeDp,
   applySizeFromInput,
   applyGraphNodeCountFromInput,
   applyGraphStartNode,
@@ -178,12 +175,9 @@ void panelScrollRef;
           @apply-hanoi-disk-count="applyHanoiDiskCount"
           @apply-custom-data="applyCustomData"
           @apply-huffman-input="applyHuffmanInput"
-          @randomize-huffman="randomizeHuffman"
-          @randomize-activity="randomizeActivity"
           @apply-dp-lcs="applyDpLcs"
           @apply-dp-knapsack="applyDpKnapsack"
           @apply-dp-investment="applyDpInvestment"
-          @randomize-dp="randomizeDp"
         />
       </TabsContent>
 

@@ -31,7 +31,6 @@ interface Emits {
   (event: 'apply-dp-lcs'): void;
   (event: 'apply-dp-knapsack'): void;
   (event: 'apply-dp-investment'): void;
-  (event: 'randomize-dp'): void;
   (event: 'update:dpLcsStringX', value: string): void;
   (event: 'update:dpLcsStringY', value: string): void;
   (event: 'update:dpKnapsackCapacity', value: string): void;
@@ -69,7 +68,6 @@ const emit = defineEmits<Emits>();
           长度范围：{{ DP_LCS_STRING_LEN_MIN }} - {{ DP_LCS_STRING_LEN_MAX }}
         </FieldDescription>
         <ValidationMessage :state="props.dpValidation" />
-        <Button variant="outline" size="sm" @click="emit('randomize-dp')"> 随机生成 </Button>
       </FieldGroup>
     </FieldContent>
   </FieldSet>
@@ -111,7 +109,6 @@ const emit = defineEmits<Emits>();
           }}-{{ DP_KNAPSACK_ITEMS_MAX }}
         </FieldDescription>
         <ValidationMessage :state="props.dpValidation" />
-        <Button variant="outline" size="sm" @click="emit('randomize-dp')"> 随机生成 </Button>
       </FieldGroup>
     </FieldContent>
   </FieldSet>
@@ -153,7 +150,6 @@ const emit = defineEmits<Emits>();
           }}
         </FieldDescription>
         <ValidationMessage :state="props.dpValidation" />
-        <Button variant="outline" size="sm" @click="emit('randomize-dp')"> 随机生成 </Button>
       </FieldGroup>
     </FieldContent>
   </FieldSet>
