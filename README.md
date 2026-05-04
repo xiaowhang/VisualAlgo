@@ -11,29 +11,29 @@
 
 ## 算法列表
 
-| 分类 | 算法 |
-|------|------|
-| 排序 | 冒泡排序、插入排序、选择排序、归并排序、快速排序、堆排序 |
-| 图遍历 | 广度优先搜索（BFS）、深度优先搜索（DFS） |
-| 树 | 二叉搜索树查找 |
-| 分治 | 二分搜索、汉诺塔 |
-| 动态规划 | 0-1 背包、最长公共子序列（LCS）、投资问题 |
-| 贪心 | Dijkstra 最短路径、Huffman 编码、活动选择 |
-| 回溯 | N 皇后、子集和 |
-| 网络流 | Ford-Fulkerson、Edmonds-Karp、最小割 |
-| 线性规划 | 单纯形法、对偶单纯形法、图解法 |
+| 分类     | 算法                                                     |
+| -------- | -------------------------------------------------------- |
+| 排序     | 冒泡排序、插入排序、选择排序、归并排序、快速排序、堆排序 |
+| 图遍历   | 广度优先搜索（BFS）、深度优先搜索（DFS）                 |
+| 树       | 二叉搜索树查找                                           |
+| 分治     | 二分搜索、汉诺塔                                         |
+| 动态规划 | 0-1 背包、最长公共子序列（LCS）、投资问题                |
+| 贪心     | Dijkstra 最短路径、Huffman 编码、活动选择                |
+| 回溯     | N 皇后、子集和                                           |
+| 网络流   | Ford-Fulkerson、Edmonds-Karp、最小割                     |
+| 线性规划 | 单纯形法、对偶单纯形法、图解法                           |
 
 ## 技术栈
 
-| 层 | 技术 |
-|----|------|
-| 框架 | Vue 3（Composition API）+ TypeScript |
-| 构建 | Vite 8 |
-| 状态管理 | Pinia |
-| 路由 | Vue Router |
-| 可视化 | D3.js |
-| UI | Tailwind CSS v4 + Reka UI（shadcn-vue 风格） |
-| Lint / 格式化 | oxlint + oxfmt |
+| 层            | 技术                                         |
+| ------------- | -------------------------------------------- |
+| 框架          | Vue 3（Composition API）+ TypeScript         |
+| 构建          | Vite 8                                       |
+| 状态管理      | Pinia                                        |
+| 路由          | Vue Router                                   |
+| 可视化        | D3.js                                        |
+| UI            | Tailwind CSS v4 + Reka UI（shadcn-vue 风格） |
+| Lint / 格式化 | oxlint + oxfmt                               |
 
 ## 快速开始
 
@@ -47,15 +47,15 @@ pnpm dev
 
 ## 常用命令
 
-| 命令 | 说明 |
-|------|------|
-| `pnpm dev` | 启动 Vite 开发服务器 |
-| `pnpm build` | 类型检查 + Vite 构建 |
-| `pnpm preview` | 预览构建结果 |
-| `pnpm lint` | oxlint 检查 |
-| `pnpm lint:fix` | oxlint 并自动修复 |
-| `pnpm fmt` | oxfmt 格式化 |
-| `pnpm fmt:check` | 检查格式（CI 用） |
+| 命令             | 说明                 |
+| ---------------- | -------------------- |
+| `pnpm dev`       | 启动 Vite 开发服务器 |
+| `pnpm build`     | 类型检查 + Vite 构建 |
+| `pnpm preview`   | 预览构建结果         |
+| `pnpm lint`      | oxlint 检查          |
+| `pnpm lint:fix`  | oxlint 并自动修复    |
+| `pnpm fmt`       | oxfmt 格式化         |
+| `pnpm fmt:check` | 检查格式（CI 用）    |
 
 ## 项目结构
 

@@ -11,7 +11,14 @@
     "lint:fix": "oxlint --fix",
     "fmt": "oxfmt",
     "fmt:check": "oxfmt --check",
-    "prepare": "husky"
+    "prepare": "husky",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:compat": "vitest run -- '**/*.compat.test.ts'",
+    "test:bench": "vitest bench --config vitest.bench.config.ts",
+    "test:e2e:perf": "pnpm build && playwright test",
+    "test:perf": "pnpm test:bench && pnpm test:e2e:perf"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.2.2",
@@ -29,10 +36,14 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@playwright/test": "^1.59.1",
     "@types/d3": "^7.4.3",
     "@types/node": "^24.12.0",
     "@vitejs/plugin-vue": "^6.0.5",
+    "@vitest/coverage-v8": "^4.1.5",
+    "@vue/test-utils": "^2.4.10",
     "@vue/tsconfig": "^0.9.0",
+    "happy-dom": "^20.9.0",
     "husky": "^9.1.7",
     "lint-staged": "^16.4.0",
     "oxfmt": "^0.41.0",
@@ -43,6 +54,7 @@
     "unplugin-auto-import": "^21.0.0",
     "unplugin-vue-components": "^31.0.0",
     "vite": "^8.0.0",
+    "vitest": "^4.1.5",
     "vue-tsc": "^3.2.5"
   },
   "lint-staged": {
