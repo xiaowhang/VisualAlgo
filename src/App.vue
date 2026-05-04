@@ -15,6 +15,6 @@ const showGlobalPlaybackController = computed(() => route.meta.hideGlobalPlaybac
       </div>
       <PlaybackController v-if="showGlobalPlaybackController" class="border-t border-border/70" />
     </main>
-    <SettingsPanel />
+    <SettingsPanel v-if="showGlobalPlaybackController" />
   </SidebarProvider>
 </template>
