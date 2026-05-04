@@ -12,9 +12,15 @@ function quickSort(values: number[], left: number, right: number, steps: Algorit
 
   for (let current = left; current < right; current += 1) {
     steps.push(
-      createSortingStep(values, [current], [], `比较索引 ${current} 与基准值 ${pivot}`, {
-        pivotIndices: [right],
-      })
+      createSortingStep(
+        values,
+        [current],
+        [],
+        `比较索引 ${current}(${values[current]}) 与基准值 ${pivot}`,
+        {
+          pivotIndices: [right],
+        }
+      )
     );
 
     if (values[current] < pivot) {
@@ -25,7 +31,7 @@ function quickSort(values: number[], left: number, right: number, steps: Algorit
             values,
             [partitionIndex, current],
             [partitionIndex, current],
-            `交换到小于基准区间：${partitionIndex} 与 ${current}`
+            `交换到小于基准区间：索引 ${partitionIndex}(${values[partitionIndex]}) 与索引 ${current}(${values[current]})`
           )
         );
       }
@@ -40,7 +46,7 @@ function quickSort(values: number[], left: number, right: number, steps: Algorit
       values,
       [partitionIndex, right],
       [partitionIndex, right],
-      `基准值归位到索引 ${partitionIndex}`,
+      `基准值归位到索引 ${partitionIndex}(${values[partitionIndex]})`,
       {
         pivotIndices: [partitionIndex],
       }

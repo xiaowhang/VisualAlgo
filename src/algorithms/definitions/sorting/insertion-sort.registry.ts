@@ -16,7 +16,7 @@ function buildInsertionSortSteps(source: number[]): AlgorithmStep[] {
           values,
           [current - 1, current],
           [],
-          `比较索引 ${current - 1} 与 ${current}`
+          `比较索引 ${current - 1}(${values[current - 1]}) 与 ${current}(${values[current]})`
         )
       );
 
@@ -26,7 +26,7 @@ function buildInsertionSortSteps(source: number[]): AlgorithmStep[] {
           values,
           [current - 1, current],
           [current - 1, current],
-          `向左交换元素到索引 ${current - 1}`
+          `向左交换元素：索引 ${current}(${values[current]}) 与 ${current - 1}(${values[current - 1]})`
         )
       );
 

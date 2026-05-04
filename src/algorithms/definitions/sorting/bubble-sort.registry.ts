@@ -9,7 +9,12 @@ function buildBubbleSortSteps(source: number[]): AlgorithmStep[] {
   for (let outer = 0; outer < values.length - 1; outer += 1) {
     for (let inner = 0; inner < values.length - 1 - outer; inner += 1) {
       steps.push(
-        createSortingStep(values, [inner, inner + 1], [], `比较索引 ${inner} 与 ${inner + 1}`)
+        createSortingStep(
+          values,
+          [inner, inner + 1],
+          [],
+          `比较索引 ${inner}(${values[inner]}) 与 ${inner + 1}(${values[inner + 1]})`
+        )
       );
 
       if (values[inner] > values[inner + 1]) {
@@ -19,7 +24,7 @@ function buildBubbleSortSteps(source: number[]): AlgorithmStep[] {
             values,
             [inner, inner + 1],
             [inner, inner + 1],
-            `交换 ${inner} 与 ${inner + 1}`
+            `交换索引 ${inner}(${values[inner]}) 与索引 ${inner + 1}(${values[inner + 1]})`
           )
         );
       }

@@ -21,7 +21,7 @@ function merge(
         values,
         [left + leftIndex, middle + 1 + rightIndex],
         [],
-        `比较分区元素 ${leftBuffer[leftIndex]} 与 ${rightBuffer[rightIndex]}`
+        `比较索引 ${left + leftIndex}(${leftBuffer[leftIndex]}) 与 ${middle + 1 + rightIndex}(${rightBuffer[rightIndex]})`
       )
     );
 

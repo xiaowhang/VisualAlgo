@@ -16,7 +16,14 @@ function buildSelectionSortSteps(source: number[]): AlgorithmStep[] {
     );
 
     for (let j = i + 1; j < values.length; j += 1) {
-      steps.push(createSortingStep(values, [minIdx, j], [], `比较索引 ${minIdx} 与索引 ${j}`));
+      steps.push(
+        createSortingStep(
+          values,
+          [minIdx, j],
+          [],
+          `比较索引 ${minIdx}(${values[minIdx]}) 与索引 ${j}(${values[j]})`
+        )
+      );
 
       if (values[j] < values[minIdx]) {
         minIdx = j;
@@ -29,7 +36,12 @@ function buildSelectionSortSteps(source: number[]): AlgorithmStep[] {
     if (minIdx !== i) {
       [values[i], values[minIdx]] = [values[minIdx], values[i]];
       steps.push(
-        createSortingStep(values, [i, minIdx], [i, minIdx], `交换索引 ${i} 与索引 ${minIdx}`)
+        createSortingStep(
+          values,
+          [i, minIdx],
+          [i, minIdx],
+          `交换索引 ${i}(${values[i]}) 与索引 ${minIdx}(${values[minIdx]})`
+        )
       );
     }
   }
